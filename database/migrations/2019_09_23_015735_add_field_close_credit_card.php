@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePasswordResetsTable extends Migration
+class AddFieldCloseCreditCard extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,8 @@ class CreatePasswordResetsTable extends Migration
      */
     public function up()
     {
-        Schema::create('maliin.password_resets', function (Blueprint $table) {
-            $table->string('email')->index();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+        Schema::table('maliin.credit_cards', function (Blueprint $table) {
+            $table->integer('close_day')->comment('Dia em que fecha a fatura do cartão')->default(1);
         });
     }
 
@@ -27,6 +25,6 @@ class CreatePasswordResetsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('password_resets');
+        //
     }
 }

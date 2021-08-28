@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersTable extends Migration
 {
@@ -13,14 +13,20 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+        Schema::create('maliin.users', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('first_name',255);
+            $table->string('last_name',255);
+            $table->string('email',255)->unique();
+            $table->string('document',255)->unique();
+            $table->string('gender',20)->nullable();
+            $table->string('phone',15)->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            $table->text( 'api_token')->unique();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

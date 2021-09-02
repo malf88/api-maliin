@@ -49,13 +49,13 @@ class QueryBills extends Model
         'month_reference' => 'integer'
     ];
     public function creditcard(){
-        return $this->belongsTo('App\CreditCard');
+        return $this->belongsTo('App\Models\CreditCard');
     }
     public function category(){
-        return $this->belongsTo('App\Category');
+        return $this->belongsTo('App\Models\Category');
     }
     public function bill_parent(){
-        return $this->belongsTo('App\Bill','bill_parent_id');
+        return $this->belongsTo('App\Models\Bill','bill_parent_id');
     }
     public function is_bill_parent(){
         return (Bill::where('bill_parent_id','=',$this->id)->count() > 0);

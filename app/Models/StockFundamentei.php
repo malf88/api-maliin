@@ -20,7 +20,7 @@ class StockFundamentei extends Model
         'json_fundamentei'
     ];
     public function stock(){
-        return $this->belongsTo('App\Stock');
+        return $this->belongsTo('App\Models\Stock');
     }
 
 }

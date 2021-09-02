@@ -47,14 +47,14 @@ class Investment extends Model
     ];
 
     public function wallet(){
-        return $this->belongsTo('App\Wallet');
+        return $this->belongsTo('App\Models\Wallet');
     }
 
     public function stock(){
-        return $this->belongsTo('App\Stock');
+        return $this->belongsTo('App\Models\Stock');
     }
 
     public function liquidates(){
-        return $this->hasMany('App\Liquidate');
+        return $this->hasMany('App\Models\Liquidate');
     }
 }

@@ -31,6 +31,6 @@ class Invoice extends Model
 
     ];
     public function creditcard(){
-        return $this->belongsTo('App\CreditCard');
+        return $this->belongsTo('App\Models\CreditCard');
     }
 }

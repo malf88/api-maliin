@@ -10,7 +10,6 @@ class AccountRepository
 {
     public function getAccountFromUser(User $user):Collection{
         $listAccount = $user->accounts;
-
         return $listAccount;
     }
     public function saveAccount(User $user,array $accountInfo):Account{

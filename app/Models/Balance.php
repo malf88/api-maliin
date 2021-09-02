@@ -28,6 +28,6 @@ class Balance extends Model
         'amount' => 'double'
     ];
     public function wallet(){
-        return $this->belongsTo('App\Wallet');
+        return $this->belongsTo('App\Models\Wallet');
     }
 }

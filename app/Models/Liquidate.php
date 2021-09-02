@@ -34,7 +34,7 @@ class Liquidate extends Model
     ];
 
     public function investment(){
-        return $this->belongsTo('App\Investment');
+        return $this->belongsTo('App\Models\Investment');
     }
 
 }

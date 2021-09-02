@@ -61,14 +61,14 @@ class Bill extends Model
     ];
 
     public function category(){
-        return $this->belongsTo('App\Category');
+        return $this->belongsTo('App\Models\Category');
     }
 
     public function account(){
-        return $this->belongsTo('App\Account');
+        return $this->belongsTo('App\Models\Account');
     }
     public function bill_parent(){
-        return $this->belongsTo('App\Bill','bill_parent_id');
+        return $this->belongsTo('App\Models\Bill','bill_parent_id');
     }
     public function is_bill_parent(){
         return (Bill::where('bill_parent_id','=',$this->id)->count() > 0);

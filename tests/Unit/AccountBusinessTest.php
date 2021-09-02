@@ -3,33 +3,76 @@
 namespace Tests\Unit;
 
 use App\Models\Account;
+use App\Models\Bill;
 use App\Models\User;
 use App\Modules\Account\Bussines\AccountBusiness;
 use App\Modules\Account\Respository\AccountRepository;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use LogicException;
 
 class AccountBusinessTest extends TestCase
 {
+    private function factoryAccount(){
+        $accountInfo = [
+            'name'      => 'João',
+            'bank'      => '102 - Nu pagamentos SA',
+            'account'   =>  '23423'
+        ];
+
+        $billAcount1 = new Bill();
+        $billAcount1->pay_day = Carbon::today();
+        $billAcount1->amount = 100.00;
+
+        $billAcount2 = new Bill();
+        $billAcount2->pay_day = Carbon::today();
+        $billAcount2->amount = 100.00;
+
+        $billAcount3 = new Bill();
+        $billAcount3->amount = -100.00;
+
+        $account = $this->createPartialMock(Account::class,['bills','load']);
+
+        $billCollection = Collection::make([$billAcount1,$billAcount2,$billAcount3]);
+
+        $account
+            ->method('bills')
+            ->willReturn($billCollection);
+        $account
+            ->method('load')
+            ->with(['bills'])
+            ->willReturn($account);
+
+
+        $account->bills()->make([$billAcount1,$billAcount2,$billAcount3]);
+        $account->fill($accountInfo);
+
+        return Collection::make([$account]);
+
+    }
     /**
      * @test
      */
     public function deveListarContasDoUsuario(){
-
         $user = new User();
-
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
+
+        $accountFactory = $this->factoryAccount();
 
         $accountRepositoryMock->method('getAccountFromUser')
             ->with($user)
-            ->willReturn(new Collection());
+            ->willReturn($accountFactory);
+
         $account = new AccountBusiness($accountRepositoryMock);
         $listAccount = $account->getListAllAccounts($user);
 
         $this->assertIsIterable($listAccount);
+
+        $this->assertEquals(200.00,$listAccount->get(0)->total_balance);
+        $this->assertEquals(100.00,$listAccount->get(0)->total_estimated);
+        $this->assertCount(3,$listAccount->get(0)->bills());
     }
 
     /**
@@ -43,11 +86,13 @@ class AccountBusinessTest extends TestCase
 
         $accountRepositoryMock->method('getAccountFromUser')
             ->with($user)
-            ->willReturn(new Collection());
+            ->willReturn($this->factoryAccount());
         $account = new AccountBusiness($accountRepositoryMock);
         $listAccount = $account->getListAllAccountFromLoggedUser();
-
         $this->assertIsIterable($listAccount);
+        $this->assertEquals(200.00,$listAccount->get(0)->total_balance);
+        $this->assertEquals(100.00,$listAccount->get(0)->total_estimated);
+        $this->assertCount(3,$listAccount->get(0)->bills());
     }
 
     /**
@@ -69,6 +114,7 @@ class AccountBusinessTest extends TestCase
         $accountRepositoryMock->method('saveAccount')
             ->with($user,$accountInfo)
             ->willReturn($account);
+
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
         $newAccount = $accountBusiness->insertAccount($user,$accountInfo);
 

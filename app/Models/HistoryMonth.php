@@ -35,6 +35,6 @@ class HistoryMonth extends Model
     ];
 
     public function wallet(){
-        return $this->belongsTo('App\Wallet');
+        return $this->belongsTo('App\Models\Wallet');
     }
 }

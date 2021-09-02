@@ -32,21 +32,21 @@ class Wallet extends Model
     ];
 
     public function user(){
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\User');
     }
 
     public function balances(){
-        return $this->hasMany('App\Balance');
+        return $this->hasMany('App\Models\Balance');
     }
 
     public function investments(){
-        return $this->hasMany('App\Investment');
+        return $this->hasMany('App\Models\Investment');
     }
     public function histories(){
-        return $this->hasMany('App\History');
+        return $this->hasMany('App\Models\History');
     }
 
     public function historiesMonth(){
-        return $this->hasMany('App\HistoryMonth');
+        return $this->hasMany('App\Models\HistoryMonth');
     }
 }

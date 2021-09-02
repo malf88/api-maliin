@@ -17,5 +17,6 @@ class AccountController extends Controller
     public function index(Request $request)
     {
         return $this->accountServices->getListAllAccountFromLoggedUser();
+
     }
 }

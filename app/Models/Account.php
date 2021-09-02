@@ -23,6 +23,18 @@ class Account extends Model
         'account',
         'user_id'
     ];
+
+    protected $visible = [
+        'id',
+        'updated_at',
+        'deleted_at',
+        'created_at',
+        'name',
+        'bank',
+        'agency',
+        'account',
+        'user_id'
+    ];
     /**
      * The attributes that should be cast to native types.
      *
@@ -33,11 +45,11 @@ class Account extends Model
     ];
 
     public function bills(){
-        return $this->hasMany('App\Bill');
+        return $this->hasMany('App\Models\Bill');
     }
 
     public function user(){
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\User');
     }
 
 }

@@ -56,11 +56,11 @@ class Stock extends Model
     }
 
     public function stocksFundamentei(){
-        return $this->hasMany('App\StockFundamentei');
+        return $this->hasMany('App\Models\StockFundamentei');
     }
 
     public function earnings(){
-        return $this->hasMany('App\Earning');
+        return $this->hasMany('App\Models\Earning');
     }
 
     public function json_fundamentei()

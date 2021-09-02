@@ -13,7 +13,7 @@ class CreateTableStock extends Migration
      */
     public function up()
     {
-        DB::unprepared('CREATE SCHEMA investments');
+
         Schema::create('investments.stocks', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('ticker',255);

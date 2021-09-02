@@ -13,6 +13,8 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
+        DB::unprepared('CREATE SCHEMA IF NOT EXISTS  investments');
+        DB::unprepared('CREATE SCHEMA IF NOT EXISTS  maliin');
         Schema::create('maliin.users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('first_name',255);

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Modules\Account\Controllers\AccountController;
+use App\Modules\Account\Services\AccountService;
+use App\Modules\Account\Services\AccountServiceLocal;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+
     }
 
     /**
@@ -23,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+
     }
 }

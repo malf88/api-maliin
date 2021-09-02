@@ -22,7 +22,7 @@ return [
     'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
-
+    'Access-Control-Allow-Credential' => true,
     'allowed_headers' => ['*'],
 
     'exposed_headers' => [],

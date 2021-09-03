@@ -5,6 +5,7 @@ namespace App\Modules\Account\Respository;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class AccountRepository
 {
@@ -15,8 +16,9 @@ class AccountRepository
     public function saveAccount(User $user,array $accountInfo):Account{
         $account = new Account();
         $account->fill($accountInfo);
+
+        $account->user_id = $user->id;
         $account->save();
-        $account->user()->save($user);
         return $account;
     }
     public function updateAccount(int $id, array $accountInfo):Account{
@@ -28,5 +30,9 @@ class AccountRepository
     public function deleteAccount(int $id):bool{
         $account = Account::find($id);
         return $account->delete();
+    }
+
+    public function getAccountById(int $id):Account{
+        return Account::find($id);
     }
 }

@@ -33,4 +33,8 @@ class AccountService implements AccountServiceLocal
     public function deleteAccount(int $id):bool{
         return $this->accountBusiness->deleteAccount($id);
     }
+    public function getAccountById(int $id): Model
+    {
+        return $this->accountBusiness->getAccountById($id);
+    }
 }

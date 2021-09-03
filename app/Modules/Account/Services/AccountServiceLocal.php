@@ -19,4 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 
     public function deleteAccount(int $id): bool;
 
+    public function getAccountById(int $id):Model;
+
 }

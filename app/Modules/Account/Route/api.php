@@ -13,4 +13,12 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::delete('/{id}','AccountController@delete')->name('api.account.delete');
 
     });
+    Route::group(['prefix'=>'category'],function (){
+        Route::get('/','CategoryController@index')->name('api.category.list');
+        Route::post('/','CategoryController@insert')->name('api.category.insert');
+        Route::get('/{id}','CategoryController@show')->name('api.category.show');
+        Route::put('/{id}','CategoryController@update')->name('api.category.update');
+        Route::delete('/{id}','CategoryController@delete')->name('api.category.delete');
+
+    });
 });

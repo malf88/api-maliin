@@ -264,7 +264,7 @@ class AccountBusinessTest extends TestCase
     /**
      * @test
      */
-    public function deveRetornarUmaExcecaoParaContaNaoEncontrada()
+    public function deveRetornarUmaExcecaoParaContaNaoEncontradaAoBuscarContaInexistente()
     {
         $id = 2;
         $accounts = $this->factoryAccount();
@@ -285,7 +285,7 @@ class AccountBusinessTest extends TestCase
     /**
      * @test
      */
-    public function deveDispararExcecaoAoRemoverContaContaInexistente(){
+    public function deveDispararExcecaoAoRemoverContaInexistente(){
         $id = 2;
         $accounts = $this->factoryAccount();
 

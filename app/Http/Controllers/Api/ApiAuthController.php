@@ -9,6 +9,36 @@ use Illuminate\Support\Facades\Auth;
 
 class ApiAuthController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     tags={"Login"},
+     *     summary="Realiza o login do usuário",
+     *     description="Realiza o login do usuário e retorna um token",
+     *     path="/token",
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="string"
+     *                 ),
+     *                 example={"email": "teste@teste.com", "password": "12345"}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response="201",
+     *          description="Login aconteceu com sucesso",
+     *          @OA\JsonContent()
+     *      ),
+     * ),
+     *
+     */
     public function login(Request $request){
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([

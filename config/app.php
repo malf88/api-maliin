@@ -1,5 +1,18 @@
 <?php
-
+/**
+ * @OA\Info(title="Api para a aplicação Maliin", version="1.0")
+ * @OA\Server(
+ *     description="Local",
+ *     url="http://localhost/api/"
+ * )
+ * @OA\SecurityScheme(
+ *      securityScheme="bearerAuth",
+ *      in="header",
+ *      name="Authorization",
+ *      type="apiKey",
+ *      scheme="token"
+ * ),
+ */
 return [
 
     /*

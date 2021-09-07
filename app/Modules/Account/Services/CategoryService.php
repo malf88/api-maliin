@@ -5,6 +5,7 @@ namespace App\Modules\Account\Services;
 use App\Models\Category;
 use App\Models\User;
 use App\Modules\Account\Bussines\CategoryBusiness;
+use App\Modules\Account\ServicesLocal\CategoryServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 
 class CategoryService implements CategoryServiceLocal

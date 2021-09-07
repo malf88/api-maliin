@@ -4,6 +4,7 @@ namespace App\Modules\Account\Bussines;
 
 use App\Models\Account;
 use App\Models\User;
+use App\Modules\Account\Impl\AccountRepositoryInterface;
 use App\Modules\Account\Respository\AccountRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -16,8 +17,8 @@ use PhpParser\Node\Expr\AssignOp\Mod;
 
 class AccountBusiness
 {
-    private AccountRepository $accountRepository;
-    public function __construct(AccountRepository $accountRepository)
+    private AccountRepositoryInterface $accountRepository;
+    public function __construct(AccountRepositoryInterface $accountRepository)
     {
         $this->accountRepository = $accountRepository;
     }

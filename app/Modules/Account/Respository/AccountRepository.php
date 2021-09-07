@@ -4,10 +4,11 @@ namespace App\Modules\Account\Respository;
 
 use App\Models\Account;
 use App\Models\User;
+use App\Modules\Account\Impl\AccountRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-class AccountRepository
+class AccountRepository implements AccountRepositoryInterface
 {
     public function getAccountFromUser(User $user):Collection{
         $listAccount = $user->accounts;

@@ -4,9 +4,10 @@ namespace App\Modules\Account\Respository;
 
 use App\Models\Category;
 use App\Models\User;
+use App\Modules\Account\Impl\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
-class CategoryRepository
+class CategoryRepository implements CategoryRepositoryInterface
 {
     public function getCategoriesFromUser(User $user):Collection{
         return $user->categories()->get();
@@ -33,7 +34,7 @@ class CategoryRepository
         $category = Category::find($id);
         return $category->delete();
     }
-    public function getCategoryById(int $id){
+    public function getCategoryById(int $id):Category{
         return Category::find($id);
     }
 }

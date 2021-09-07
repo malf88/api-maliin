@@ -3,8 +3,7 @@
 namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Account\Services\AccountService;
-use App\Modules\Account\Services\AccountServiceLocal;
+use App\Modules\Account\ServicesLocal\AccountServiceLocal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

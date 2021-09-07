@@ -16,19 +16,19 @@ use App\Modules\Account\Services\CategoryService;
 use App\Modules\Account\ServicesLocal\CategoryServiceLocal;
 use Illuminate\Support\ServiceProvider;
 
-class AccountServiceProvider extends ServiceProvider
+class CategoryServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->app
-            ->when(AccountController::class)
-            ->needs(AccountServiceLocal::class)
-            ->give(AccountService::class);
 
         $this->app
-            ->when(AccountBusiness::class)
-            ->needs(AccountRepositoryInterface::class)
-            ->give(AccountRepository::class);
+            ->when(CategoryController::class)
+            ->needs(CategoryServiceLocal::class)
+            ->give(CategoryService::class);
+        $this->app
+            ->when(CategoryBusiness::class)
+            ->needs(CategoryRepositoryInterface::class)
+            ->give(CategoryRepository::class);
     }
 
 }

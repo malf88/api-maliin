@@ -4,7 +4,7 @@ namespace Tests\Unit\Account;
 
 use App\Models\Category;
 use App\Models\User;
-use App\Modules\Account\Bussines\CategoryBusiness;
+use App\Modules\Account\Business\CategoryBusiness;
 use App\Modules\Account\Repository\CategoryRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;

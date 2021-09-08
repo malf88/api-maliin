@@ -2,18 +2,42 @@
 
 namespace App\Modules\Account\Services;
 
-use App\Models\User;
-use App\Modules\Account\Bussines\CreditCardBusiness;
+use App\Models\CreditCard;
+use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\ServicesLocal\CreditCardServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class CreditCardService implements CreditCardServiceLocal
 {
-    private CreditCardBusiness $CreditCardBusiness;
+    private CreditCardBusiness $creditCardBusiness;
 
-    public function __construct(CreditCardBusiness $CreditCardBusiness)
+    public function __construct(CreditCardBusiness $creditCardBusiness)
     {
-        $this->CreditCardBusiness = $CreditCardBusiness;
+        $this->creditCardBusiness = $creditCardBusiness;
+    }
+
+    public function getListCreditCardByAccount(int $accountId): Collection
+    {
+        return $this->creditCardBusiness->getListCreditCardByAccount($accountId);
+    }
+
+    public function getCreditCardbyId(int $creditCardId): CreditCard
+    {
+        return $this->creditCardBusiness->getCreditCardById($creditCardId);
+    }
+
+    public function insertCreditCard(int $accountId, array $creditCardData): CreditCard
+    {
+        return $this->creditCardBusiness->insertCreditCard($accountId,$creditCardData);
+    }
+
+    public function updateCreditCard(int $creditCardId, array $creditCardData): CreditCard
+    {
+        return $this->creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
+    }
+
+    public function removeCreditCard(int $creditCardId): bool
+    {
+        return $this->creditCardBusiness->removeCreditCard($creditCardId);
     }
 }

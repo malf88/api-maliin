@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Account\Bussines;
+namespace App\Modules\Account\Business;
 
 use App\Models\Account;
 use App\Models\User;
@@ -118,7 +118,7 @@ class AccountBusiness
      * @param int $id
      * @return bool
      */
-    private function userHasAccount(User $user,int $id):bool{
+    public function userHasAccount(User $user,int $id):bool{
         return $user->accounts()->find($id) != null;
     }
 }

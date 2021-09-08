@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\User;
-use App\Modules\Account\Bussines\AccountBusiness;
+use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;

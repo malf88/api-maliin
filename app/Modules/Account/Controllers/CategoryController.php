@@ -116,7 +116,7 @@ class CategoryController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
+     *             mediaType="text/json",
      *             @OA\Schema(
      *                 @OA\Property(
      *                     property="name",

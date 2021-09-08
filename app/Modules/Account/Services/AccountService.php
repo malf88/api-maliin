@@ -3,7 +3,7 @@
 namespace App\Modules\Account\Services;
 
 use App\Models\User;
-use App\Modules\Account\Bussines\AccountBusiness;
+use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\ServicesLocal\AccountServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;

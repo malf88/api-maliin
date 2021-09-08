@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Modules\Account\Bussines;
+namespace App\Modules\Account\Business;
 
 use App\Models\Category;
 use App\Models\User;
 use App\Modules\Account\Impl\CategoryRepositoryInterface;
-use App\Modules\Account\Repository\CategoryRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;

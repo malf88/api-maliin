@@ -2,7 +2,7 @@
 
 namespace App\Modules\Account\Providers;
 
-use App\Modules\Account\Bussines\CreditCardBusiness;
+use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Controllers\CreditCardController;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
 use App\Modules\Account\Repository\CreditCardRepository;

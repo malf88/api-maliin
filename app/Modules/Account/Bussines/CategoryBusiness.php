@@ -5,7 +5,7 @@ namespace App\Modules\Account\Bussines;
 use App\Models\Category;
 use App\Models\User;
 use App\Modules\Account\Impl\CategoryRepositoryInterface;
-use App\Modules\Account\Respository\CategoryRepository;
+use App\Modules\Account\Repository\CategoryRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;

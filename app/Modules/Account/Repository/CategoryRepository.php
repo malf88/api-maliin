@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Account\Respository;
+namespace App\Modules\Account\Repository;
 
 use App\Models\Category;
 use App\Models\User;

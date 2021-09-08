@@ -6,7 +6,7 @@ use App\Models\Account;
 use App\Models\Bill;
 use App\Models\User;
 use App\Modules\Account\Bussines\AccountBusiness;
-use App\Modules\Account\Respository\AccountRepository;
+use App\Modules\Account\Repository\AccountRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;

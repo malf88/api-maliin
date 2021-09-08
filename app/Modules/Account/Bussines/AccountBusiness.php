@@ -5,7 +5,7 @@ namespace App\Modules\Account\Bussines;
 use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
-use App\Modules\Account\Respository\AccountRepository;
+use App\Modules\Account\Repository\AccountRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\LazyLoadingViolationException;

@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Modules\{module}\Bussines;
+
+use App\Models\{basename};
+use App\Modules\{module}\Impl\{basename}RepositoryInterface;
+
+class {basename}Business
+{
+    private {basename}RepositoryInterface ${basename}Repository;
+    public function __construct({basename}RepositoryInterface ${basename}Repository)
+    {
+        $this->{basename}Repository = ${basename}Repository;
+    }
+}

@@ -2,7 +2,7 @@
 
 namespace App\Modules\{module}\Providers;
 
-use App\Modules\{module}\Bussines\{basename}Business;
+use App\Modules\{module}\Business\{basename}Business;
 use App\Modules\{module}\Controllers\{basename}Controller;
 use App\Modules\{module}\Impl\{basename}RepositoryInterface;
 use App\Modules\{module}\Repository\{basename}Repository;

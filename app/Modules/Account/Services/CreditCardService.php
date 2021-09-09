@@ -40,4 +40,9 @@ class CreditCardService implements CreditCardServiceLocal
     {
         return $this->creditCardBusiness->removeCreditCard($creditCardId);
     }
+
+    public function getInvoicesByCreditCard(int $creditCardId): Collection
+    {
+        return $this->creditCardBusiness->getInvoicesByCreditCard($creditCardId);
+    }
 }

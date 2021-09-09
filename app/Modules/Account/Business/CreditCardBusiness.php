@@ -75,9 +75,20 @@ class CreditCardBusiness
 
     }
 
+    public function getInvoicesByCreditCard(int $creditCardId):Collection
+    {
+        $creditCard = $this->getCreditCardById($creditCardId);
+        if($this->userHasCreditCard(Auth::user(),$creditCard)){
+            return $this->creditCardRepository->getInvoicesByCreditCard($creditCardId);
+        }else{
+            throw new ItemNotFoundException("Cartão de crédito não encontrado");
+        }
+    }
+
     public function userHasCreditCard(User $user, CreditCard $creditCard):bool
     {
         return $creditCard->account->user->id == $user->id;
     }
+
 
 }

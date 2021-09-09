@@ -195,4 +195,31 @@ class CreditCardController extends Controller
     {
         return $this->creditCardServices->removeCreditCard($id);
     }
+    /**
+     * @OA\Get(
+     *     tags={"Credit Cards"},
+     *     summary="Retorna uma lista de faturas",
+     *     description="Retornada uma lista de faturas do cartão com o {id} informado",
+     *     path="/creditcard/{id}/invoices",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Id do cartão de crédito",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Retorna uma lista de faturas do cartão de crédito"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * ),
+     */
+    public function invoices(int $id):Collection
+    {
+        return $this->creditCardServices->getInvoicesByCreditCard($id);
+    }
 }

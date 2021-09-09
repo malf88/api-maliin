@@ -42,4 +42,10 @@ class CreditCardRepository implements CreditCardRepositoryInterface
         $creditCard = CreditCard::find($creditCardId);
         return $creditCard->delete();
     }
+
+    public function getInvoicesByCreditCard(int $creditCardId):Collection
+    {
+        $creditCard = CreditCard::find($creditCardId);
+        return $creditCard->invoices;
+    }
 }

@@ -4,11 +4,13 @@ namespace Tests\Unit\Account;
 
 use App\Models\Account;
 use App\Models\CreditCard;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
@@ -26,6 +28,19 @@ class CreditCardBusinessTest extends TestCase
             ->method('user')
             ->willReturn($user);
         $account->user = $user;
+        $invoice1 = new Invoice();
+        $invoice1->end_date = Carbon::createFromFormat('d/m/Y','30/08/2021');
+        $invoice1->start_date = Carbon::createFromFormat('d/m/Y','01/08/2021');
+        $invoice1->due_date = Carbon::createFromFormat('d/m/Y','06/09/2021');
+        $invoice1->month_reference = 8;
+
+        $invoice2 = new Invoice();
+        $invoice2->end_date = Carbon::createFromFormat('d/m/Y','30/07/2021');
+        $invoice2->start_date = Carbon::createFromFormat('d/m/Y','01/07/2021');
+        $invoice2->due_date = Carbon::createFromFormat('d/m/Y','06/08/2021');
+        $invoice2->month_reference = 7;
+
+
         $creditCard1 = $this->createPartialMock(CreditCard::class,['account']);
         $creditCard1
             ->method('account')
@@ -35,6 +50,7 @@ class CreditCardBusinessTest extends TestCase
         $creditCard1->due_day = 31;
         $creditCard1->close_day = 01;
         $creditCard1->account = $account;
+        $creditCard1->invoices = Collection::make([$invoice1,$invoice2]);
 
         $creditCard2 = new CreditCard();
         $creditCard2->id = 2;
@@ -386,6 +402,75 @@ class CreditCardBusinessTest extends TestCase
         $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
         $this->expectException(ItemNotFoundException::class);
         $creditCard = $creditCardBusiness->removeCreditCard($creditCardId);
+
+    }
+
+    /**
+     * @test
+     */
+    public function deveRetornarListaDeFaturasDoCartao(){
+        $creditCardId = 1;
+        $accountId = 1;
+        $creditCardData = [
+            'name'      => 'Bradesco',
+            'due_day'  => 01,
+            'close_day' => 26
+        ];
+
+        $user = $this->factoryUser(1);
+        Auth::shouldReceive('user')->andReturn($user);
+
+        $creditCardRepository = $this->createMock(CreditCardRepository::class);
+        $accountRepository = $this->createMock(AccountRepository::class);
+        $accountBusiness = new AccountBusiness($accountRepository);
+
+
+        $creditCards = $this->factoryCreditCards();
+        $creditCardRepository
+            ->method('getCreditCardById')
+            ->with($creditCardId)
+            ->willReturn($creditCards->get(0));
+
+        $creditCardRepository
+            ->method('getInvoicesByCreditCard')
+            ->with($creditCardId)
+            ->willReturn($creditCards->get(0)->invoices);
+        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+
+        $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
+
+        $this->assertCount(2,$invoices);
+
+    }
+    /**
+     * @test
+     */
+    public function deveRetornarUmaExcecaoAoBuscarListaDeFaturasDoCartao(){
+        $creditCardId = 1;
+        $accountId = 1;
+
+        $user = $this->factoryUser(2);
+        Auth::shouldReceive('user')->andReturn($user);
+
+        $creditCardRepository = $this->createMock(CreditCardRepository::class);
+        $accountRepository = $this->createMock(AccountRepository::class);
+        $accountBusiness = new AccountBusiness($accountRepository);
+
+
+        $creditCards = $this->factoryCreditCards();
+        $creditCardRepository
+            ->method('getCreditCardById')
+            ->with($creditCardId)
+            ->willReturn($creditCards->get(0));
+
+        $creditCardRepository
+            ->method('getInvoicesByCreditCard')
+            ->with($creditCardId)
+            ->willReturn($creditCards->get(0)->invoices);
+        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $this->expectException(ItemNotFoundException::class);
+        $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
+
 
     }
 }

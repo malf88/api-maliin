@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\User;
 use App\Modules\Account\Impl\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 
@@ -17,7 +18,7 @@ class CategoryBusiness
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function getCategoriesFromUser(User $user):Collection
+    public function getCategoriesFromUser(Model $user):Collection
     {
         return $this->categoryRepository->getCategoriesFromUser($user);
     }
@@ -28,7 +29,7 @@ class CategoryBusiness
         return $this->categoryRepository->getCategoriesFromUser($user);
     }
 
-    public function getCategoryById(int $id):Category
+    public function getCategoryById(int $id):Model
     {
         if($this->userHasCategory(Auth::user(),$id)) {
             return $this->categoryRepository->getCategoryById($id);
@@ -36,12 +37,12 @@ class CategoryBusiness
             throw new ItemNotFoundException("Registro não encontrado");
         }
     }
-    public function insertCategory(User $user,array $dataCategory): Category
+    public function insertCategory(User $user,array $dataCategory): Model
     {
         return $this->categoryRepository->saveCategory($user,$dataCategory);
     }
 
-    public function updateCategory(int $id,array $dataCategory): Category
+    public function updateCategory(int $id,array $dataCategory): Model
     {
         if($this->userHasCategory(Auth::user(),$id)) {
             return $this->categoryRepository->updateCategory($id,$dataCategory);
@@ -63,7 +64,7 @@ class CategoryBusiness
      * @param int $id
      * @return bool
      */
-    private function userHasCategory(User $user,int $id):bool{
+    private function userHasCategory(Model $user,int $id):bool{
         return $user->categories()->find($id) != null;
     }
 }

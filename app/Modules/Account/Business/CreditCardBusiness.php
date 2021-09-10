@@ -7,6 +7,7 @@ use App\Models\CreditCard;
 use App\Models\User;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use function PHPUnit\Framework\throwException;
@@ -45,7 +46,7 @@ class CreditCardBusiness
 
     }
 
-    public function insertCreditCard(int $accountId, array $creditCardData):CreditCard
+    public function insertCreditCard(int $accountId, array $creditCardData):Model
     {
         if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
             return $this->creditCardRepository->saveCreditCard($accountId,$creditCardData);
@@ -54,7 +55,7 @@ class CreditCardBusiness
         }
     }
 
-    public function updateCreditCard(int $creditCardId, array $creditCardData):CreditCard
+    public function updateCreditCard(int $creditCardId, array $creditCardData):Model
     {
         $creditCard = $this->getCreditCardById($creditCardId);
         if($creditCard != null && $this->userHasCreditCard(Auth::user(),$creditCard)){
@@ -85,7 +86,7 @@ class CreditCardBusiness
         }
     }
 
-    public function userHasCreditCard(User $user, CreditCard $creditCard):bool
+    public function userHasCreditCard(User $user, Model $creditCard):bool
     {
         return $creditCard->account->user->id == $user->id;
     }

@@ -190,6 +190,7 @@ return [
         App\Modules\Account\Providers\AccountServiceProvider::class,
         App\Modules\Account\Providers\CategoryServiceProvider::class,
         App\Modules\Account\Providers\CreditCardServiceProvider::class,
+        App\Modules\Account\Providers\BillServiceProvider::class,
 
     ],
 

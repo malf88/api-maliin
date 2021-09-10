@@ -46,7 +46,8 @@ class Bill extends Model
         'pay_day',
         'barcode',
         'bill_parent_id',
-        'portion'
+        'portion',
+        'account_id'
     ];
 
 

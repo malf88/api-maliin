@@ -27,7 +27,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-
+    'paginate' => 15,
     /*
     |--------------------------------------------------------------------------
     | Application Environment

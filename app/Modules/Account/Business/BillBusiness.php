@@ -6,6 +6,7 @@ use App\Models\Bill;
 use App\Models\User;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -22,18 +23,40 @@ class BillBusiness
         $this->billRepository = $billRepository;
         $this->accountBusiness = $accountBusiness;
     }
-    public function normalizeListBills(Collection $bills):Collection
+    private function findChildBill(Model $bill):Model
     {
+        //dd($bill);
+        if($bill->bill_parent_id != null){
+            $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
+        }else{
+            $bill->load('bill_parent');
+        }
+        $bill->makeVisible(['bill_parent']);
+
+        return $bill;
+    }
+    public function normalizeListBills(Collection|LengthAwarePaginator $bills):Collection|LengthAwarePaginator
+    {
+
         $bills->each(function($item,$key){
-            $item->setVisible(['bill_parent']);
-            $item->load('bill_parent');
+            $item = $this->findChildBill($item);
         });
         return $bills;
     }
+
     public function getBillsByAccount(int $accountId):Collection
     {
         if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
             return $this->normalizeListBills($this->billRepository->getBillsByAccount($accountId));
+        }else{
+            throw new ItemNotFoundException('Conta não encontrada');
+        }
+    }
+
+    public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
+    {
+        if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+            return $this->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
         }
@@ -55,15 +78,19 @@ class BillBusiness
     private function saveMultiplePortions(int $accountId, array $billData):Collection
     {
         $billsInserted = new Collection();
+        $totalPortion = $billData['portion'];
         $descriptionBeforeCreateBill = $billData['description'];
         $billData['description'] = $descriptionBeforeCreateBill . ' [1/'.$billData['portion'].']';
+        $billData['portion'] = 1;
         $billParent = $this->billRepository->saveBill($accountId,$billData);
         $billsInserted->add($billParent);
         $due_date = Carbon::create($billData['due_date']);
         $due_date->addMonth();
-        for($interatorPortion = 2; $interatorPortion <= $billData['portion']; $interatorPortion++){
-            $billData['description'] = $descriptionBeforeCreateBill . '['.$interatorPortion.'/'.$billData['portion'].']';
+        for($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++){
+
+            $billData['description'] = $descriptionBeforeCreateBill . '['.$interatorPortion.'/'.$totalPortion.']';
             $billData['bill_parent_id'] = $billParent->id;
+            $billData['portion'] = $interatorPortion;
             $billData['due_date'] = $due_date->format('Y-m-d');
             $bill = $this->billRepository->saveBill($accountId,$billData);
             $billsInserted->add($bill);
@@ -75,7 +102,7 @@ class BillBusiness
     {
         $bill = $this->billRepository->getBillById($billId);
         if($this->userHasBill(Auth::user(),$bill)){
-            return $bill;
+            return $this->findChildBill($bill);
         }else{
             throw new ItemNotFoundException('Conta a pagar não encontrada');
         }
@@ -91,25 +118,46 @@ class BillBusiness
         }
     }
 
-    public function updateChildBill(int $billId,array $billData):Collection
+    public function updateChildBill(int $billId,array $billData):Model
     {
-        $bills = $this->billRepository->getChildBill($billId);
-        $due_date = Carbon::create($billData['due_date']);
-        $totalBillsSelected = $bills->count();
+        $bill = $this->getBillById($billId);
+        $due_date = (isset($billData['due_date']) && $billData['due_date'] != null)? Carbon::create($billData['due_date']) : null;
+        $totalBillsSelected = $bill->bill_parent->count()+1;
         $description = $billData['description'];
-        $bills->each(function($item,$key) use($due_date, $totalBillsSelected, $description)
+        $billData['due_date'] = $due_date? $due_date->format('Y-m-d'): null;
+        $billData['description'] = $this->getNewDescriptionWithPortion($description,$bill->portion,$totalBillsSelected);
+        $this->billRepository->updateBill($billId, $billData);
+        $due_date = $this->addMonthDueDate($due_date);
+        $bill->bill_parent->each(function($item,$key) use($due_date, $totalBillsSelected, $description, $billData)
         {
             if($item->pay_day == null) {
-                $newDescription = $description . '['.($key + 1) . '/' .$totalBillsSelected .']';
-                $billData['description'] = $newDescription;
-                $billData['due_date'] = $due_date->format('Y-m-d');
+                $billData['description'] = $this->getNewDescriptionWithPortion(
+                                                $description,
+                                                $item->portion,
+                                                $totalBillsSelected);
+                $billData['due_date'] = $due_date? $due_date->format('Y-m-d'): null;
                 $this->billRepository->updateBill($item->id, $billData);
-                $due_date->addMonth();
+                $due_date = $this->addMonthDueDate($due_date);
             }
+            $item->refresh();
+            //return $item;
         });
-        return $bills;
+        return $bill->refresh();
+    }
+    private function getNewDescriptionWithPortion(string $description,int $portionActual,int $portionTotal):string
+    {
+        return $description . '['.$portionActual. '/' .$portionTotal .']';
     }
 
+    private function addMonthDueDate(Carbon|null $date):Carbon|null
+    {
+        if($date != null){
+            $date->addMonth();
+        }else{
+            return null;
+        }
+        return $date;
+    }
     public function deleteBill(int $billId):bool
     {
         $this->getBillById($billId);

@@ -11,6 +11,7 @@ use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\BillRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
@@ -70,7 +71,7 @@ class BillBusinessTest extends TestCase
 
     }
 
-    public function factoryBill(int $id, float $amount, int $parentId = null,$pay_day = null):Bill
+    public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
     {
         $bill = $this->createPartialMock(Bill::class,['load']);
         $bill->description = "Mercado";
@@ -78,13 +79,21 @@ class BillBusinessTest extends TestCase
         $bill->bill_parent_id = $parentId;
         $bill->pay_day = $pay_day;
         $bill->amount = $amount;
+        $bill->portion = $portion;
 
         return $bill;
 
     }
 
     public function getMockRepository(){
-        return $this->createMock(BillRepository::class);
+        $mock = $this->createMock(BillRepository::class);
+        $mock->method('getChildBill')
+            ->willReturn(Collection::make([
+                $this->factoryBill(2,300,1,portion:2),
+                $this->factoryBill(3,200,1,portion:3),
+                $this->factoryBill(4,-100,1,portion:4)
+            ]));
+        return $mock;
 
     }
     public function getMockAccountBusiness(){
@@ -138,6 +147,43 @@ class BillBusinessTest extends TestCase
         $billBusiness = new BillBusiness($billRepository,$accountBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->getBillsByAccount($accountId);
+
+    }
+
+    /**
+     * @test
+     */
+    public function deveListarContasAPagarDeUmaContaPaginada(){
+        $accountId = 1;
+        $accounts = $this->factoryAccount();
+        $billRepository = $this->getMockRepository();
+        $accountBusiness = $this->getMockAccountBusiness();
+        $billsPaginados = new LengthAwarePaginator($accounts->get(0)->bills(),3,15);
+        $billRepository
+            ->method('getBillsByAccount')
+            ->with($accountId,true)
+            ->willReturn($billsPaginados);
+
+        $billBusiness = new BillBusiness($billRepository,$accountBusiness);
+        $bills = $billBusiness->getBillsByAccountPaginate($accountId);
+
+        $this->assertCount(3,$bills->items());
+        $this->assertEquals(1,$bills->currentPage());
+        $this->assertEquals(3,$bills->total());
+        $this->assertEquals(200.00,$bills->sum('amount'));
+
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoListarContasAPagarDeUmaContaPaginada(){
+        $accountId = 2;
+        $billRepository = $this->getMockRepository();
+        $accountBusiness = $this->getMockAccountBusiness();
+        $billBusiness = new BillBusiness($billRepository,$accountBusiness);
+        $this->expectException(ItemNotFoundException::class);
+        $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
     }
     /**
@@ -300,8 +346,8 @@ class BillBusinessTest extends TestCase
     /**
      * @test
      */
-    public function deveAlterarUmaContaAPagarESeusFilhos(){
-        $billId = 1;
+    public function deveAlterarUmaContaAPagarESeusIrmaos(){
+        $billId = 2;
         $accounts = $this->factoryAccount();
         $billData = $this->factoryBillData();
         $billData['update_childs'] = true;
@@ -312,19 +358,14 @@ class BillBusinessTest extends TestCase
         $bill = $this->createPartialMock(Bill::class,['account']);
         $bill->method('account')
             ->willReturn($account);
+        $bill->bill_parent_id = 1;
+        $bill->id = 1;
         $bill->account = $account;
 
         $bill->fill($this->factoryBillData());
 
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
-        $billRepository
-            ->method('getChildBill')
-            ->willReturn(Collection::make([
-                $this->factoryBill(1, 300,pay_day:Carbon::today()),
-                $this->factoryBill(2, 350,1),
-                $this->factoryBill(3, 350,1),
-            ]));
         $billRepository
             ->method('getBillById')
             ->willReturn($bill);
@@ -334,7 +375,49 @@ class BillBusinessTest extends TestCase
         $billBusiness = new BillBusiness($billRepository,$accountBusiness);
         $bills = $billBusiness->updateBill($billId,$billData);
 
-        $this->assertCount(3,$bills);
+        $this->assertCount(3,$bills->bill_parent);
+        $this->assertEquals(1,$bills->id);
+
+    }
+
+    /**
+     * @test
+     */
+    public function deveAlterarUmaContaAPagarESeusFilhos(){
+        $billId = 2;
+        $accounts = $this->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['update_childs'] = true;
+
+        $user = $this->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('account')
+            ->willReturn($account);
+        $bill->bill_parent = Collection::make([
+           $this->factoryBill(2,-300.00,1,portion:2),
+           $this->factoryBill(3,-300.00,1,portion:3),
+           $this->factoryBill(4,-300.00,1,portion:4),
+        ]);
+        $bill->id = 1;
+        $bill->account = $account;
+
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $accountBusiness = $this->getMockAccountBusiness();
+        $billRepository
+            ->method('getBillById')
+            ->willReturn($bill);
+        $billRepository
+            ->method('updateBill')
+            ->willReturn($bill);
+        $billBusiness = new BillBusiness($billRepository,$accountBusiness);
+        $bills = $billBusiness->updateBill($billId,$billData);
+
+        $this->assertCount(3,$bills->bill_parent);
+        $this->assertEquals(1,$bills->id);
 
     }
     /**

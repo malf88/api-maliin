@@ -163,7 +163,7 @@ class CreditCardController extends Controller
      * ),
      *
      */
-    public function update(Request $request, int $id):CreditCard
+    public function update(Request $request, int $id)
     {
         return $this->creditCardServices->updateCreditCard($id,$request->all());
     }

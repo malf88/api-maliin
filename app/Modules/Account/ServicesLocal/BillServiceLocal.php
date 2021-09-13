@@ -2,6 +2,7 @@
 
 namespace App\Modules\Account\ServicesLocal;
 
+ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
  use Illuminate\Database\Eloquent\Collection;
  use Illuminate\Database\Eloquent\Model;
 
@@ -13,4 +14,5 @@ namespace App\Modules\Account\ServicesLocal;
      public function getBillById(int $billId):Model;
      public function updateChildBill(int $billId,array $billData):Collection;
      public function deleteBill($billId):bool;
+     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator;
 }

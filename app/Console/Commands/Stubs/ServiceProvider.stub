@@ -23,6 +23,11 @@ class {basename}ServiceProvider extends ServiceProvider
             ->when({basename}Business::class)
             ->needs({basename}RepositoryInterface::class)
             ->give({basename}Repository::class);
+
+        $this->app
+            ->when({basename}Service::class)
+            ->needs({basename}BusinessInterface::class)
+            ->give({basename}Business::class);
     }
 
 }

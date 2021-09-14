@@ -4,8 +4,9 @@ namespace App\Modules\{module}\Business;
 
 use App\Models\{basename};
 use App\Modules\{module}\Impl\{basename}RepositoryInterface;
+use App\Modules\{module}\Impl\Business\{basename}BusinessInterface
 
-class {basename}Business
+class {basename}Business implements {basename}BusinessInterface
 {
     private {basename}RepositoryInterface ${basename}Repository;
     public function __construct({basename}RepositoryInterface ${basename}Repository)

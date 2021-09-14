@@ -32,7 +32,8 @@ class GenerateStructure extends Command
         'Repository'    => 'Repository',
         'Route'         => '',
         'Services'      => 'Service',
-        'ServicesLocal' => 'ServiceLocal'
+        'ServicesLocal' => 'ServiceLocal',
+        'Impl/Business' => 'BusinessInterface'
     ];
     protected string $directoryModules = 'Modules';
     public function __construct(Filesystem $files)
@@ -126,7 +127,6 @@ class GenerateStructure extends Command
             $pathClass = $path . $directory . DIRECTORY_SEPARATOR;
             if($stub != '')
                 $this->makeClass($pathClass,$moduleName, $baseName, $stub);
-
         }
 
 
@@ -134,6 +134,12 @@ class GenerateStructure extends Command
 
     private function makeClass(string $path, string $moduleName, string $baseName, string $stub):void
     {
+        if($stub == 'BusinessInterface'){
+//            if(!File::exists($pathBusinessInterface))
+//                File::makeDirectory($pathBusinessInterface);
+//
+//            //$this->makeClass($pathBusinessInterface,$moduleName,$baseName,'Business');
+        }
         $file = $path.$baseName."$stub.php";
         if(!File::exists($file)) {
             $repositoryFile = file_get_contents(app_path('Console/Commands/Stubs/') . $stub . '.stub');

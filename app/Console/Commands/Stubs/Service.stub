@@ -3,16 +3,16 @@
 namespace App\Modules\{module}\Services;
 
 use App\Models\User;
-use App\Modules\{module}\Bussines\{basename}Business;
+use App\Modules\{module}\Impl\Bussines\{basename}BusinessInterface;
 use App\Modules\{module}\ServicesLocal\{basename}ServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class {basename}Service implements {basename}ServiceLocal
 {
-    private {basename}Business ${basename}Business;
+    private {basename}BusinessInterface ${basename}Business;
 
-    public function __construct({basename}Business ${basename}Business)
+    public function __construct({basename}BusinessInterface ${basename}Business)
     {
         $this->{basename}Business = ${basename}Business;
     }

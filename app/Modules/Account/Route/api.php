@@ -36,6 +36,7 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::post('/account/{accountId}','BillController@insert')->name('api.bill.insert');
         Route::get('/{id}','BillController@show')->name('api.bill.show');
         Route::put('/{id}','BillController@update')->name('api.bill.update');
+        Route::put('/{id}/pay','BillController@pay')->name('api.bill.pay');
         Route::delete('/{id}','BillController@delete')->name('api.bill.delete');
         Route::get('/{id}/invoices','BillController@invoices')->name('api.bill.invoices');
 

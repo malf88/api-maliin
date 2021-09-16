@@ -2,27 +2,27 @@
 
 namespace App\Modules\Account\Business;
 
-use App\Models\Account;
-use App\Models\CreditCard;
 use App\Models\User;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
+use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
-use function PHPUnit\Framework\throwException;
 
-class CreditCardBusiness
+class CreditCardBusiness implements CreditCardBusinessInterface
 {
-    private CreditCardRepositoryInterface $creditCardRepository;
-    private AccountBusiness $accountBusiness;
+
     public function __construct(
-        CreditCardRepositoryInterface $creditCardRepository,
-        AccountBusiness $accountBusiness
+        private CreditCardRepositoryInterface $creditCardRepository,
+        private AccountBusinessInterface $accountBusiness,
+        private InvoiceBusinessInterface $invoiceBusiness
     )
     {
-        $this->accountBusiness = $accountBusiness;
-        $this->creditCardRepository = $creditCardRepository;
+
     }
 
     public function getListCreditCardByAccount(int $accountId):Collection
@@ -34,7 +34,7 @@ class CreditCardBusiness
         }
 
     }
-    public function getCreditCardById(int $creditCardId):CreditCard
+    public function getCreditCardById(int $creditCardId):Model
     {
          $creditCard = $this->creditCardRepository->getCreditCardById($creditCardId);
 
@@ -58,33 +58,27 @@ class CreditCardBusiness
     public function updateCreditCard(int $creditCardId, array $creditCardData):Model
     {
         $creditCard = $this->getCreditCardById($creditCardId);
-        if($creditCard != null && $this->userHasCreditCard(Auth::user(),$creditCard)){
-            return $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
-        }else{
-            throw new ItemNotFoundException('Registro não encontrado');
-        }
+        return $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
+
     }
 
     public function removeCreditCard(int $creditCardId):bool
     {
         $creditCard = $this->getCreditCardById($creditCardId);
-        if($creditCard != null &&  $this->userHasCreditCard(Auth::user(),$creditCard)){
-            return $this->creditCardRepository->deleteCreditCard($creditCardId);
-        }else{
-            throw new ItemNotFoundException("Registro não encontrado");
-        }
-
+        return $this->creditCardRepository->deleteCreditCard($creditCardId);
     }
 
     public function getInvoicesByCreditCard(int $creditCardId):Collection
     {
         $creditCard = $this->getCreditCardById($creditCardId);
-        if($this->userHasCreditCard(Auth::user(),$creditCard)){
-            return $this->creditCardRepository->getInvoicesByCreditCard($creditCardId);
-        }else{
-            throw new ItemNotFoundException("Cartão de crédito não encontrado");
-        }
+        return $this->creditCardRepository->getInvoicesByCreditCard($creditCardId);
     }
+
+    public function generateInvoiceByBill(int $creditCardId,string $billDate):Model
+    {
+        return $this->invoiceBusiness->createInvoiceForCreditCardByDate($creditCardId,Carbon::make($billDate));
+    }
+
 
     public function userHasCreditCard(User $user, Model $creditCard):bool
     {

@@ -13,6 +13,6 @@ namespace App\Modules\Account\ServicesLocal;
      public function insertBill(int $accountId,$billData):Model|Collection;
      public function getBillById(int $billId):Model;
      public function updateChildBill(int $billId,array $billData):Collection;
-     public function deleteBill($billId):bool;
+     public function deleteBill(int $billId):bool;
      public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator;
 }

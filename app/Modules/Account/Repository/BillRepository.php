@@ -66,6 +66,7 @@ class BillRepository implements BillRepositoryInterface
 
     public function deleteBill(int $billId):bool
     {
-
+        $bill = Bill::find($billId);
+        return $bill->delete();
     }
 }

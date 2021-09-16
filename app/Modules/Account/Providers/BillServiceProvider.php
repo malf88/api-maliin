@@ -2,15 +2,17 @@
 
 namespace App\Modules\Account\Providers;
 
+use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\BillBusiness;
+use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Controllers\BillController;
 use App\Modules\Account\Impl\BillRepositoryInterface;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\BillBusinessInterface;
+use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Services\BillService;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class BillServiceProvider extends ServiceProvider
@@ -24,10 +26,21 @@ class BillServiceProvider extends ServiceProvider
 
         $this->app
             ->when(BillBusiness::class)
+            ->needs(CreditCardBusinessInterface::class)
+            ->give(CreditCardBusiness::class);
+        $this->app
+            ->when(BillBusiness::class)
+            ->needs(AccountBusinessInterface::class)
+            ->give(AccountBusiness::class);
+        $this->app
+            ->when(BillBusiness::class)
             ->needs(BillRepositoryInterface::class)
             ->give(BillRepository::class);
 
-
+        $this->app
+            ->when(BillService::class)
+            ->needs(BillBusinessInterface::class)
+            ->give(BillBusiness::class);
     }
     public function boot()
     {

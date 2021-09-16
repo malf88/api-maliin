@@ -2,7 +2,7 @@
 
 namespace App\Modules\Account\Services;
 
-use App\Modules\Account\Business\BillBusiness;
+use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class BillService implements BillServiceLocal
 {
-    private BillBusiness $billBusiness;
+    private BillBusinessInterface $billBusiness;
 
-    public function __construct(BillBusiness $billBusiness)
+    public function __construct(BillBusinessInterface $billBusiness)
     {
         $this->billBusiness = $billBusiness;
     }
@@ -42,9 +42,9 @@ class BillService implements BillServiceLocal
         // TODO: Implement updateChildBill() method.
     }
 
-    public function deleteBill($billId): bool
+    public function deleteBill(int $billId): bool
     {
-        // TODO: Implement deleteBill() method.
+        return $this->billBusiness->deleteBill($billId);
     }
 
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator

@@ -5,22 +5,18 @@ namespace App\Modules\Account\Business;
 use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
-use App\Modules\Account\Repository\AccountRepository;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
-use JetBrains\PhpStorm\Pure;
-use LogicException;
-use PhpParser\Node\Expr\AssignOp\Mod;
 
-class AccountBusiness
+class AccountBusiness implements AccountBusinessInterface
 {
-    private AccountRepositoryInterface $accountRepository;
-    public function __construct(AccountRepositoryInterface $accountRepository)
+    public function __construct(
+        private AccountRepositoryInterface $accountRepository
+    )
     {
-        $this->accountRepository = $accountRepository;
     }
 
     /**
@@ -45,7 +41,6 @@ class AccountBusiness
             $item->makeVisible(['total_balance','total_estimated','bills']);
             $item->setAttribute('total_balance',$item->bills()->whereNotNull('pay_day')->sum('amount'));
             $item->setAttribute('total_estimated',$item->bills()->sum('amount'));
-            //$item->load(['bills']);
         });
         return $accountList;
     }
@@ -54,7 +49,8 @@ class AccountBusiness
      * @param int $id
      * @return Account
      */
-    public function getAccountById(int $id):Account{
+    public function getAccountById(int $id):Account
+    {
         if($this->userHasAccount(Auth::user(),$id)){
             return $this->prepareAccount($this->accountRepository->getAccountById($id));
         }else{
@@ -66,14 +62,16 @@ class AccountBusiness
      * @param User $user
      * @return Collection
      */
-    public function getListAllAccounts(User $user):Collection{
+    public function getListAllAccounts(User $user):Collection
+    {
         return $this->prepareListAccount($this->accountRepository->getAccountFromUser($user));
     }
 
     /**
      * @return Collection
      */
-    public function getListAllAccountFromLoggedUser():Collection{
+    public function getListAllAccountFromLoggedUser():Collection
+    {
         $user = Auth::user();
         return $this->prepareListAccount($this->accountRepository->getAccountFromUser($user));
     }
@@ -83,7 +81,8 @@ class AccountBusiness
      * @param array $accountInfo
      * @return Model
      */
-    public function insertAccount(User $user,array $accountInfo):Model{
+    public function insertAccount(User $user,array $accountInfo):Model
+    {
         return $this->accountRepository->saveAccount($user,$accountInfo);
     }
 
@@ -92,7 +91,8 @@ class AccountBusiness
      * @param array $accountInfo
      * @return Model
      */
-    public function updateAccount(int $id,array $accountInfo):Model{
+    public function updateAccount(int $id,array $accountInfo):Model
+    {
         if($this->userHasAccount(Auth::user(),$id)){
             return $this->accountRepository->updateAccount($id,$accountInfo);
         }else{
@@ -104,7 +104,8 @@ class AccountBusiness
      * @param int $id
      * @return bool
      */
-    public function deleteAccount(int $id):bool{
+    public function deleteAccount(int $id):bool
+    {
         if ($this->userHasAccount(Auth::user(), $id)) {
             return $this->accountRepository->deleteAccount($id);
         } else {
@@ -118,7 +119,8 @@ class AccountBusiness
      * @param int $id
      * @return bool
      */
-    public function userHasAccount(User $user,int $id):bool{
+    public function userHasAccount(User $user,int $id):bool
+    {
 
         return $user->accounts()->find($id) != null;
     }

@@ -3,6 +3,7 @@
 namespace App\Modules\Account\ServicesLocal;
 
  use Illuminate\Database\Eloquent\Collection;
+ use Illuminate\Database\Eloquent\Model;
 
  interface CreditCardServiceLocal
 {

@@ -4,6 +4,7 @@ namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class BillController extends Controller
@@ -238,6 +239,62 @@ class BillController extends Controller
         return $this->billServices->updateBill($id,$request->all());
     }
 
+    /**
+     * @OA\Delete(
+     *     tags={"Bills"},
+     *     summary="Exclui uma conta a pagar/receber com o {id}",
+     *     description="Exclui uma conta a pagar/receber com o {id}",
+     *     path="/bill/{id}",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Id do registro buscado",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Excluído com sucesso"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * ),
+     *
+     */
+    public function delete(int $id)
+    {
+        return $this->billServices->deleteBill($id);
+    }
+    /**
+     * @OA\Put(
+     *     tags={"Bills"},
+     *     summary="Seta a conta a pagar/receber como paga/recebida",
+     *     description="Seta a conta a pagar/receber como paga/recebida",
+     *     path="/bill/{id}/pay",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Id do registro buscado",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Excluído com sucesso"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * ),
+     *
+     */
+    public function pay(int $id)
+    {
+        return $this->billServices->updateBill($id,['pay_day' => Carbon::today()->format('Y/m/d')]);
+    }
     /**
      * TODO Implementar o pagar e o deletar.
      */

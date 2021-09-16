@@ -48,4 +48,6 @@ class CreditCardRepository implements CreditCardRepositoryInterface
         $creditCard = CreditCard::find($creditCardId);
         return $creditCard->invoices;
     }
+
+
 }

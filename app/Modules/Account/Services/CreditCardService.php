@@ -3,15 +3,15 @@
 namespace App\Modules\Account\Services;
 
 use App\Models\CreditCard;
-use App\Modules\Account\Business\CreditCardBusiness;
+use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\ServicesLocal\CreditCardServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 
 class CreditCardService implements CreditCardServiceLocal
 {
-    private CreditCardBusiness $creditCardBusiness;
+    private CreditCardBusinessInterface $creditCardBusiness;
 
-    public function __construct(CreditCardBusiness $creditCardBusiness)
+    public function __construct(CreditCardBusinessInterface $creditCardBusiness)
     {
         $this->creditCardBusiness = $creditCardBusiness;
     }

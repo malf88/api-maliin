@@ -3,16 +3,16 @@
 namespace App\Modules\Account\Services;
 
 use App\Models\User;
-use App\Modules\Account\Business\AccountBusiness;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\ServicesLocal\AccountServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class AccountService implements AccountServiceLocal
 {
-    private AccountBusiness $accountBusiness;
+    private AccountBusinessInterface $accountBusiness;
 
-    public function __construct(AccountBusiness $accountBusiness)
+    public function __construct(AccountBusinessInterface $accountBusiness)
     {
         $this->accountBusiness = $accountBusiness;
     }

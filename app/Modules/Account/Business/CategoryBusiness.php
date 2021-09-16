@@ -2,15 +2,15 @@
 
 namespace App\Modules\Account\Business;
 
-use App\Models\Category;
 use App\Models\User;
+use App\Modules\Account\Impl\Business\CategoryBusinessInterface;
 use App\Modules\Account\Impl\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 
-class CategoryBusiness
+class CategoryBusiness implements CategoryBusinessInterface
 {
     private CategoryRepositoryInterface $categoryRepository;
     public function __construct(CategoryRepositoryInterface $categoryRepository)
@@ -64,7 +64,8 @@ class CategoryBusiness
      * @param int $id
      * @return bool
      */
-    private function userHasCategory(Model $user,int $id):bool{
+    private function userHasCategory(Model $user,int $id):bool
+    {
         return $user->categories()->find($id) != null;
     }
 }

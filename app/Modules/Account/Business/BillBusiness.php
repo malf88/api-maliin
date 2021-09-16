@@ -2,9 +2,11 @@
 
 namespace App\Modules\Account\Business;
 
-use App\Models\Bill;
 use App\Models\User;
 use App\Modules\Account\Impl\BillRepositoryInterface;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\BillBusinessInterface;
+use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,16 +14,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 
-class BillBusiness
+class BillBusiness implements BillBusinessInterface
 {
-    private BillRepositoryInterface $billRepository;
-    private AccountBusiness $accountBusiness;
+
     public function __construct(
-        BillRepositoryInterface $billRepository,
-        AccountBusiness $accountBusiness)
+        private BillRepositoryInterface $billRepository,
+        private CreditCardBusinessInterface $creditCardBusiness,
+        private AccountBusinessInterface $accountBusiness)
     {
-        $this->billRepository = $billRepository;
-        $this->accountBusiness = $accountBusiness;
+
     }
     private function findChildBill(Model $bill):Model
     {
@@ -65,6 +66,7 @@ class BillBusiness
     public function insertBill(int $accountId,$billData):Model|Collection
     {
         if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+
             if($billData['portion'] > 1){
                 return $this->saveMultiplePortions($accountId,$billData);
             }else{
@@ -73,6 +75,11 @@ class BillBusiness
         }else{
             throw new ItemNotFoundException('Conta não encontrada.');
         }
+    }
+    private function processCreditCardBill(array $billData):void
+    {
+        $creditCard = $this->creditCardBusiness->getCreditCardById($billData['credit_card_id']);
+        $this->creditCardBusiness->generateInvoiceByBill($billData['credit_card_id'],$billData['date']);
     }
 
     private function saveMultiplePortions(int $accountId, array $billData):Collection
@@ -118,7 +125,7 @@ class BillBusiness
         }
     }
 
-    public function updateChildBill(int $billId,array $billData):Model
+    private function updateChildBill(int $billId,array $billData):Model
     {
         $bill = $this->getBillById($billId);
         $due_date = (isset($billData['due_date']) && $billData['due_date'] != null)? Carbon::create($billData['due_date']) : null;
@@ -140,7 +147,6 @@ class BillBusiness
                 $due_date = $this->addMonthDueDate($due_date);
             }
             $item->refresh();
-            //return $item;
         });
         return $bill->refresh();
     }
@@ -164,7 +170,7 @@ class BillBusiness
         return $this->billRepository->deleteBill($billId);
     }
 
-    public function userHasBill(User $user, Model $bill)
+    public function userHasBill(User $user, Model $bill):bool
     {
         return $bill->account->user->id == $user->id;
     }

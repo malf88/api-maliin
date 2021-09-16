@@ -3,6 +3,7 @@
 namespace Tests\Unit\Account\Factory;
 
 use App\Models\Account;
+use App\Models\Bill;
 use App\Models\CreditCard;
 use App\Models\Invoice;
 use App\Models\User;
@@ -78,5 +79,49 @@ class AccountFactory extends TestCase
         $user->id = $id;
 
         return $user;
+    }
+    public function factoryAccount():Collection{
+        $accountInfo = [
+            'name'      => 'João',
+            'bank'      => '102 - Nu pagamentos SA',
+            'account'   =>  '23423'
+        ];
+
+        $billAccount1 = $this->factoryBill(1,100.00);
+        $billAccount2 = $this->factoryBill(2,200.00);
+        $billAccount3 = $this->factoryBill(3,-100.00);
+
+        $user = new User();
+        $user->id = 1;
+
+        $account = $this->createPartialMock(Account::class,['bills','load']);
+
+        $billCollection = Collection::make([$billAccount1,$billAccount2,$billAccount3]);
+
+        $account
+            ->method('bills')
+            ->willReturn($billCollection);
+        $account
+            ->method('load')
+            ->with(['bills'])
+            ->willReturn($account);
+        $account->user = $user;
+        $account->fill($accountInfo);
+        $account->id = 1;
+        return Collection::make([$account]);
+
+    }
+    public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
+    {
+        $bill = $this->createPartialMock(Bill::class,['load']);
+        $bill->description = "Mercado";
+        $bill->id = $id;
+        $bill->bill_parent_id = $parentId;
+        $bill->pay_day = $pay_day;
+        $bill->amount = $amount;
+        $bill->portion = $portion;
+
+        return $bill;
+
     }
 }

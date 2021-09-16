@@ -5,6 +5,7 @@ namespace Tests\Unit\Account;
 use App\Models\CreditCard;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
+use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,31 +18,47 @@ class CreditCardBusinessTest extends TestCase
 {
     public Collection $creditCardsList;
     private AccountFactory $factory;
+    private CreditCardRepository $creditCardRepository;
+    private AccountRepository $accountRepository;
+    private AccountBusiness $accountBusiness;
+    private CreditCardBusiness $creditCardBusiness;
+    private InvoiceBusiness $invoiceBusiness;
     public function setUp(): void
     {
         parent::setUp();
         $this->factory = new AccountFactory();
         $user = $this->factory->factoryUser(1);
         Auth::shouldReceive('user')->andReturn($user);
+
+        $this->creditCardRepository = $this->createMock(CreditCardRepository::class);
+        $this->accountRepository = $this->createMock(AccountRepository::class);
+        $this->invoiceBusiness = $this->createMock(InvoiceBusiness::class);
     }
-
-
-
+    public function prepareAccountBusiness():AccountBusiness
+    {
+        $this->accountBusiness = new AccountBusiness($this->accountRepository);
+        return $this->accountBusiness;
+    }
+    public function prepareCreditCardBusiness():CreditCardBusiness
+    {
+        $this->creditCardBusiness = new CreditCardBusiness(
+            $this->creditCardRepository,
+            $this->accountBusiness,
+            $this->invoiceBusiness);
+        return $this->creditCardBusiness;
+    }
     /**
      * @test
      */
     public function deveListarCartoesDeCreditoDeUmaConta(){
         $accountId = 1;
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
-
-        $creditCardRepository
+        $this->prepareAccountBusiness();
+        $this->creditCardRepository
             ->method('getCreditCardsByAccountId')
             ->with($accountId)
             ->willReturn($this->factory->factoryCreditCards());
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
-        $creditCards = $creditCardBusiness->getListCreditCardByAccount($accountId);
+        $this->prepareCreditCardBusiness();
+        $creditCards = $this->creditCardBusiness->getListCreditCardByAccount($accountId);
 
         $this->assertIsIterable($creditCards);
         $this->assertCount(4,$creditCards);
@@ -51,15 +68,13 @@ class CreditCardBusinessTest extends TestCase
      */
     public function deveDispararExcecaoAoListarCartoesDeCreditoDeUmaConta(){
         $accountId = 2;
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('getCreditCardsByAccountId')
             ->with($accountId)
             ->willReturn($this->factory->factoryCreditCards());
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(ItemNotFoundException::class);
         $creditCards = $creditCardBusiness->getListCreditCardByAccount($accountId);
 
@@ -70,17 +85,14 @@ class CreditCardBusinessTest extends TestCase
     public function deveRetornarUmCartaoDeCreditoComIdInformado(){
         $accountId = 1;
         $creditCardId = 1;
-
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
         $creditCards = $this->factory->factoryCreditCards();
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('getCreditCardById')
             ->with($creditCardId)
             ->willReturn($creditCards->find($creditCardId));
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->getCreditCardById($creditCardId);
 
         $this->assertEquals($creditCardId,$creditCard->id);
@@ -90,11 +102,9 @@ class CreditCardBusinessTest extends TestCase
      */
     public function deveRetornarUmaExcecaoAoRetornarUmCartaoDeCreditoComIdInformado(){
        $creditCardId = 5;
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(ItemNotFoundException::class);
         $creditCard = $creditCardBusiness->getCreditCardById($creditCardId);
 
@@ -112,19 +122,17 @@ class CreditCardBusinessTest extends TestCase
             'due_day'  => 01,
             'close_day' =>26
         ];
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
         $creditCard = new CreditCard();
         $creditCard->fill($creditCardData);
         $creditCard->id = $creditCardId;
 
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('saveCreditCard')
             ->with($accountId,$creditCardData)
             ->willReturn($creditCard);
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->insertCreditCard($accountId,$creditCardData);
 
         $this->assertEquals($creditCardId,$creditCard->id);
@@ -141,10 +149,8 @@ class CreditCardBusinessTest extends TestCase
             'due_day'  => 01,
             'close_day' =>26
         ];
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $this->prepareAccountBusiness();
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(ItemNotFoundException::class);
         $creditCard = $creditCardBusiness->insertCreditCard($accountId,$creditCardData);
     }
@@ -161,25 +167,22 @@ class CreditCardBusinessTest extends TestCase
             'close_day' => 26
         ];
 
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
-
+        $this->prepareAccountBusiness();
         $creditCard = new CreditCard();
         $creditCard->fill($creditCardData);
         $creditCard->id = $creditCardId;
 
         $creditCards = $this->factory->factoryCreditCards();
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('getCreditCardById')
             ->with($creditCardId)
             ->willReturn($creditCards->get(0));
 
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('updateCreditCard')
             ->with($creditCardId,$creditCardData)
             ->willReturn($creditCard);
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
 
         $this->assertEquals('Bradesco',$creditCard->name);
@@ -197,11 +200,9 @@ class CreditCardBusinessTest extends TestCase
             'close_day' => 26
         ];
 
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(ItemNotFoundException::class);
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
 
@@ -218,25 +219,23 @@ class CreditCardBusinessTest extends TestCase
             'due_day'  => 01,
             'close_day' => 26
         ];
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
         $creditCard = new CreditCard();
         $creditCard->fill($creditCardData);
         $creditCard->id = $creditCardId;
 
         $creditCards = $this->factory->factoryCreditCards();
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('getCreditCardById')
             ->with($creditCardId)
             ->willReturn($creditCards->get(0));
 
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('deleteCreditCard')
             ->with($creditCardId)
             ->willReturn(true);
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->removeCreditCard($creditCardId);
 
         $this->assertTrue($creditCard);
@@ -252,15 +251,13 @@ class CreditCardBusinessTest extends TestCase
             'close_day' => 26
         ];
 
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
 
         $creditCard = new CreditCard();
         $creditCard->fill($creditCardData);
         $creditCard->id = $creditCardId;
 
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(ItemNotFoundException::class);
         $creditCard = $creditCardBusiness->removeCreditCard($creditCardId);
 
@@ -271,20 +268,18 @@ class CreditCardBusinessTest extends TestCase
      */
     public function deveRetornarListaDeFaturasDoCartao(){
         $creditCardId = 1;
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
+        $this->prepareAccountBusiness();
         $creditCards = $this->factory->factoryCreditCards();
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('getCreditCardById')
             ->with($creditCardId)
             ->willReturn($creditCards->get(0));
 
-        $creditCardRepository
+        $this->creditCardRepository
             ->method('getInvoicesByCreditCard')
             ->with($creditCardId)
             ->willReturn($creditCards->get(0)->invoices());
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
         $this->assertCount(2,$invoices);
 
@@ -294,10 +289,8 @@ class CreditCardBusinessTest extends TestCase
      */
     public function deveRetornarUmaExcecaoAoBuscarListaDeFaturasDoCartao(){
         $creditCardId = 5;
-        $creditCardRepository = $this->createMock(CreditCardRepository::class);
-        $accountRepository = $this->createMock(AccountRepository::class);
-        $accountBusiness = new AccountBusiness($accountRepository);
-        $creditCardBusiness = new CreditCardBusiness($creditCardRepository,$accountBusiness);
+        $this->prepareAccountBusiness();
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(ItemNotFoundException::class);
         $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
 

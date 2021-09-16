@@ -65,7 +65,7 @@ class InvoiceBusinessTest extends TestCase
         $this->configureMockRepository($date);
         $creditCards = $this->factory->factoryCreditCards();
         $this->configureCreditCardBusiness();
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository,$this->creditCardBusiness);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
 
         $invoice = $invoiceBusiness->getInvoiceByCreditCardAndDate($this->creditCardId,Carbon::make($date));
 
@@ -78,33 +78,16 @@ class InvoiceBusinessTest extends TestCase
     /**
      * @test
      */
-    public function deveRetornarExcecaoAoBuscaInvoiceDeUmCartaoPorData()
-    {
-        $this->creditCardId = 5;
-        $date = '2021-08-10';
-        $this->configureMockRepository($date);
-        $creditCards = $this->factory->factoryCreditCards();
-
-        $this->configureCreditCardBusiness();
-
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository,$this->creditCardBusiness);
-        $this->expectException(ItemNotFoundException::class);
-        $invoice = $invoiceBusiness->getInvoiceByCreditCardAndDate($this->creditCardId,Carbon::make($date));
-
-    }
-
-    /**
-     * @test
-     */
     public function deveRetornarInvoiceParaOCartaoDeCreditoParaData()
     {
         $this->creditCardId = 1;
         $date = '2021-08-16';
         $this->configureMockRepository($date);
         $this->configureCreditCardBusiness();
+        $creditCards = $this->factory->factoryCreditCards();
         $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository,$this->creditCardBusiness);
 
-        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($this->creditCardId,Carbon::make($date));
+        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
         $this->assertEquals('2021-08-01',$invoice->start_date->format('Y-m-d'));
         $this->assertEquals('2021-08-30',$invoice->end_date->format('Y-m-d'));
         $this->assertEquals('2021-09-15',$invoice->due_date->format('Y-m-d'));
@@ -117,6 +100,7 @@ class InvoiceBusinessTest extends TestCase
     {
         $this->creditCardId = 1;
         $date = '2021-09-15';
+        $creditCards = $this->factory->factoryCreditCards();
         $invoiceData =  [
             'start_date'        =>  '2021-08-31',
             'end_date'          =>  '2021-09-30',
@@ -135,7 +119,7 @@ class InvoiceBusinessTest extends TestCase
         $this->configureCreditCardBusiness();
         $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository,$this->creditCardBusiness);
 
-        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($this->creditCardId,Carbon::make($date));
+        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
         $this->assertEquals('2021-08-31',$invoice->start_date->format('Y-m-d'));
         $this->assertEquals('2021-09-30',$invoice->end_date->format('Y-m-d'));
         $this->assertEquals('2021-10-07',$invoice->due_date->format('Y-m-d'));

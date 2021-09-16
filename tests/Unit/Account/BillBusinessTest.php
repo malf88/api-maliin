@@ -16,83 +16,28 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
+use Tests\Unit\Account\Factory\AccountFactory;
 use const OpenApi\COLOR_RED;
 
 class BillBusinessTest extends TestCase
 {
+    private AccountFactory $accountFactory;
     public function setUp(): void
     {
         parent::setUp();
-        $user = $this->factoryUser(1);
+        $this->accountFactory = new AccountFactory();
+        $user = $this->accountFactory->factoryUser(1);
         Auth::shouldReceive('user')
             ->andReturn($user);
-    }
-
-    public function factoryUser(int $id):User
-    {
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $accounts = $this->factoryAccount();
-        $user
-            ->method('accounts')
-            ->willReturn($accounts);
-        $user->id = $id;
-        return $user;
-    }
-
-    private function factoryAccount():Collection{
-        $accountInfo = [
-            'name'      => 'João',
-            'bank'      => '102 - Nu pagamentos SA',
-            'account'   =>  '23423'
-        ];
-
-        $billAccount1 = $this->factoryBill(1,100.00);
-        $billAccount2 = $this->factoryBill(2,200.00);
-        $billAccount3 = $this->factoryBill(3,-100.00);
-
-        $user = new User();
-        $user->id = 1;
-
-        $account = $this->createPartialMock(Account::class,['bills','load']);
-
-        $billCollection = Collection::make([$billAccount1,$billAccount2,$billAccount3]);
-
-        $account
-            ->method('bills')
-            ->willReturn($billCollection);
-        $account
-            ->method('load')
-            ->with(['bills'])
-            ->willReturn($account);
-        $account->user = $user;
-        $account->fill($accountInfo);
-        $account->id = 1;
-        return Collection::make([$account]);
-
-    }
-
-    public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
-    {
-        $bill = $this->createPartialMock(Bill::class,['load']);
-        $bill->description = "Mercado";
-        $bill->id = $id;
-        $bill->bill_parent_id = $parentId;
-        $bill->pay_day = $pay_day;
-        $bill->amount = $amount;
-        $bill->portion = $portion;
-
-        return $bill;
-
     }
 
     public function getMockRepository(){
         $mock = $this->createMock(BillRepository::class);
         $mock->method('getChildBill')
             ->willReturn(Collection::make([
-                $this->factoryBill(2,300,1,portion:2),
-                $this->factoryBill(3,200,1,portion:3),
-                $this->factoryBill(4,-100,1,portion:4)
+                $this->accountFactory->factoryBill(2,300,1,portion:2),
+                $this->accountFactory->factoryBill(3,200,1,portion:3),
+                $this->accountFactory->factoryBill(4,-100,1,portion:4)
             ]));
         return $mock;
 
@@ -104,6 +49,11 @@ class BillBusinessTest extends TestCase
 
     public function getMockCreditCardBusiness(){
         $creditCardBusiness = $this->createMock(CreditCardBusiness::class);
+        $creditCardBusiness
+            ->method('getCreditCardById')
+            ->willReturn($this->accountFactory->factoryCreditCards()->get(0));
+        $creditCardBusiness
+            ->method('generateInvoiceByBill');
         return $creditCardBusiness;
     }
     public function factoryBillData():array
@@ -117,7 +67,8 @@ class BillBusinessTest extends TestCase
             'barcode'       => '',
             'category_id'   => 1,
             'account_id'    => 1,
-            'portion'       => 1
+            'portion'       => 1,
+            'credit_card_id'=> null
         ];
     }
     /**
@@ -125,7 +76,7 @@ class BillBusinessTest extends TestCase
      */
     public function deveListarContasAPagarDeUmaConta(){
         $accountId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
@@ -134,7 +85,7 @@ class BillBusinessTest extends TestCase
             ->with($accountId)
             ->willReturn($accounts->get(0)->bills());
 
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bills = $billBusiness->getBillsByAccount($accountId);
 
         $this->assertIsIterable($bills);
@@ -151,7 +102,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->getBillsByAccount($accountId);
 
@@ -162,7 +113,7 @@ class BillBusinessTest extends TestCase
      */
     public function deveListarContasAPagarDeUmaContaPaginada(){
         $accountId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
@@ -172,7 +123,7 @@ class BillBusinessTest extends TestCase
             ->with($accountId,true)
             ->willReturn($billsPaginados);
 
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
         $this->assertCount(3,$bills->items());
@@ -190,7 +141,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
@@ -212,7 +163,7 @@ class BillBusinessTest extends TestCase
             ->method('saveBill')
             ->with($accountId,$billData)
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bill = $billBusiness->insertBill($accountId,$billData);
         $this->assertEquals('Compra no supermercado',$bill->description);
         $this->assertEquals(160.00,$bill->amount);
@@ -225,7 +176,6 @@ class BillBusinessTest extends TestCase
      */
     public function deveSalvarContasAPagarEmUmaContaComParcelas(){
         $accountId = 1;
-        $accounts = $this->factoryAccount();
         $billData = $this->factoryBillData();
         $billData['portion'] = 3;
 
@@ -238,7 +188,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('saveBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bills = $billBusiness->insertBill($accountId,$billData);
         $this->assertIsIterable($bills);
         $this->assertCount(3,$bills);
@@ -255,7 +205,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->insertBill($accountId,$billData);
     }
@@ -265,11 +215,11 @@ class BillBusinessTest extends TestCase
      */
     public function deveRetornarUmaContaAPagar(){
         $billId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $user = $this->factoryUser(1);
+        $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
         $bill = $this->createPartialMock(Bill::class,['account']);
@@ -283,7 +233,7 @@ class BillBusinessTest extends TestCase
             ->with($billId)
             ->willReturn($bill);
 
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bill = $billBusiness->getBillById($billId);
 
         $this->assertEquals(160.00,$bill->amount);
@@ -294,12 +244,11 @@ class BillBusinessTest extends TestCase
      */
     public function deveDispararExcecaoAoRetornarUmaContaAPagar(){
         $billId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $user = $this->factoryUser(3);
-
+        $user = $this->accountFactory->factoryUser(3);
 
         $account = $accounts->get(0);
         $account->user = $user;
@@ -314,7 +263,7 @@ class BillBusinessTest extends TestCase
             ->with($billId)
             ->willReturn($bill);
 
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bill = $billBusiness->getBillById($billId);
 
@@ -326,10 +275,10 @@ class BillBusinessTest extends TestCase
      */
     public function deveAlterarUmaContaAPagar(){
         $billId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
 
-        $user = $this->factoryUser(1);
+        $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
         $bill = $this->createPartialMock(Bill::class,['account']);
@@ -348,7 +297,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bill = $billBusiness->updateBill($billId,$billData);
 
         $this->assertEquals(160.00,$bill->amount);
@@ -359,11 +308,11 @@ class BillBusinessTest extends TestCase
      */
     public function deveAlterarUmaContaAPagarESeusIrmaos(){
         $billId = 2;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
         $billData['update_childs'] = true;
 
-        $user = $this->factoryUser(1);
+        $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
         $bill = $this->createPartialMock(Bill::class,['account']);
@@ -384,7 +333,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bills = $billBusiness->updateBill($billId,$billData);
 
         $this->assertCount(3,$bills->bill_parent);
@@ -397,20 +346,20 @@ class BillBusinessTest extends TestCase
      */
     public function deveAlterarUmaContaAPagarESeusFilhos(){
         $billId = 2;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
         $billData['update_childs'] = true;
 
-        $user = $this->factoryUser(1);
+        $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
         $bill = $this->createPartialMock(Bill::class,['account','load']);
         $bill->method('account')
             ->willReturn($account);
         $bill->bill_parent = Collection::make([
-           $this->factoryBill(2,-300.00,1,portion:2),
-           $this->factoryBill(3,-300.00,1,portion:3),
-           $this->factoryBill(4,-300.00,1,portion:4),
+           $this->accountFactory->factoryBill(2,-300.00,1,portion:2),
+           $this->accountFactory->factoryBill(3,-300.00,1,portion:3),
+           $this->accountFactory->factoryBill(4,-300.00,1,portion:4),
         ]);
         $bill->id = 1;
         $bill->account = $account;
@@ -425,7 +374,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bills = $billBusiness->updateBill($billId,$billData);
 
         $this->assertCount(3,$bills->bill_parent);
@@ -437,11 +386,11 @@ class BillBusinessTest extends TestCase
      */
     public function deveDispararExcecaoAoAlterarUmaContaAPagarESeusFilhos(){
         $billId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
         $billData['update_childs'] = true;
 
-        $user = $this->factoryUser(2);
+        $user = $this->accountFactory->factoryUser(2);
         $account = $accounts->get(0);
         $account->user = $user;
         $bill = $this->createPartialMock(Bill::class,['account']);
@@ -457,7 +406,7 @@ class BillBusinessTest extends TestCase
 
         $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->updateBill($billId,$billData);
     }
@@ -467,8 +416,8 @@ class BillBusinessTest extends TestCase
      */
     public function deveDeletarContaAPagar(){
         $billId = 1;
-        $accounts = $this->factoryAccount();
-        $user = $this->factoryUser(1);
+        $accounts = $this->accountFactory->factoryAccount();
+        $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
 
@@ -487,7 +436,7 @@ class BillBusinessTest extends TestCase
             ->willReturn(true);
         $accountBusiness = $this->getMockAccountBusiness();
 
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $bill = $billBusiness->deleteBill($billId);
 
         $this->assertEquals(true,$bill);
@@ -498,9 +447,9 @@ class BillBusinessTest extends TestCase
      */
     public function deveDispararExcecaoAoDeletarContaAPagar(){
         $billId = 1;
-        $accounts = $this->factoryAccount();
+        $accounts = $this->accountFactory->factoryAccount();
 
-        $user = $this->factoryUser(2);
+        $user = $this->accountFactory->factoryUser(2);
         $account = $accounts->get(0);
         $account->user = $user;
         $bill = $this->createPartialMock(Bill::class,['account']);
@@ -513,7 +462,7 @@ class BillBusinessTest extends TestCase
             ->method('getBillById')
             ->willReturn($bill);
         $accountBusiness = $this->getMockAccountBusiness();
-        $billBusiness = new BillBusiness($billRepository,$accountBusiness,$creditCardBusiness);
+        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bill = $billBusiness->deleteBill($billId);
 

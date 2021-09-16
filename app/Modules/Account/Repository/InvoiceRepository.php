@@ -20,6 +20,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 
     public function insertInvoice(array $invoiceData): Invoice
     {
-        // TODO: Implement insertInvoice() method.
+        $invoice = new Invoice();
+        $invoice->fill($invoiceData);
+        $invoice->save();
+        return $invoice;
     }
 }

@@ -8,9 +8,8 @@ use App\Modules\{module}\Impl\Business\{basename}BusinessInterface
 
 class {basename}Business implements {basename}BusinessInterface
 {
-    private {basename}RepositoryInterface ${basename}Repository;
-    public function __construct({basename}RepositoryInterface ${basename}Repository)
+    public function __construct(
+    private {basename}RepositoryInterface ${basename}Repository)
     {
-        $this->{basename}Repository = ${basename}Repository;
     }
 }

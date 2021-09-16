@@ -76,7 +76,8 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function generateInvoiceByBill(int $creditCardId,string $billDate):Model
     {
-        return $this->invoiceBusiness->createInvoiceForCreditCardByDate($creditCardId,Carbon::make($billDate));
+        $creditCard = $this->getCreditCardById($creditCardId);
+        return $this->invoiceBusiness->createInvoiceForCreditCardByDate($creditCard,Carbon::make($billDate));
     }
 
 

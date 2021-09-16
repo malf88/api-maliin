@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
-    private AccountServiceLocal $accountServices;
-    public function __construct(AccountServiceLocal $accountServices)
+    public function __construct(
+        private AccountServiceLocal $accountServices
+    )
     {
-        $this->accountServices = $accountServices;
     }
     /**
      * @OA\Get(

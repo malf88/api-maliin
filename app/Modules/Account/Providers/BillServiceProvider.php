@@ -28,6 +28,7 @@ class BillServiceProvider extends ServiceProvider
             ->when(BillBusiness::class)
             ->needs(CreditCardBusinessInterface::class)
             ->give(CreditCardBusiness::class);
+
         $this->app
             ->when(BillBusiness::class)
             ->needs(AccountBusinessInterface::class)

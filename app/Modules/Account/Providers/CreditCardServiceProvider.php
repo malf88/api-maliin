@@ -2,9 +2,11 @@
 
 namespace App\Modules\Account\Providers;
 
+use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Controllers\CreditCardController;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
@@ -31,7 +33,10 @@ class CreditCardServiceProvider extends ServiceProvider
             ->when(CreditCardBusiness::class)
             ->needs(InvoiceBusinessInterface::class)
             ->give(InvoiceBusiness::class);
-
+        $this->app
+            ->when(CreditCardBusiness::class)
+            ->needs(AccountBusinessInterface::class)
+            ->give(AccountBusiness::class);
         $this->app
             ->when(CreditCardBusiness::class)
             ->needs(CreditCardRepositoryInterface::class)

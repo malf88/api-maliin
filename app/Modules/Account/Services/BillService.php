@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class BillService implements BillServiceLocal
 {
-    private BillBusinessInterface $billBusiness;
 
-    public function __construct(BillBusinessInterface $billBusiness)
+    public function __construct(
+        private BillBusinessInterface $billBusiness
+    )
     {
-        $this->billBusiness = $billBusiness;
+
     }
 
     public function getBillsByAccount(int $accountId): Collection

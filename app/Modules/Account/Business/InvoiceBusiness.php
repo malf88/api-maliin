@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Business;
 
 
+use App\Models\CreditCard;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
@@ -13,31 +14,30 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 {
 
     public function __construct(
-        private InvoiceRepositoryInterface $invoiceRepository,
-        private CreditCardBusinessInterface $creditCardBusiness)
+        private InvoiceRepositoryInterface $invoiceRepository
+    )
     {
 
     }
     public function getInvoiceByCreditCardAndDate(int $creditCardId,Carbon $date):Model|null
     {
-        $this->creditCardBusiness->getCreditCardById($creditCardId);
         return $this->invoiceRepository->getInvoiceByCreditCardAndDate($creditCardId,$date);
     }
 
-    public function createInvoiceForCreditCardByDate(int $creditCardId, Carbon $date):Model
+    public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):Model
     {
-        $invoice = $this->getInvoiceByCreditCardAndDate($creditCardId,$date);
+        $invoice = $this->getInvoiceByCreditCardAndDate($creditCard->id,$date);
         if($invoice) {
             return $invoice;
         }
         return $this->invoiceRepository->insertInvoice(
-            $this->getInvoiceData($creditCardId,$date)
+            $this->getInvoiceData($creditCard,$date)
         );
     }
 
-    private function getInvoiceData($creditCardid, Carbon $date):array
+    private function getInvoiceData(CreditCard $creditCard, Carbon $date):array
     {
-        $creditCard = $this->creditCardBusiness->getCreditCardById($creditCardid);
+
         $startDate  = $this->generateStartDate($date,$creditCard->close_day);
         $endDate    = $this->generateEndDate($date,$creditCard->close_day);
         $dueDate    = $this->generateDueDate($endDate,$creditCard->due_day);
@@ -47,7 +47,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
             'end_date'          =>  $endDate,
             'due_date'          =>  $dueDate,
             'month_reference'   =>  $this->generateMonthReference($dueDate),
-            'credit_card_id'    =>  $creditCardid
+            'credit_card_id'    =>  $creditCard->id
         ];
     }
     private function generateStartDate(Carbon $date,int $closeDay):Carbon

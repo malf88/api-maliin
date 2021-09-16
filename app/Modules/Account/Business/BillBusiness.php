@@ -18,22 +18,21 @@ class BillBusiness implements BillBusinessInterface
 {
 
     public function __construct(
+        private AccountBusinessInterface $accountBusiness,
         private BillRepositoryInterface $billRepository,
-        private CreditCardBusinessInterface $creditCardBusiness,
-        private AccountBusinessInterface $accountBusiness)
+        private CreditCardBusinessInterface $creditCardBusiness
+    )
     {
 
     }
     private function findChildBill(Model $bill):Model
     {
-        //dd($bill);
         if($bill->bill_parent_id != null){
             $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
         }else{
             $bill->load('bill_parent');
         }
         $bill->makeVisible(['bill_parent']);
-
         return $bill;
     }
     public function normalizeListBills(Collection|LengthAwarePaginator $bills):Collection|LengthAwarePaginator
@@ -66,10 +65,11 @@ class BillBusiness implements BillBusinessInterface
     public function insertBill(int $accountId,$billData):Model|Collection
     {
         if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
-
             if($billData['portion'] > 1){
+
                 return $this->saveMultiplePortions($accountId,$billData);
             }else{
+                $this->processCreditCardBill($billData);
                 return $this->billRepository->saveBill($accountId,$billData);
             }
         }else{
@@ -78,6 +78,8 @@ class BillBusiness implements BillBusinessInterface
     }
     private function processCreditCardBill(array $billData):void
     {
+        if($billData['credit_card_id'] == null)
+            return;
         $creditCard = $this->creditCardBusiness->getCreditCardById($billData['credit_card_id']);
         $this->creditCardBusiness->generateInvoiceByBill($billData['credit_card_id'],$billData['date']);
     }
@@ -87,21 +89,35 @@ class BillBusiness implements BillBusinessInterface
         $billsInserted = new Collection();
         $totalPortion = $billData['portion'];
         $descriptionBeforeCreateBill = $billData['description'];
-        $billData['description'] = $descriptionBeforeCreateBill . ' [1/'.$billData['portion'].']';
+        $billData['description'] = $this->getNewDescriptionWithPortion(
+            $descriptionBeforeCreateBill,
+            1,
+            $totalPortion
+        );
         $billData['portion'] = 1;
+        $this->processCreditCardBill($billData);
         $billParent = $this->billRepository->saveBill($accountId,$billData);
         $billsInserted->add($billParent);
         $due_date = Carbon::create($billData['due_date']);
+        $date = Carbon::create($billData['date']);
         $due_date->addMonth();
+        $date->addMonth();
         for($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++){
 
-            $billData['description'] = $descriptionBeforeCreateBill . '['.$interatorPortion.'/'.$totalPortion.']';
+            $billData['description'] = $this->getNewDescriptionWithPortion(
+                $descriptionBeforeCreateBill,
+                $interatorPortion,
+                $totalPortion
+            );
             $billData['bill_parent_id'] = $billParent->id;
             $billData['portion'] = $interatorPortion;
             $billData['due_date'] = $due_date->format('Y-m-d');
+            $billData['date'] = $date->format('Y-m-d');
+            $this->processCreditCardBill($billData);
             $bill = $this->billRepository->saveBill($accountId,$billData);
             $billsInserted->add($bill);
             $due_date->addMonth();
+            $date->addMonth();
         }
         return $billsInserted;
     }

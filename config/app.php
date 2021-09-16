@@ -191,6 +191,7 @@ return [
         App\Modules\Account\Providers\CategoryServiceProvider::class,
         App\Modules\Account\Providers\CreditCardServiceProvider::class,
         App\Modules\Account\Providers\BillServiceProvider::class,
+        App\Modules\Account\Providers\InvoiceServiceProvider::class,
 
     ],
 

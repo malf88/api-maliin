@@ -9,10 +9,9 @@ use Illuminate\Http\Request;
 
 class BillController extends Controller
 {
-    private BillServiceLocal $billServices;
-    public function __construct(BillServiceLocal $billServices)
+    public function __construct(
+        private BillServiceLocal $billServices)
     {
-        $this->billServices = $billServices;
     }
 
     /**

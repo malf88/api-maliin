@@ -27,7 +27,6 @@ class BillRepository implements BillRepositoryInterface
         $bill = new Bill();
         $bill->fill($billData);
         $bill->account_id = $accountId;
-
         $bill->save();
         return $bill;
 

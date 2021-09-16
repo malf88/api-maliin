@@ -7,9 +7,8 @@ use App\Modules\Account\ServicesLocal\InvoiceServiceLocal;
 
 class InvoiceController extends Controller
 {
-    private InvoiceServiceLocal $InvoiceServices;
-    public function __construct(InvoiceServiceLocal $InvoiceServices)
+    public function __construct(
+        private InvoiceServiceLocal $invoiceServices)
     {
-        $this->InvoiceServices = $InvoiceServices;
     }
 }

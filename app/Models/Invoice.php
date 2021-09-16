@@ -27,7 +27,8 @@ class Invoice extends Model
         'end_date',
         'due_date',
         'month_reference',
-        'pay_day'
+        'pay_day',
+        'credit_card_id'
 
     ];
     public function creditcard(){

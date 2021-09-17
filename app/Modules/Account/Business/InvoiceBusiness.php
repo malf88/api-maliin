@@ -53,13 +53,13 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     private function generateStartDate(Carbon $date,int $closeDay):Carbon
     {
         $startDate = clone $date;
-
+        $days = $startDate->daysInMonth;
         if($date->day <= $closeDay){
-            $startDate->subDays(30);
-            $startDate->setDay($closeDay);
+            $startDate->subDays($days);
+            $startDate = $this->setDaysInCloseAndStartDate($startDate,$closeDay);
             $startDate->addDay();
         }else{
-            $startDate->setDay($closeDay);
+            $startDate = $this->setDaysInCloseAndStartDate($startDate,$closeDay);
             $startDate->addDay();
         }
         return $startDate;
@@ -67,24 +67,47 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     private function generateEndDate(Carbon $date,int $closeDay):Carbon
     {
         $endDate = clone $date;
-
+        $days = $date->daysInMonth;
         if($date->day <= $closeDay){
-            $endDate->setDay($closeDay);
+            $endDate = $this->setDaysInCloseAndStartDate($endDate,$closeDay);
         }else{
-            $endDate->setDay($closeDay);
-            $endDate->addMonth();
+            $endDate = $this->setDaysInCloseAndStartDate($endDate,$closeDay);
+            $endDate->addDays($days);
         }
         return $endDate;
+    }
+    private function setDaysInCloseAndStartDate(Carbon $date,int $closeDay):Carbon
+    {
+        $days = $date->daysInMonth;
+        if($closeDay > $days){
+            $date->setDay($days);
+        }else{
+            $date->setDay($closeDay);
+        }
+        return $date;
     }
     private function generateDueDate(Carbon $endDate, int $dueDay):Carbon
     {
         $dueDate = clone $endDate;
+
+        $days = $dueDate->daysInMonth;
         if($dueDay <= $endDate->day){
-            $dueDate->addDays(30);
-            $dueDate->setDay($dueDay);
+
+            if($dueDay > $days) {
+                $dueDate->addDays($days);
+                $dueDate->setDay($days);
+            }else{
+                $dueDate->setDay($dueDay);
+            }
+
         }else{
-            $dueDate->setDay($dueDay);
+            if($dueDay > $days) {
+                $dueDate->setDay($days);
+            }else{
+                $dueDate->setDay($dueDay);
+            }
         }
+
         return $dueDate;
     }
 

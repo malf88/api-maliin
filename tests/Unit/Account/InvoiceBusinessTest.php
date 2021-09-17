@@ -81,13 +81,14 @@ class InvoiceBusinessTest extends TestCase
     public function deveRetornarInvoiceParaOCartaoDeCreditoParaData()
     {
         $this->creditCardId = 1;
-        $date = '2021-08-16';
+        $date = '2021-08-15';
         $this->configureMockRepository($date);
         $this->configureCreditCardBusiness();
         $creditCards = $this->factory->factoryCreditCards();
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository,$this->creditCardBusiness);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
 
         $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
+
         $this->assertEquals('2021-08-01',$invoice->start_date->format('Y-m-d'));
         $this->assertEquals('2021-08-30',$invoice->end_date->format('Y-m-d'));
         $this->assertEquals('2021-09-15',$invoice->due_date->format('Y-m-d'));

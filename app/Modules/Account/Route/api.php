@@ -27,6 +27,7 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::get('/{id}','CreditCardController@show')->name('api.creditcard.show');
         Route::put('/{id}','CreditCardController@update')->name('api.creditcard.update');
         Route::delete('/{id}','CreditCardController@delete')->name('api.creditcard.delete');
+        //Route::get('/{id}/invoices','CreditCardController@invoices')->name('api.creditcard.invoices');
         Route::get('/{id}/invoices','CreditCardController@invoices')->name('api.creditcard.invoices');
 
     });

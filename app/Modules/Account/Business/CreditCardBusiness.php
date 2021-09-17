@@ -80,9 +80,15 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         return $this->invoiceBusiness->createInvoiceForCreditCardByDate($creditCard,Carbon::make($billDate));
     }
 
+    public function getInvoicesWithBillByCreditCard(int $creditCardId):Collection
+    {
+        $this->getCreditCardById($creditCardId);
+        return $this->invoiceBusiness->getInvoiceWithBill($creditCardId);
+    }
 
     public function userHasCreditCard(User $user, Model $creditCard):bool
     {
+
         return $creditCard->account->user->id == $user->id;
     }
 

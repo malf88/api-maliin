@@ -220,6 +220,8 @@ class CreditCardController extends Controller
      */
     public function invoices(int $id):Collection
     {
-        return $this->creditCardServices->getInvoicesByCreditCard($id);
+        return $this->creditCardServices->getInvoicesWithBillByCreditCard($id);
     }
+
+
 }

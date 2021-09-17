@@ -124,4 +124,21 @@ class AccountFactory extends TestCase
         return $bill;
 
     }
+    public function factoryInvoiceList()
+    {
+        $invoice1 = new Invoice();
+        $invoice1->bills = Collection::make([
+            $this->factoryBill(1,3.50),
+            $this->factoryBill(2,3.30),
+            $this->factoryBill(3,103.50)
+        ]);
+
+        $invoice2 = new Invoice();
+        $invoice2->bills = Collection::make([
+            $this->factoryBill(4,3.50),
+            $this->factoryBill(5,300.30),
+            $this->factoryBill(6,100.50)
+        ]);
+        return Collection::make([$invoice1,$invoice2]);
+    }
 }

@@ -8,6 +8,7 @@ use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class InvoiceBusiness implements InvoiceBusinessInterface
@@ -116,5 +117,11 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         return $dueDate->month;
     }
 
+    public function getInvoiceWithBill(int $creditCardId):Collection
+    {
+        return $this
+                ->invoiceRepository
+                ->getInvoicesWithBills($creditCardId);
+    }
 
 }

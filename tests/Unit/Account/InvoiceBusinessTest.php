@@ -9,6 +9,7 @@ use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Repository\CreditCardRepository;
 use App\Modules\Account\Repository\InvoiceRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
@@ -20,7 +21,6 @@ class InvoiceBusinessTest extends TestCase
     private InvoiceRepository $invoiceRepository;
     private CreditCardRepository $creditCardRepository;
     private AccountBusiness $accountBusiness;
-    private CreditCardBusiness $creditCardBusiness;
     private int $creditCardId = 1;
     public function setUp(): void
     {
@@ -118,12 +118,29 @@ class InvoiceBusinessTest extends TestCase
             ->method('insertInvoice')
             ->willReturn($invoice);
         $this->configureCreditCardBusiness();
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository,$this->creditCardBusiness);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
 
         $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
         $this->assertEquals('2021-08-31',$invoice->start_date->format('Y-m-d'));
         $this->assertEquals('2021-09-30',$invoice->end_date->format('Y-m-d'));
         $this->assertEquals('2021-10-07',$invoice->due_date->format('Y-m-d'));
         $this->assertEquals(10,$invoice->month_reference);
+    }
+
+    /**
+     * @test
+     */
+    public function deveRetornarListaFaturasComDeContasAPagarOuReceberPorCartaoDeCredito()
+    {
+
+        $creditCardId = 1;
+        $this->invoiceRepository
+            ->method('getInvoicesWithBills')
+            ->willReturn($this->factory->factoryInvoiceList());
+        $this->configureMockRepository('2021-09-01');
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoices = $invoiceBusiness->getInvoiceWithBill($creditCardId);
+
+        $this->assertCount(3,$invoices->get(0)->bills);
     }
 }

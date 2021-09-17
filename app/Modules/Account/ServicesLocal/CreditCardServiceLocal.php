@@ -13,4 +13,5 @@ namespace App\Modules\Account\ServicesLocal;
      public function updateCreditCard(int $creditCardId, array $creditCardData):Model;
      public function removeCreditCard(int $creditCardId):bool;
      public function getInvoicesByCreditCard(int $creditCardId):Collection;
+     public function getInvoicesWithBillByCreditCard(int $creditCardId):Collection;
 }

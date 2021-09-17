@@ -34,6 +34,14 @@ class CreditCardBusinessTest extends TestCase
         $this->accountRepository = $this->createMock(AccountRepository::class);
         $this->invoiceBusiness = $this->createMock(InvoiceBusiness::class);
     }
+    public function prepareCreditCardRepository($creditCardId)
+    {
+        $creditCards = $this->factory->factoryCreditCards();
+        $this->creditCardRepository
+            ->method('getCreditCardById')
+            ->with($creditCardId)
+            ->willReturn($creditCards->get(0));
+    }
     public function prepareAccountBusiness():AccountBusiness
     {
         $this->accountBusiness = new AccountBusiness($this->accountRepository);
@@ -295,5 +303,23 @@ class CreditCardBusinessTest extends TestCase
         $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
 
 
+    }
+
+    /**
+     * @test
+     */
+    public function deveRetornarListaFaturasComDeContasAPagarOuReceberPorCartaoDeCredito()
+    {
+
+        $creditCardId = 1;
+        $this->invoiceBusiness
+            ->method('getInvoiceWithBill')
+            ->willReturn($this->factory->factoryInvoiceList());
+        $this->prepareCreditCardRepository($creditCardId);
+        $this->prepareAccountBusiness();
+        $this->prepareCreditCardBusiness();
+        $invoices = $this->creditCardBusiness->getInvoicesWithBillByCreditCard($creditCardId);
+
+        $this->assertCount(3,$invoices->get(0)->bills);
     }
 }

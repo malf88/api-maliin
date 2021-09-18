@@ -93,9 +93,9 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
         $days = $dueDate->daysInMonth;
         if($dueDay <= $endDate->day){
-
+            $dueDate->setDay(2);
+            $dueDate->addDays($days);
             if($dueDay > $days) {
-                $dueDate->addDays($days);
                 $dueDate->setDay($days);
             }else{
                 $dueDate->setDay($dueDay);
@@ -108,7 +108,6 @@ class InvoiceBusiness implements InvoiceBusinessInterface
                 $dueDate->setDay($dueDay);
             }
         }
-
         return $dueDate;
     }
 

@@ -40,13 +40,16 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     public function getInvoicesWithBills(int $creditCardId):Collection
     {
         $invoices = CreditCard::find($creditCardId)
-                        ->invoices;
+                        ->invoices()
+                        ->orderBy('start_date','ASC')
+                        ->get();
         $invoices->each(function($item,$key){
             $item->bills = Bill::where('credit_card_id',$item->credit_card_id)
                             ->whereBetween('date',[$item->start_date,$item->end_date])
                             ->get();
             $item->bills = $this->prepareBills($item->bills);
-            $item->makeVisible(['bills']);
+            $item->total_balance = $item->bills->sum('amount');
+            $item->makeVisible(['bills','total_balance']);
         });
         return $invoices;
     }

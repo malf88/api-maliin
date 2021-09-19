@@ -20,7 +20,6 @@ class BillRepository implements BillRepositoryInterface
         }else{
             return $this->getBillsQuery($accountId)->get();
         }
-
     }
 
     private function getBillsQuery(int $accountId):Builder
@@ -87,14 +86,6 @@ class BillRepository implements BillRepositoryInterface
         $bill->update();
         return $bill;
     }
-
-//    public function getChildBill(int $billParentId):Collection
-//    {
-//        return Bill::where('bill_parent_id',$billParentId)
-//                    ->orWhere('id',$billParentId)
-//                    ->orderBy('created_at','ASC')
-//                    ->get();
-//    }
 
     public function deleteBill(int $billId):bool
     {

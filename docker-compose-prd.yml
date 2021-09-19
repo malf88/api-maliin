@@ -1,0 +1,68 @@
+version: '3'
+services:
+  api-app:
+    image: api-app
+    container_name: api
+    restart: unless-stopped
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      args:
+        - "BUILD_APP_ENV=${APP_ENV}"
+    env_file:
+      - .env
+    environment:
+      - CONTAINER_ROLE=app
+    networks:
+      - maliin
+  api-scheduler:
+    image: api-app
+    container_name: scheduler-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - api-app
+    environment:
+      CONTAINER_ROLE: scheduler
+    networks:
+      - maliin
+  api-queue:
+    image: api-app
+    container_name: api-queue
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - api-app
+    environment:
+      CONTAINER_ROLE: queue
+    networks:
+      - maliin
+  api-redis:
+    container_name: api-redis
+    image: redis
+    restart: unless-stopped
+    env_file:
+      - redis.env
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_PORT}:6379
+    networks:
+      - maliin
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: api-nginx
+    restart: unless-stopped
+    depends_on:
+      - api-app
+    ports:
+      - ${PORT}:80
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - maliin
+networks:
+  maliin:
+    driver: bridge

@@ -2,11 +2,12 @@
 
 namespace App\Modules\Account\Repository;
 
-use App\Models\Account;
 use App\Models\Bill;
+use App\Models\Invoice;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 
@@ -15,11 +16,43 @@ class BillRepository implements BillRepositoryInterface
     public function getBillsByAccount(int $accountId, bool $paginate = false):Collection|LengthAwarePaginator
     {
         if($paginate){
-            return Bill::where('account_id',$accountId)->paginate(config('app.paginate'));
+            return $this->getBillsQuery($accountId)->paginate(config('app.paginate'));
         }else{
-            return Bill::where('account_id',$accountId)->get();
+            return $this->getBillsQuery($accountId)->get();
         }
 
+    }
+
+    private function getBillsQuery(int $accountId):Builder
+    {
+        $invoices = Invoice::select(DB::raw("invoices.id,
+                                    'Fatura do cartão de crédito '||credit_cards.name,
+                                    (SELECT SUM(amount) FROM maliin.bills WHERE credit_card_id = invoices.credit_card_id AND date between invoices.start_date AND invoices.end_date) as amount,
+                                    invoices.start_date,
+                                    invoices.pay_day,
+                                    invoices.credit_card_id,
+                                    null,
+                                    '',
+                                    null,
+                                    true")
+                )
+                ->join('credit_cards','invoices.credit_card_id','=','credit_cards.id')
+                ->where('account_id',$accountId);
+
+        return Bill::select(DB::raw("id,
+                            description,
+                            amount,
+                            date,
+                            pay_day,
+                            credit_card_id,
+                            category_id,
+                            barcode,
+                            bill_parent_id,
+                            'false' as is_credit_card")
+                    )
+                    ->where('account_id',$accountId)
+                    ->where('credit_card_id')
+                    ->union($invoices);
     }
 
     public function saveBill(int $accountId,array $billData):Bill

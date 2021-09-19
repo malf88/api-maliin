@@ -40,7 +40,7 @@ class BillController extends Controller
 
     public function index(int $accountId)
     {
-        return $this->billServices->getBillsByAccountPaginate($accountId);
+        return $this->billServices->getBillsByAccount($accountId);
     }
     /**
      * @OA\Get(

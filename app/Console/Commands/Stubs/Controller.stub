@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Modules\{module}\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Modules\{module}\ServicesLocal\{basename}ServiceLocal;
+
+class {basename}Controller extends Controller
+{
+    public function __construct(
+        private {basename}ServiceLocal ${basename}Services)
+    {
+    }
+}

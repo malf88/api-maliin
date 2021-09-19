@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Modules\{module}\Providers;
+
+use App\Modules\{module}\Business\{basename}Business;
+use App\Modules\{module}\Controllers\{basename}Controller;
+use App\Modules\{module}\Impl\{basename}RepositoryInterface;
+use App\Modules\{module}\Repository\{basename}Repository;
+use App\Modules\{module}\Services\{basename}Service;
+use App\Modules\{module}\ServicesLocal\{basename}ServiceLocal;
+use Illuminate\Support\ServiceProvider;
+
+class {basename}ServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        $this->app
+            ->when({basename}Controller::class)
+            ->needs({basename}ServiceLocal::class)
+            ->give({basename}Service::class);
+
+        $this->app
+            ->when({basename}Business::class)
+            ->needs({basename}RepositoryInterface::class)
+            ->give({basename}Repository::class);
+
+        $this->app
+            ->when({basename}Service::class)
+            ->needs({basename}BusinessInterface::class)
+            ->give({basename}Business::class);
+    }
+
+}

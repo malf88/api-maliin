@@ -45,8 +45,10 @@ class Bill extends Model
         'due_date',
         'pay_day',
         'barcode',
+        'category_id',
         'bill_parent_id',
-        'portion'
+        'portion',
+        'account_id'
     ];
 
 
@@ -68,7 +70,7 @@ class Bill extends Model
         return $this->belongsTo('App\Models\Account');
     }
     public function bill_parent(){
-        return $this->belongsTo('App\Models\Bill','bill_parent_id');
+        return $this->hasMany(Bill::class,'bill_parent_id','id');
     }
     public function is_bill_parent(){
         return (Bill::where('bill_parent_id','=',$this->id)->count() > 0);

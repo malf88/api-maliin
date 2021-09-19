@@ -4,13 +4,14 @@ namespace App\Modules\Account\Services;
 
 use App\Models\Category;
 use App\Models\User;
-use App\Modules\Account\Bussines\CategoryBusiness;
+use App\Modules\Account\Impl\Business\CategoryBusinessInterface;
+use App\Modules\Account\ServicesLocal\CategoryServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 
 class CategoryService implements CategoryServiceLocal
 {
-    private CategoryBusiness $categoryBusiness;
-    public function __construct(CategoryBusiness $categoryBusiness)
+    private CategoryBusinessInterface $categoryBusiness;
+    public function __construct(CategoryBusinessInterface $categoryBusiness)
     {
         return $this->categoryBusiness = $categoryBusiness;
     }

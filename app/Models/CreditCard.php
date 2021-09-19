@@ -39,6 +39,10 @@ class CreditCard extends Model
         return $this->hasMany('App\Models\Bill');
     }
 
+    public function invoices(){
+        return $this->hasMany('App\Models\Invoice');
+    }
+
     public function account(){
         return $this->belongsTo('App\Models\Account');
     }

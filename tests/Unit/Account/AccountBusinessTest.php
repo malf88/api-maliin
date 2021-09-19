@@ -1,21 +1,34 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Account;
 
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\User;
-use App\Modules\Account\Bussines\AccountBusiness;
-use App\Modules\Account\Respository\AccountRepository;
+use App\Modules\Account\Business\AccountBusiness;
+use App\Modules\Account\Repository\AccountRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
-use LogicException;
 
 class AccountBusinessTest extends TestCase
 {
+    public function setUp(): void
+    {
+
+        parent::setUp();
+        $accounts = $this->factoryAccount();
+        $user = $this->createPartialMock(User::class,['accounts']);
+        $user->method('accounts')
+            ->willReturn($accounts);
+        //$user = new User();
+
+        Auth::shouldReceive('user')
+            ->andReturn($user);
+    }
+
     private function factoryAccount(){
         $accountInfo = [
             'name'      => 'João',
@@ -67,9 +80,7 @@ class AccountBusinessTest extends TestCase
 
         $account = new AccountBusiness($accountRepositoryMock);
         $listAccount = $account->getListAllAccounts($user);
-
         $this->assertIsIterable($listAccount);
-
         $this->assertEquals(200.00,$listAccount->get(0)->total_balance);
         $this->assertEquals(100.00,$listAccount->get(0)->total_estimated);
         $this->assertCount(3,$listAccount->get(0)->bills());
@@ -80,12 +91,8 @@ class AccountBusinessTest extends TestCase
      */
     public function deveListarContasDoUsuarioLogado(){
 
-        $user = new User();
-        Auth::shouldReceive('user')->once()->andReturn($user);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
-
         $accountRepositoryMock->method('getAccountFromUser')
-            ->with($user)
             ->willReturn($this->factoryAccount());
         $account = new AccountBusiness($accountRepositoryMock);
         $listAccount = $account->getListAllAccountFromLoggedUser();
@@ -128,7 +135,6 @@ class AccountBusinessTest extends TestCase
      */
     public function deveAlterarConta(){
 
-
         $accountInfo = [
             'name'      => 'João',
             'bank'      => '102 - Nu pagamentos SA',
@@ -137,13 +143,6 @@ class AccountBusinessTest extends TestCase
         $id = 1;
         $accounts = $this->factoryAccount();
 
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
 
         $accountRepositoryMock->method('updateAccount')
@@ -162,23 +161,12 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoAlterarContaDeOutroUsuarioOuInexistente(){
-
-
         $accountInfo = [
             'name'      => 'João',
             'bank'      => '102 - Nu pagamentos SA',
             'account'   =>  '23423'
         ];
         $id = 2;
-        $accounts = $this->factoryAccount();
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
 
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
@@ -193,15 +181,6 @@ class AccountBusinessTest extends TestCase
      */
     public function deveRemoverConta(){
         $id = 1;
-        $accounts = $this->factoryAccount();
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountRepositoryMock->method('deleteAccount')
             ->with($id)
@@ -217,22 +196,10 @@ class AccountBusinessTest extends TestCase
     public function deveRetornarExcecaoAoRemoverConta()
     {
 
-        $id = 1;
-        $accounts = $this->factoryAccount();
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
+        $id = 2;
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
-        $accountRepositoryMock->method('deleteAccount')
-            ->with($id)
-            ->willThrowException(new LogicException());
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
-        $this->expectException(LogicException::class);
+        $this->expectException(ItemNotFoundException::class);
         $accountBusiness->deleteAccount($id);
     }
     /**
@@ -241,17 +208,7 @@ class AccountBusinessTest extends TestCase
     public function deveRetornarUmaContaPeloId()
     {
         $id = 1;
-        $accounts = $this->factoryAccount();
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
         $account = $this->factoryAccount()->get(0);
-
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountRepositoryMock->method('getAccountById')
             ->with($id)
@@ -267,15 +224,6 @@ class AccountBusinessTest extends TestCase
     public function deveRetornarUmaExcecaoParaContaNaoEncontradaAoBuscarContaInexistente()
     {
         $id = 2;
-        $accounts = $this->factoryAccount();
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
         $this->expectException(ItemNotFoundException::class);
@@ -287,15 +235,6 @@ class AccountBusinessTest extends TestCase
      */
     public function deveDispararExcecaoAoRemoverContaInexistente(){
         $id = 2;
-        $accounts = $this->factoryAccount();
-
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->once()
-            ->andReturn($user);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $this->expectException(ItemNotFoundException::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock);

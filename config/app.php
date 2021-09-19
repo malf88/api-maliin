@@ -1,5 +1,18 @@
 <?php
-
+/**
+ * @OA\Info(title="Api para a aplicação Maliin", version="1.0")
+ * @OA\Server(
+ *     description="Local",
+ *     url="http://localhost/api/"
+ * )
+ * @OA\SecurityScheme(
+ *      securityScheme="bearerAuth",
+ *      in="header",
+ *      name="Authorization",
+ *      type="apiKey",
+ *      scheme="token"
+ * ),
+ */
 return [
 
     /*
@@ -14,7 +27,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-
+    'paginate' => 15,
     /*
     |--------------------------------------------------------------------------
     | Application Environment
@@ -175,6 +188,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Modules\Account\Providers\AccountServiceProvider::class,
+        App\Modules\Account\Providers\CategoryServiceProvider::class,
+        App\Modules\Account\Providers\CreditCardServiceProvider::class,
+        App\Modules\Account\Providers\BillServiceProvider::class,
+        App\Modules\Account\Providers\InvoiceServiceProvider::class,
 
     ],
 

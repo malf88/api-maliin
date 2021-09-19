@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Modules\{module}\Repository;
+
+use App\Modules\{module}\Impl\{basename}RepositoryInterface;
+
+class {basename}Repository implements {basename}RepositoryInterface
+{
+
+}

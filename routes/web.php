@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return view('home');
-});
+if(config('app.env') != 'production'){
+    Route::get('/', function () {
+        return view('app');
+    });
+}

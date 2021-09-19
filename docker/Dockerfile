@@ -42,6 +42,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     chmod +x /usr/local/bin/start && \
     npm install && npm run prod && \
     chown -R www-data:www-data /var/www && \
+    php artisan config:clear && \
+    php artisan cache:clear && \
     php artisan test
 
 COPY ./docker/www.conf /usr/local/etc/php-fpm.d/www.conf

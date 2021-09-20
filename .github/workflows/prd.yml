@@ -30,6 +30,7 @@ jobs:
             cd ~/app/jacksparrow
             git fetch
             git pull
+            docker system prune -a
             docker-compose -f docker-compose-prd.yml build
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2

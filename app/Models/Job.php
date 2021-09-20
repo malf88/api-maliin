@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Job extends Model
+class Job extends ApiModel
 {
     protected $table = 'maliin.jobs';
     protected $dates = ['reserved_at','available_at','created_at'];

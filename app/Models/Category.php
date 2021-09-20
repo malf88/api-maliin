@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Category extends Model
+class Category extends ApiModel
 {
     use SoftDeletes;
 
     protected $table = 'maliin.categories';
+    protected array $rules = [
+        'name'              => 'required',
+        'is_investiment'    => 'required'
+    ];
     protected $dates = ['deleted_at'];
     /**
      * The attributes that are mass assignable.

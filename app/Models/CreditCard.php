@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CreditCard extends Model
+class CreditCard extends ApiModel
 {
     use SoftDeletes;
 
     protected $table = 'maliin.credit_cards';
+    protected array $rules = [
+        'name'          => 'required',
+        'due_day'       => 'required|integer',
+        'close_day'     => 'required|integer'
+    ];
     protected $dates = [
         'deleted_at'
     ];

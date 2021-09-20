@@ -65,7 +65,7 @@ class BillBusiness implements BillBusinessInterface
     public function insertBill(int $accountId,$billData):Model|Collection
     {
         if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
-            if($billData['portion'] > 1){
+            if(isset($billData['portion']) && $billData['portion'] > 1){
                 return $this->saveMultiplePortions($accountId,$billData);
             }else{
                 $this->processCreditCardBill($billData);
@@ -85,6 +85,8 @@ class BillBusiness implements BillBusinessInterface
 
     private function saveMultiplePortions(int $accountId, array $billData):Collection
     {
+        if(isset($billData['credit_card_id']))
+            $billData['due_date'] = null;
         $billsInserted = new Collection();
         $totalPortion = $billData['portion'];
         $descriptionBeforeCreateBill = $billData['description'];
@@ -93,13 +95,14 @@ class BillBusiness implements BillBusinessInterface
             1,
             $totalPortion
         );
+        $due_date = (isset($billData['due_date']) && $billData['due_date'] != null)? Carbon::create($billData['due_date']) : null;
         $billData['portion'] = 1;
+        $billData['due_date'] = $due_date;
         $this->processCreditCardBill($billData);
         $billParent = $this->billRepository->saveBill($accountId,$billData);
         $billsInserted->add($billParent);
-        $due_date = Carbon::create($billData['due_date']);
-        $date = Carbon::create($billData['date']);
-        $due_date->addMonth();
+        $date = Carbon::createFromFormat('Y-m-d',$billData['date']);
+        $due_date = $this->addMonthDueDate($due_date);
         $date->addMonth();
         for($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++){
 
@@ -110,12 +113,13 @@ class BillBusiness implements BillBusinessInterface
             );
             $billData['bill_parent_id'] = $billParent->id;
             $billData['portion'] = $interatorPortion;
-            $billData['due_date'] = $due_date->format('Y-m-d');
-            $billData['date'] = $date->format('Y-m-d');
+            $billData['due_date'] = $due_date;
+            $billData['date'] = $date;
+
             $this->processCreditCardBill($billData);
             $bill = $this->billRepository->saveBill($accountId,$billData);
             $billsInserted->add($bill);
-            $due_date->addMonth();
+            $due_date = $this->addMonthDueDate($due_date);
             $date->addMonth();
         }
         return $billsInserted;

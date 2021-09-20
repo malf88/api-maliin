@@ -222,7 +222,8 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
 
@@ -281,7 +282,8 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
 
@@ -421,7 +423,8 @@ class BillBusinessTest extends TestCase
         $account = $accounts->get(0);
         $account->user = $user;
 
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
         $bill->account = $account;

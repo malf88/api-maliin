@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./storage:/var/www/storage:rw
+      - ./:/var/www/
     environment:
       - CONTAINER_ROLE=app
   api-scheduler:

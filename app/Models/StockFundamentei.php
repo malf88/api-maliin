@@ -6,7 +6,7 @@ use App\Repositories\Stocks\StockFundamenteiRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StockFundamentei extends Model
+class StockFundamentei extends ApiModel
 {
     use SoftDeletes;
     protected $table = 'investments.stocks_fundamentei';

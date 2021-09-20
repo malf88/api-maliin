@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Balance extends Model
+class Balance extends ApiModel
 {
     protected $table = 'investments.balances';
     protected $dates = ['deleted_at','date'];

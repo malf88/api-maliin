@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class QueryBills extends Model
+class QueryBills extends ApiModel
 {
     protected $primaryKey = 'id';
     protected $table = 'maliin.query_bills';

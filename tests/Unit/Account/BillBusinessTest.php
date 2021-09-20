@@ -61,8 +61,8 @@ class BillBusinessTest extends TestCase
         return [
             'description'   => 'Compra no supermercado',
             'amount'        => 160.00,
-            'date'          => Carbon::today(),
-            'due_date'      => Carbon::today()->addDays(30),
+            'date'          => Carbon::today()->format('Y-m-d'),
+            'due_date'      => Carbon::today()->addDays(30)->format('Y-m-d'),
             'pay_day'       => null,
             'barcode'       => '',
             'category_id'   => 1,
@@ -222,7 +222,8 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
 
@@ -281,7 +282,8 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
 
@@ -421,7 +423,8 @@ class BillBusinessTest extends TestCase
         $account = $accounts->get(0);
         $account->user = $user;
 
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
         $bill->account = $account;

@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Invoice extends Model
+class Invoice extends ApiModel
 {
     use SoftDeletes;
 
     protected $table = 'maliin.invoices';
+    protected array $rules = [
+        'start_date'        => 'required|date|before:end_date',
+        'end_date'          => 'required|date|after:end_date',
+        'due_date'          => 'required|date|after:end_date',
+        'month_reference'   => 'required|integer',
+        'pay_day'           => 'after_or_equal:end_date',
+        'credit_card_id'    =>  'exists:credit_cards,id'
+    ];
     protected $dates = [
         'deleted_at',
         'start_date',

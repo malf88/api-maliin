@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FailedJob extends Model
+class FailedJob extends ApiModel
 {
     protected $table = 'maliin.failed_jobs';
     protected $dates = ['failed_at'];

@@ -18,14 +18,14 @@ jobs:
             git fetch
             git pull
             docker-compose -f docker-compose-prd.yml build
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy Laravel app
+      - name: Build Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
-          username: ${{secrets.SSH_USERNAME}}     
+          username: ${{secrets.SSH_USERNAME}}
+     
           script: |
+            cd ~/app/jacksparrow
             docker-compose -f docker-compose-prd.yml up -d
+  

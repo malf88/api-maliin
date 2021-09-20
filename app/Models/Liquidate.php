@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Liquidate extends Model
+class Liquidate extends ApiModel
 {
     use SoftDeletes;
     protected $table = 'investments.liquidates';

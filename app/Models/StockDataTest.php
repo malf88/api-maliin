@@ -7,7 +7,7 @@ use App\Repositories\Stocks\StockFundamenteiRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StockDataTest extends Model
+class StockDataTest extends ApiModel
 {
     use SoftDeletes;
     protected $table = 'investments.stocks_data_tests';

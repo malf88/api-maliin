@@ -6,7 +6,7 @@ use App\Repositories\Stocks\StockFundamenteiRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Stock extends Model
+class Stock extends ApiModel
 {
     use SoftDeletes;
     const RENDA_FIXA = 'Renda Fixa';

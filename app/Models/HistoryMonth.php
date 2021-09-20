@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class HistoryMonth extends Model
+class HistoryMonth extends ApiModel
 {
     use SoftDeletes;
     protected $table = 'investments.histories_month';

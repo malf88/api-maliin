@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
-class Account extends Model
+class Account extends ApiModel
 {
     use SoftDeletes;
 
@@ -35,6 +37,12 @@ class Account extends Model
         'account',
         'user_id'
     ];
+    protected array $rules = [
+        'name'      => 'required|max:100',
+        'bank'      => 'required',
+        'agency'    => 'required',
+        'account'   => 'required'
+    ];
     /**
      * The attributes that should be cast to native types.
      *
@@ -55,5 +63,6 @@ class Account extends Model
     public function user(){
         return $this->belongsTo('App\Models\User');
     }
+
 
 }

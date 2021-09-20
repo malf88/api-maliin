@@ -2,13 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Bill extends Model
+class Bill extends ApiModel
 {
     use SoftDeletes;
-
+    protected array $rules = [
+        'description'       =>  'required',
+        'amount'            =>  'required|numeric',
+        'date'              =>  'required|date|before_or_equal:due_date',
+        'pay_day'           =>  'date',
+        'category_id'       =>  'required|exists:categories,id',
+        'bill_parent_id'    =>  'exists:bills,id',
+        'account_id'        =>  'required|exists:accounts,id',
+        'credit_card_id'    =>  'exists:credit_cards,id',
+        'due_date'          =>  'required_without:credit_card_id|date|after_or_equal:date'
+    ];
     protected $table = 'maliin.bills';
     protected $visible = [
         'description',
@@ -48,7 +57,8 @@ class Bill extends Model
         'category_id',
         'bill_parent_id',
         'portion',
-        'account_id'
+        'account_id',
+        'credit_card_id'
     ];
 
 

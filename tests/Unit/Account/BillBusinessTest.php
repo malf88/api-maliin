@@ -61,8 +61,8 @@ class BillBusinessTest extends TestCase
         return [
             'description'   => 'Compra no supermercado',
             'amount'        => 160.00,
-            'date'          => Carbon::today(),
-            'due_date'      => Carbon::today()->addDays(30),
+            'date'          => Carbon::today()->format('Y-m-d'),
+            'due_date'      => Carbon::today()->addDays(30)->format('Y-m-d'),
             'pay_day'       => null,
             'barcode'       => '',
             'category_id'   => 1,

@@ -114,6 +114,8 @@ class AccountFactory extends TestCase
     public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
     {
         $bill = $this->createPartialMock(Bill::class,['load']);
+        $bill
+            ->method('load');
         $bill->description = "Mercado";
         $bill->id = $id;
         $bill->bill_parent_id = $parentId;

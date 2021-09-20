@@ -3,7 +3,7 @@ on:
   push:
     branches: [master]
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Build Laravel app
@@ -18,7 +18,7 @@ jobs:
             git fetch
             git pull
             docker-compose -f docker-compose-prd.yml build
-      - name: Build Laravel app
+      - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:
           host: ${{secrets.SSH_HOST}}
@@ -27,5 +27,6 @@ jobs:
      
           script: |
             cd ~/app/jacksparrow
+            docker-compose -f docker-compose-prd.yml down
             docker-compose -f docker-compose-prd.yml up -d
   

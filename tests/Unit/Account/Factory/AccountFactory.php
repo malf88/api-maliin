@@ -75,7 +75,7 @@ class AccountFactory extends TestCase
         $user = $this->createPartialMock(User::class,['accounts']);
         $user
             ->method('accounts')
-            ->willReturn($account);
+            ->willReturn(Collection::make([$account]));
         $user->id = $id;
 
         return $user;

@@ -121,7 +121,6 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function userHasAccount(User $user,int $id):bool
     {
-
         return $user->accounts()->find($id) != null;
     }
 }

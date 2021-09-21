@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./storage:/var/www/storage
+      - ./:/var/www/
     environment:
       - CONTAINER_ROLE=app
   api-scheduler:
@@ -55,7 +55,7 @@ services:
     ports:
       - ${PORT}:80
     volumes:
-      - ./:/var/www
+      - ./:/var/www:cached
       - ./docker/nginx:/etc/nginx/conf.d
 networks:
   default:

@@ -1,0 +1,1002 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Api para a aplicação Maliin",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost/api/",
+            "description": "Local"
+        }
+    ],
+    "paths": {
+        "/token": {
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Realiza o login do usuário",
+                "description": "Realiza o login do usuário e retorna um token",
+                "operationId": "5cea66c9d0c0d072f9f5c32e4f54fb6f",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "email": "teste@teste.com",
+                                    "password": "12345"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Login aconteceu com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/account": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Retorna uma lista de contas",
+                "description": "Retornará uma lista de cursos do usuário logado",
+                "operationId": "d1d66a376984566eecf52a66018be6c3",
+                "responses": {
+                    "200": {
+                        "description": "Uma lista de contas"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Insere uma conta",
+                "description": "Insere uma nova conta",
+                "operationId": "c77feea4bf443d70328f72ebde2d22f7",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "bank": {
+                                        "type": "string"
+                                    },
+                                    "agency": {
+                                        "type": "string"
+                                    },
+                                    "account": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Nubank",
+                                    "bank": "260",
+                                    "account": "1234567-8",
+                                    "agency": "0001"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Objeto inserido com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/account/{id}": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Retorna a conta com o {id}",
+                "description": "Retorna a conta com o {id} informado",
+                "operationId": "ac9cbe15f91cf8aa472535b129e34944",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Um objeto de curso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Altera uma conta",
+                "description": "Altera uma conta existente",
+                "operationId": "cdd06cef53bfadbdf9dfe19191451cf9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "bank": {
+                                        "type": "string"
+                                    },
+                                    "agency": {
+                                        "type": "string"
+                                    },
+                                    "account": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Nubank",
+                                    "bank": "260",
+                                    "acount": "1234567-8",
+                                    "agency": "0001"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Objeto alterado com sucesso"
+                    },
+                    "404": {
+                        "description": "Objeto não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Exclui a conta com o {id}",
+                "description": "Exclui a conta com o {id} informado",
+                "operationId": "ede4536aa575fcdab4dca746e073f303",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/bill/account/{accountId}": {
+            "get": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Uma lista de contas a pagar/receber",
+                "description": "Uma lista de contas a pagar/receber da conta informada",
+                "operationId": "ee3623d59e36bdb58bb8fb5efb4bedc3",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id da conta",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uma lista de contas a pagar/receber"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Insere uma conta a pagar/receber",
+                "description": "Insere uma conta a pagar/receber",
+                "operationId": "b21dec7a769f43e779ec44ca487b758d",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id da conta",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "int"
+                                    },
+                                    "date": {
+                                        "type": "date"
+                                    },
+                                    "due_date": {
+                                        "type": "date"
+                                    },
+                                    "pay_day": {
+                                        "type": "date"
+                                    },
+                                    "credit_card_id": {
+                                        "type": "int"
+                                    },
+                                    "category_id": {
+                                        "type": "int"
+                                    },
+                                    "barcode": {
+                                        "type": "string"
+                                    },
+                                    "portion": {
+                                        "type": "int"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "description": "Gasolina [1/10]",
+                                    "amount": "-29.10",
+                                    "date": "2019-03-13T00:00:00.000000Z",
+                                    "due_date": null,
+                                    "pay_day": "2020-02-04T00:00:00.000000Z",
+                                    "category_id": 1,
+                                    "portion": 1,
+                                    "account_id": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Objeto inserido com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/bill/{id}": {
+            "get": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Retorna a conta a pagar/receber com o {id}",
+                "description": "Retorna a conta a pagar/receber com o {id} informado",
+                "operationId": "853b05d16f2712d227c555bb140fe69f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id da conta a pagar/receber",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna um objeto de conta a pagar/receber"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Altera uma conta a pagar/receber",
+                "description": "Altera uma conta a pagar/receber",
+                "operationId": "4269ebacf61320f0f8b7e6845a636763",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro a ser alterado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "text/json": {
+                            "schema": {
+                                "properties": {
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "int"
+                                    },
+                                    "date": {
+                                        "type": "date"
+                                    },
+                                    "due_date": {
+                                        "type": "date"
+                                    },
+                                    "pay_day": {
+                                        "type": "date"
+                                    },
+                                    "credit_card_id": {
+                                        "type": "int"
+                                    },
+                                    "category_id": {
+                                        "type": "int"
+                                    },
+                                    "barcode": {
+                                        "type": "string"
+                                    },
+                                    "portion": {
+                                        "type": "int"
+                                    },
+                                    "update_childs": {
+                                        "type": "bool"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "description": "Gasolina [1/10]",
+                                    "amount": "-29.10",
+                                    "date": "2019-03-13T00:00:00.000000Z",
+                                    "due_date": null,
+                                    "pay_day": "2020-02-04T00:00:00.000000Z",
+                                    "category_id": 1,
+                                    "portion": 1,
+                                    "account_id": 1,
+                                    "update_childs": false
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Objeto alterado com sucesso"
+                    },
+                    "404": {
+                        "description": "Objeto não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Exclui uma conta a pagar/receber com o {id}",
+                "description": "Exclui uma conta a pagar/receber com o {id}",
+                "operationId": "293455140c3911d4843b361f870efdd2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/bill/{id}/pay": {
+            "put": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Seta a conta a pagar/receber como paga/recebida",
+                "description": "Seta a conta a pagar/receber como paga/recebida",
+                "operationId": "6b87001506ff0a4a6cdfbca60bac24e8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/category": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Retorna uma lista de categorias",
+                "description": "Retornará uma lista de categorias do usuário logado",
+                "operationId": "a6769b0bd3d2a1d322109d1ea55ecce3",
+                "responses": {
+                    "200": {
+                        "description": "Uma lista de categorias"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Insere uma categoria",
+                "description": "Insere uma nova categoria",
+                "operationId": "8b90ecba06931ff8d6afcc6a478f50f8",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "is_investiment": {
+                                        "type": "bool"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Lanches",
+                                    "is_investiment": true
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Objeto inserido com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/category/{id}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Retorna a a categorias com o {id}",
+                "description": "Retorna a categoria com o {id} informado",
+                "operationId": "f322a413ba5223c358432dda80431e85",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Um objeto de categoria"
+                    },
+                    "404": {
+                        "description": "Categoria não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Altera uma categoria",
+                "description": "Altera uma categoria existente",
+                "operationId": "ffb2eb219509b4123b0c573c4ec403f3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro a ser alterado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "text/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "is_investiment": {
+                                        "type": "bool"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Lanches",
+                                    "is_investiment": true
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Objeto alterado com sucesso"
+                    },
+                    "404": {
+                        "description": "Objeto não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Exclui a categoria com o {id}",
+                "description": "Exclui uma categoria",
+                "operationId": "5d30b9cd22230773aabe3351d9950e05",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/creditcard/account/{accountId}": {
+            "get": {
+                "tags": [
+                    "Credit Cards"
+                ],
+                "summary": "Uma lista de cartões de crédito de uma conta",
+                "description": "Uma lista de cartões de crédito da conta informada",
+                "operationId": "689bad121f2260ff0bada1230d6707e0",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id da conta",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uma lista de cartão de crédito"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Credit Cards"
+                ],
+                "summary": "Insere um cartão de crédito",
+                "description": "Insere um novo cartão de crédito",
+                "operationId": "81efe0ebdf05d396a19a99436c1919fb",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id da conta",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "due_day": {
+                                        "type": "int"
+                                    },
+                                    "close_day": {
+                                        "type": "int"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Itaú",
+                                    "due_day": 10,
+                                    "close_day": 16
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Objeto inserido com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/creditcard/{id}": {
+            "get": {
+                "tags": [
+                    "Credit Cards"
+                ],
+                "summary": "Retorna o cartão de crédito com o {id}",
+                "description": "Retornada o cartão de crédito com o {id} informado",
+                "operationId": "4b771599fcf115666bf148b73af1c8f4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do cartão de crédito",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna um objeto de cartão de crédito"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Credit Cards"
+                ],
+                "summary": "Altera um cartão de crédito",
+                "description": "Altera um cartão de crédito existente",
+                "operationId": "3ee719ba6095a616ca15fe11388d7a95",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro a ser alterado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "text/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "due_day": {
+                                        "type": "int"
+                                    },
+                                    "close_day": {
+                                        "type": "int"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Itaú",
+                                    "due_day": 10,
+                                    "close_day": 16
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Objeto alterado com sucesso"
+                    },
+                    "404": {
+                        "description": "Objeto não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Credit Cards"
+                ],
+                "summary": "Exclui o cartão de crédito com o {id}",
+                "description": "Exclui uma categoria",
+                "operationId": "0f0116025e23ac98d4f1955f43ab9bba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do registro buscado",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/creditcard/{id}/invoices": {
+            "get": {
+                "tags": [
+                    "Credit Cards"
+                ],
+                "summary": "Retorna uma lista de faturas",
+                "description": "Retornada uma lista de faturas do cartão com o {id} informado",
+                "operationId": "2d59f9ef69b5c8d5db3a26c840d65cd5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do cartão de crédito",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna uma lista de faturas do cartão de crédito"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "token"
+            }
+        }
+    }
+}

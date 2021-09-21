@@ -25,22 +25,24 @@ jobs:
         with:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
-          username: ${{secrets.SSH_USERNAME}}     
+          username: ${{secrets.SSH_USERNAME}}
           script: |
             cd ~/app/jacksparrow
             git fetch
             git pull
             docker system prune -a --force
             docker-compose -f docker-compose-prd.yml build
+            docker-compose -f docker-compose-prd.yml run --rm composer install
+            docker-compose -f docker-compose-prd.yml run --rm node npm install
+            docker-compose -f docker-compose-prd.yml run --rm node npm run prod
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
-     
           script: |
             cd ~/app/jacksparrow
             docker-compose -f docker-compose-prd.yml down
             docker-compose -f docker-compose-prd.yml up -d
-  
+

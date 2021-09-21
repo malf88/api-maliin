@@ -43,6 +43,21 @@ services:
       CONTAINER_ROLE: queue
     networks:
       - maliin
+  composer:
+    image: composer:2
+    container_name: composer
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+  node:
+    image: node:12-alpine
+    container_name: node
+    env_file:
+      - .env
+    working_dir: /usr/src/app
+    volumes:
+      - ./:/usr/src/app
   api-redis:
     container_name: api-redis
     image: redis

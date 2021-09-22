@@ -34,6 +34,7 @@ jobs:
             docker-compose -f docker-compose-prd.yml build
             docker-compose -f docker-compose-prd.yml run --rm composer install
             docker-compose -f docker-compose-prd.yml run --rm node npm install
+            docker-compose -f docker-compose-prd.yml run --rm api-app php artisan clear-compiled
             docker-compose -f docker-compose-prd.yml run --rm node npm run prod
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2

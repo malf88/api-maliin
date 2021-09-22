@@ -5,6 +5,10 @@
  *     description="Local",
  *     url="http://localhost/api/"
  * )
+ * @OA\Server(
+ *     description="Homologação",
+ *     url="https://api.hml.malf88.xyz/api/"
+ * )
  * @OA\SecurityScheme(
  *      securityScheme="bearerAuth",
  *      in="header",

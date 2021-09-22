@@ -8,6 +8,10 @@
         {
             "url": "http://localhost/api/",
             "description": "Local"
+        },
+        {
+            "url": "https://api.hml.malf88.xyz/api/",
+            "description": "Homologação"
         }
     ],
     "paths": {

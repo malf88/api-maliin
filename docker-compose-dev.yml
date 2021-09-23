@@ -75,6 +75,8 @@ services:
     restart: unless-stopped
     depends_on:
       - api-app
+    env_file:
+      - .env
     ports:
       - ${PORT}:80
     volumes:

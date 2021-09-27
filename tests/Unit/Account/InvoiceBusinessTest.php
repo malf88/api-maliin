@@ -53,7 +53,7 @@ class InvoiceBusinessTest extends TestCase
 
     private function configureCreditCardBusiness(){
         $invoiceBusiness = $this->createMock(InvoiceBusiness::class);
-        $this->creditCardBusiness = new CreditCardBusiness($this->creditCardRepository,$this->accountBusiness,$invoiceBusiness);
+        $this->creditCardBusiness = new CreditCardBusiness($this->creditCardRepository,$invoiceBusiness);
     }
     /**
      * @test

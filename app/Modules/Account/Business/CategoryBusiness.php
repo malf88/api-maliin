@@ -31,7 +31,7 @@ class CategoryBusiness implements CategoryBusinessInterface
 
     public function getCategoryById(int $id):Model
     {
-        if($this->userHasCategory(Auth::user(),$id)) {
+        if(Auth::user()->userHasCateogory($id)) {
             return $this->categoryRepository->getCategoryById($id);
         }else{
             throw new ItemNotFoundException("Registro não encontrado");
@@ -44,7 +44,7 @@ class CategoryBusiness implements CategoryBusinessInterface
 
     public function updateCategory(int $id,array $dataCategory): Model
     {
-        if($this->userHasCategory(Auth::user(),$id)) {
+        if(Auth::user()->userHasCateogory($id)) {
             return $this->categoryRepository->updateCategory($id,$dataCategory);
         }else{
             throw new ItemNotFoundException("Registro não encontrado");
@@ -52,20 +52,10 @@ class CategoryBusiness implements CategoryBusinessInterface
     }
     public function deleteCategory(int $id): bool
     {
-        if($this->userHasCategory(Auth::user(),$id)) {
+        if(Auth::user()->userHasCateogory($id)) {
             return $this->categoryRepository->deleteCategory($id);
         }else{
             throw new ItemNotFoundException("Registro não encontrado");
         }
-    }
-    /**
-     * Método que verifica se o registro que está sendo acessado é do usuário autenticado.
-     * @param User $user
-     * @param int $id
-     * @return bool
-     */
-    private function userHasCategory(Model $user,int $id):bool
-    {
-        return $user->categories()->find($id) != null;
     }
 }

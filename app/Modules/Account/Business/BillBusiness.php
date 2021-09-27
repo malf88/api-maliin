@@ -18,7 +18,6 @@ class BillBusiness implements BillBusinessInterface
 {
 
     public function __construct(
-        private AccountBusinessInterface $accountBusiness,
         private BillRepositoryInterface $billRepository,
         private CreditCardBusinessInterface $creditCardBusiness
     )
@@ -46,7 +45,7 @@ class BillBusiness implements BillBusinessInterface
 
     public function getBillsByAccount(int $accountId):Collection
     {
-        if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+        if(Auth::user()->userHasAccount($accountId)){
             return $this->normalizeListBills($this->billRepository->getBillsByAccount($accountId));
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
@@ -55,7 +54,7 @@ class BillBusiness implements BillBusinessInterface
 
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
     {
-        if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+        if(Auth::user()->userHasAccount($accountId)){
             return $this->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
@@ -64,7 +63,7 @@ class BillBusiness implements BillBusinessInterface
 
     public function insertBill(int $accountId,$billData):Model|Collection
     {
-        if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+        if(Auth::user()->userHasAccount($accountId)){
             if(isset($billData['portion']) && $billData['portion'] > 1){
                 return $this->saveMultiplePortions($accountId,$billData);
             }else{
@@ -79,7 +78,6 @@ class BillBusiness implements BillBusinessInterface
     {
         if($billData['credit_card_id'] == null)
             return;
-        $creditCard = $this->creditCardBusiness->getCreditCardById($billData['credit_card_id']);
         $this->creditCardBusiness->generateInvoiceByBill($billData['credit_card_id'],$billData['date']);
     }
 
@@ -127,7 +125,8 @@ class BillBusiness implements BillBusinessInterface
     public function getBillById(int $billId):Model
     {
         $bill = $this->billRepository->getBillById($billId);
-        if($this->userHasBill(Auth::user(),$bill)){
+
+        if(Auth::user()->userHasAccount($bill->account_id)){
             return $this->findChildBill($bill);
         }else{
             throw new ItemNotFoundException('Conta a pagar não encontrada');
@@ -194,10 +193,5 @@ class BillBusiness implements BillBusinessInterface
     {
         $this->getBillById($billId);
         return $this->billRepository->deleteBill($billId);
-    }
-
-    public function userHasBill(User $user, Model $bill):bool
-    {
-        return $bill->account->user->id == $user->id;
     }
 }

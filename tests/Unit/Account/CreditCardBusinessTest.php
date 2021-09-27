@@ -51,7 +51,6 @@ class CreditCardBusinessTest extends TestCase
     {
         $this->creditCardBusiness = new CreditCardBusiness(
             $this->creditCardRepository,
-            $this->accountBusiness,
             $this->invoiceBusiness);
         return $this->creditCardBusiness;
     }

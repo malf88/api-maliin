@@ -14,5 +14,4 @@ interface AccountBusinessInterface
     public function insertAccount(User $user,array $accountInfo):Model;
     public function updateAccount(int $id,array $accountInfo):Model;
     public function deleteAccount(int $id):bool;
-    public function userHasAccount(User $user,int $id):bool;
 }

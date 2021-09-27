@@ -51,7 +51,7 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function getAccountById(int $id):Account
     {
-        if($this->userHasAccount(Auth::user(),$id)){
+        if(Auth::user()->userHasAccount($id)){
             return $this->prepareAccount($this->accountRepository->getAccountById($id));
         }else{
             throw new ItemNotFoundException('Registro não encontrado');
@@ -93,7 +93,7 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function updateAccount(int $id,array $accountInfo):Model
     {
-        if($this->userHasAccount(Auth::user(),$id)){
+        if(Auth::user()->userHasAccount($id)){
             return $this->accountRepository->updateAccount($id,$accountInfo);
         }else{
             throw new ItemNotFoundException("Registro não encontrado");
@@ -106,21 +106,10 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function deleteAccount(int $id):bool
     {
-        if ($this->userHasAccount(Auth::user(), $id)) {
+        if (Auth::user()->userHasAccount($id)) {
             return $this->accountRepository->deleteAccount($id);
         } else {
             throw new ItemNotFoundException("Registro não encontrado");
         }
-    }
-
-    /**
-     * Método que verifica se o registro que está sendo acessado é do usuário autenticado.
-     * @param User $user
-     * @param int $id
-     * @return bool
-     */
-    public function userHasAccount(User $user,int $id):bool
-    {
-        return $user->accounts()->find($id) != null;
     }
 }

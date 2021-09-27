@@ -18,7 +18,6 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function __construct(
         private CreditCardRepositoryInterface $creditCardRepository,
-        private AccountBusinessInterface $accountBusiness,
         private InvoiceBusinessInterface $invoiceBusiness
     )
     {
@@ -27,7 +26,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function getListCreditCardByAccount(int $accountId):Collection
     {
-        if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+        if(Auth::user()->userHasAccount($accountId)){
             return $this->creditCardRepository->getCreditCardsByAccountId($accountId);
         }else{
             throw new ItemNotFoundException("Conta não encontrada");
@@ -38,7 +37,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     {
          $creditCard = $this->creditCardRepository->getCreditCardById($creditCardId);
 
-         if($creditCard != null && $this->userHasCreditCard(Auth::user(),$creditCard)){
+         if($creditCard != null && Auth::user()->userHasCreditCard($creditCardId)){
              return $creditCard;
          }else{
              throw new ItemNotFoundException("Registro não encontrado");
@@ -48,7 +47,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function insertCreditCard(int $accountId, array $creditCardData):Model
     {
-        if($this->accountBusiness->userHasAccount(Auth::user(),$accountId)){
+        if(Auth::user()->userHasAccount($accountId)){
             return $this->creditCardRepository->saveCreditCard($accountId,$creditCardData);
         }else{
             throw new ItemNotFoundException('Não foi encontrada a conta informada');
@@ -57,20 +56,20 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function updateCreditCard(int $creditCardId, array $creditCardData):Model
     {
-        $creditCard = $this->getCreditCardById($creditCardId);
+        $this->getCreditCardById($creditCardId);
         return $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
 
     }
 
     public function removeCreditCard(int $creditCardId):bool
     {
-        $creditCard = $this->getCreditCardById($creditCardId);
+        $this->getCreditCardById($creditCardId);
         return $this->creditCardRepository->deleteCreditCard($creditCardId);
     }
 
     public function getInvoicesByCreditCard(int $creditCardId):Collection
     {
-        $creditCard = $this->getCreditCardById($creditCardId);
+        $this->getCreditCardById($creditCardId);
         return $this->creditCardRepository->getInvoicesByCreditCard($creditCardId);
     }
 
@@ -85,12 +84,4 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         $this->getCreditCardById($creditCardId);
         return $this->invoiceBusiness->getInvoiceWithBill($creditCardId);
     }
-
-    public function userHasCreditCard(User $user, Model $creditCard):bool
-    {
-
-        return $creditCard->account->user->id == $user->id;
-    }
-
-
 }

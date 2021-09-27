@@ -78,14 +78,13 @@ class BillBusinessTest extends TestCase
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository
             ->method('getBillsByAccount')
             ->with($accountId)
             ->willReturn($accounts->get(0)->bills());
 
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bills = $billBusiness->getBillsByAccount($accountId);
 
         $this->assertIsIterable($bills);
@@ -100,9 +99,8 @@ class BillBusinessTest extends TestCase
     public function deveDispararExcecaoAoListarContasAPagarDeUmaConta(){
         $accountId = 2;
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->getBillsByAccount($accountId);
 
@@ -115,7 +113,6 @@ class BillBusinessTest extends TestCase
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billsPaginados = new LengthAwarePaginator($accounts->get(0)->bills(),3,15);
         $billRepository
@@ -123,7 +120,7 @@ class BillBusinessTest extends TestCase
             ->with($accountId,true)
             ->willReturn($billsPaginados);
 
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
         $this->assertCount(3,$bills->items());
@@ -139,9 +136,8 @@ class BillBusinessTest extends TestCase
     public function deveDispararExcecaoAoListarContasAPagarDeUmaContaPaginada(){
         $accountId = 2;
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
@@ -157,13 +153,12 @@ class BillBusinessTest extends TestCase
         $bill->id = 1;
 
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository
             ->method('saveBill')
             ->with($accountId,$billData)
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bill = $billBusiness->insertBill($accountId,$billData);
         $this->assertEquals('Compra no supermercado',$bill->description);
         $this->assertEquals(160.00,$bill->amount);
@@ -183,12 +178,11 @@ class BillBusinessTest extends TestCase
         $bill->fill($billData);
         $bill->id = 1;
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository
             ->method('saveBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bills = $billBusiness->insertBill($accountId,$billData);
         $this->assertIsIterable($bills);
         $this->assertCount(3,$bills);
@@ -203,9 +197,8 @@ class BillBusinessTest extends TestCase
 
         $billData = $this->factoryBillData();
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->insertBill($accountId,$billData);
     }
@@ -217,7 +210,6 @@ class BillBusinessTest extends TestCase
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
@@ -234,7 +226,7 @@ class BillBusinessTest extends TestCase
             ->with($billId)
             ->willReturn($bill);
 
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bill = $billBusiness->getBillById($billId);
 
         $this->assertEquals(160.00,$bill->amount);
@@ -244,29 +236,30 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoRetornarUmaContaAPagar(){
-        $billId = 1;
+        $billId = 5;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $user = $this->accountFactory->factoryUser(3);
 
         $account = $accounts->get(0);
-        $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $account->id = 10;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
         $bill->method('account')
             ->willReturn($account);
+        $bill->method('load');
 
         $bill->account = $account;
         $bill->fill($this->factoryBillData());
+        $bill->account_id = 15;
         $billRepository
             ->method('getBillById')
             ->with($billId)
             ->willReturn($bill);
 
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bill = $billBusiness->getBillById($billId);
+
 
 
     }
@@ -291,7 +284,6 @@ class BillBusinessTest extends TestCase
         $bill->fill($this->factoryBillData());
 
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository
             ->method('getBillById')
@@ -299,7 +291,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bill = $billBusiness->updateBill($billId,$billData);
 
         $this->assertEquals(160.00,$bill->amount);
@@ -327,7 +319,6 @@ class BillBusinessTest extends TestCase
         $bill->fill($this->factoryBillData());
 
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository
             ->method('getBillById')
@@ -335,7 +326,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bills = $billBusiness->updateBill($billId,$billData);
 
         $this->assertCount(3,$bills->bill_parent);
@@ -368,7 +359,6 @@ class BillBusinessTest extends TestCase
         $bill->fill($this->factoryBillData());
 
         $billRepository = $this->getMockRepository();
-        $accountBusiness = $this->getMockAccountBusiness();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository
             ->method('getBillById')
@@ -376,7 +366,7 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bills = $billBusiness->updateBill($billId,$billData);
 
         $this->assertCount(3,$bills->bill_parent);
@@ -395,9 +385,11 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(2);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
         $bill->method('account')
             ->willReturn($account);
+
         $bill->account = $account;
 
         $billRepository = $this->getMockRepository();
@@ -405,10 +397,9 @@ class BillBusinessTest extends TestCase
             ->method('getBillById')
             ->willReturn($bill);
         $bill->fill($billData);
-
-        $accountBusiness = $this->getMockAccountBusiness();
+        $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bills = $billBusiness->updateBill($billId,$billData);
     }
@@ -428,6 +419,7 @@ class BillBusinessTest extends TestCase
         $bill->method('account')
             ->willReturn($account);
         $bill->account = $account;
+        $bill->fill($this->factoryBillData());
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
@@ -437,9 +429,8 @@ class BillBusinessTest extends TestCase
         $billRepository
             ->method('deleteBill')
             ->willReturn(true);
-        $accountBusiness = $this->getMockAccountBusiness();
 
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bill = $billBusiness->deleteBill($billId);
 
         $this->assertEquals(true,$bill);
@@ -455,21 +446,22 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(2);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
         $bill->method('account')
             ->willReturn($account);
+        $bill->method('load');
         $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+        $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository = $this->getMockRepository();
         $billRepository
             ->method('getBillById')
             ->willReturn($bill);
-        $accountBusiness = $this->getMockAccountBusiness();
-        $billBusiness = new BillBusiness($accountBusiness,$billRepository,$creditCardBusiness);
+
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bill = $billBusiness->deleteBill($billId);
-
-        $this->assertEquals(true,$bill);
     }
 
 }

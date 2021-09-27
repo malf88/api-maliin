@@ -16,16 +16,16 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
-use Tests\Unit\Account\Factory\AccountFactory;
+use Tests\Unit\Account\Factory\DataFactory;
 use const OpenApi\COLOR_RED;
 
 class BillBusinessTest extends TestCase
 {
-    private AccountFactory $accountFactory;
+    private DataFactory $accountFactory;
     public function setUp(): void
     {
         parent::setUp();
-        $this->accountFactory = new AccountFactory();
+        $this->accountFactory = new DataFactory();
         $user = $this->accountFactory->factoryUser(1);
         Auth::shouldReceive('user')
             ->andReturn($user);

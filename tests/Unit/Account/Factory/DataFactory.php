@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 
-class AccountFactory extends TestCase
+class DataFactory extends TestCase
 {
     public function factoryCreditCards(){
         $user = $this->factoryUser(1);

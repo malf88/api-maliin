@@ -23,7 +23,6 @@ class AccountBusinessTest extends TestCase
         $user = $this->createPartialMock(User::class,['accounts']);
         $user->method('accounts')
             ->willReturn($accounts);
-        //$user = new User();
 
         Auth::shouldReceive('user')
             ->andReturn($user);
@@ -54,6 +53,7 @@ class AccountBusinessTest extends TestCase
         $account
             ->method('bills')
             ->willReturn($billCollection);
+
         $account
             ->method('load')
             ->with(['bills'])
@@ -167,6 +167,7 @@ class AccountBusinessTest extends TestCase
             'account'   =>  '23423'
         ];
         $id = 2;
+
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
 
         $accountBusiness = new AccountBusiness($accountRepositoryMock);

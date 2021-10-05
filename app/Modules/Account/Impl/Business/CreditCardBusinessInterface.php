@@ -17,5 +17,4 @@ interface CreditCardBusinessInterface
     public function getInvoicesByCreditCard(int $creditCardId):Collection;
     public function generateInvoiceByBill(int $creditCardId,string $billDate):Model;
     public function getInvoicesWithBillByCreditCard(int $creditCardId):Collection;
-    public function userHasCreditCard(User $user, Model $creditCard):bool;
 }

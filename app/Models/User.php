@@ -58,4 +58,19 @@ class User extends Authenticatable
     public function wallets(){
         return $this->hasMany('App\Models\Wallet');
     }
+
+    public function userHasAccount(int $accountId):bool
+    {
+        return $this->accounts()->find($accountId) != null;
+    }
+
+    public function userHasCateogory(int $categoryId):bool
+    {
+        return $this->categories()->find($categoryId) != null;
+    }
+
+    public function userHasCreditCard(int $creditCardId):bool
+    {
+        return $this->creditcards()->find($creditCardId) != null;
+    }
 }

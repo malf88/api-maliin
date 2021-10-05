@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 
-class AccountFactory extends TestCase
+class DataFactory extends TestCase
 {
     public function factoryCreditCards(){
         $user = $this->factoryUser(1);
@@ -72,10 +72,20 @@ class AccountFactory extends TestCase
     {
         $account = new Account();
         $account->id = 1;
-        $user = $this->createPartialMock(User::class,['accounts']);
+
+        $creditCard = new CreditCard();
+        $creditCard->id = 1;
+        $creditCard->name = 'Santander';
+        $creditCard->due_day = 13;
+        $creditCard->close_day = 06;
+
+        $user = $this->createPartialMock(User::class,['accounts','creditCards']);
         $user
             ->method('accounts')
             ->willReturn(Collection::make([$account]));
+        $user
+            ->method('creditCards')
+            ->willReturn(Collection::make([$creditCard]));
         $user->id = $id;
 
         return $user;

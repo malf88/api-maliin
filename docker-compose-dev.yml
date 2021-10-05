@@ -58,6 +58,17 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./:/usr/src/app
+  robot:
+    build:
+      context: ./
+      dockerfile: docker/robot/Dockerfile
+    container_name: robot
+    working_dir: /testes/
+    volumes:
+      - ./tests/Integration:/testes/
+      - ./docker/robot/results:/report/
+    networks:
+      - maliin
   api-redis:
     container_name: api-redis
     image: redis
@@ -75,6 +86,8 @@ services:
     restart: unless-stopped
     depends_on:
       - api-app
+    env_file:
+      - .env
     ports:
       - ${PORT}:80
     volumes:

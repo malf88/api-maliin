@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
-use Tests\Unit\Account\Factory\AccountFactory;
+use Tests\Unit\Account\Factory\DataFactory;
 
 class CreditCardBusinessTest extends TestCase
 {
     public Collection $creditCardsList;
-    private AccountFactory $factory;
+    private DataFactory $factory;
     private CreditCardRepository $creditCardRepository;
     private AccountRepository $accountRepository;
     private AccountBusiness $accountBusiness;
@@ -26,7 +26,7 @@ class CreditCardBusinessTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->factory = new AccountFactory();
+        $this->factory = new DataFactory();
         $user = $this->factory->factoryUser(1);
         Auth::shouldReceive('user')->andReturn($user);
 
@@ -51,7 +51,6 @@ class CreditCardBusinessTest extends TestCase
     {
         $this->creditCardBusiness = new CreditCardBusiness(
             $this->creditCardRepository,
-            $this->accountBusiness,
             $this->invoiceBusiness);
         return $this->creditCardBusiness;
     }

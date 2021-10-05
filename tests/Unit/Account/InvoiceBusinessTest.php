@@ -13,11 +13,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
-use Tests\Unit\Account\Factory\AccountFactory;
+use Tests\Unit\Account\Factory\DataFactory;
 
 class InvoiceBusinessTest extends TestCase
 {
-    private AccountFactory $factory;
+    private DataFactory $factory;
     private InvoiceRepository $invoiceRepository;
     private CreditCardRepository $creditCardRepository;
     private AccountBusiness $accountBusiness;
@@ -31,7 +31,7 @@ class InvoiceBusinessTest extends TestCase
         $this->accountBusiness = $this->createMock(AccountBusiness::class);
 
         $this->invoiceRepository = $this->createMock(InvoiceRepository::class);
-        $this->factory = new AccountFactory();
+        $this->factory = new DataFactory();
         $user = $this->factory->factoryUser(1);
         Auth::shouldReceive('user')->andReturn($user);
     }
@@ -53,7 +53,7 @@ class InvoiceBusinessTest extends TestCase
 
     private function configureCreditCardBusiness(){
         $invoiceBusiness = $this->createMock(InvoiceBusiness::class);
-        $this->creditCardBusiness = new CreditCardBusiness($this->creditCardRepository,$this->accountBusiness,$invoiceBusiness);
+        $this->creditCardBusiness = new CreditCardBusiness($this->creditCardRepository,$invoiceBusiness);
     }
     /**
      * @test

@@ -44,6 +44,6 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           script: |
             cd ~/app/jacksparrow
-            docker-compose -f docker-compose-prd.yml down
-            docker-compose -f docker-compose-prd.yml up -d
+            docker service rm backend-api-app backend-api-scheduler backend-api-queue backend-api-redis backend-nginx
+            docker stack deploy -c docker-compose-prd.yml backend
 

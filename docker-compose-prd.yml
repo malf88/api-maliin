@@ -15,6 +15,8 @@ services:
       - ./:/var/www/
     environment:
       - CONTAINER_ROLE=app
+    networks:
+      - traefik-public
   composer:
     image: composer:2
     container_name: composer
@@ -23,6 +25,8 @@ services:
       - .env
     volumes:
       - ./:/app
+    networks:
+      - traefik-public
   node:
     image: node:12-alpine
     container_name: node
@@ -31,6 +35,8 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./:/usr/src/app
+    networks:
+      - traefik-public
   api-scheduler:
     image: api-app
     container_name: scheduler-api
@@ -43,6 +49,8 @@ services:
       - api-app
     environment:
       CONTAINER_ROLE: scheduler
+    networks:
+      - traefik-public
   api-queue:
     image: api-app
     container_name: api-queue
@@ -55,6 +63,8 @@ services:
       - api-app
     environment:
       CONTAINER_ROLE: queue
+    networks:
+      - traefik-public
   api-redis:
     container_name: api-redis
     image: redis
@@ -66,6 +76,8 @@ services:
       - ./:/var/www/
     ports:
       - ${REDIS_PORT}:6379
+    networks:
+      - traefik-public
   nginx:
     image: nginx:1.17-alpine
     container_name: api-nginx
@@ -94,6 +106,8 @@ services:
     volumes:
       - ./:/var/www/
       - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - traefik-public
 networks:
   traefik-public:
     external: true

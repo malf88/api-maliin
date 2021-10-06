@@ -31,11 +31,11 @@ jobs:
             git fetch
             git pull
             docker system prune -a --force
+            docker-compose -f docker-compose-prd.yml build api-app api-scheduler api-queue api-redis nginx
             docker-compose -f docker-compose-prd.yml build composer node
             docker-compose -f docker-compose-prd.yml run --rm composer install
             docker-compose -f docker-compose-prd.yml run --rm node npm install
             docker-compose -f docker-compose-prd.yml run --rm node npm run prod
-            docker-compose -f docker-compose-prd.yml build api-app api-scheduler api-queue api-redis nginx
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:

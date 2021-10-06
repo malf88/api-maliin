@@ -31,14 +31,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         pdo_pgsql \
         sockets \
         zip && \
-    curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt-get update && apt-get install -y nodejs && \
-    php -r "copy('http://getcomposer.org/installer', 'composer-setup.php');" && \
-    php composer-setup.php && \
-    php -r "unlink('composer-setup.php');" && \
-    mv composer.phar /usr/local/bin/composer && \
     sed -i "s/CipherString = .*$/#CipherString/" /etc/ssl/openssl.cnf && \
-    composer install && \
     chmod +x /usr/local/bin/start && \
     npm install && npm run prod && \
     chown -R www-data:www-data /var/www && \

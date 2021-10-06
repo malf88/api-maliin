@@ -43,6 +43,6 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           script: |
             cd ~/app/jacksparrow            
-            docker service rm backend_api-app backend_api-queue backend_api-redis backend_composer backend_nginx backend_node
+            docker service rm backend_api-app backend_api-queue backend_api-redis backend_api-scheduler backend_composer backend_node backend_nginx
             docker stack deploy -c docker-compose-prd.yml backend
 

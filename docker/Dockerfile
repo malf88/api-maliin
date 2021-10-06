@@ -33,7 +33,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         zip && \
     sed -i "s/CipherString = .*$/#CipherString/" /etc/ssl/openssl.cnf && \
     chmod +x /usr/local/bin/start && \
-    npm install && npm run prod && \
     chown -R www-data:www-data /var/www && \
     php artisan config:clear && \
     php artisan cache:clear && \

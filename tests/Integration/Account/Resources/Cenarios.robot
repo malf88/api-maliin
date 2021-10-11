@@ -40,6 +40,8 @@ Delete User
     Execute Sql String      DELETE FROM maliin.invoices WHERE credit_card_id = (SELECT credit_card_id FROM maliin.credit_cards WHERE name = '${CREDITCARD.name}' AND due_day = '${CREDITCARD.due_day}' AND close_day='${CREDITCARD.close_day}')
     Execute Sql String      DELETE FROM maliin.credit_cards WHERE name = '${CREDITCARD.name}' AND due_day = '${CREDITCARD.due_day}' AND close_day='${CREDITCARD.close_day}'
 
+    Execute Sql String      DELETE FROM maliin.bills WHERE credit_card_id IS NULL AND description = 'Loren Ipsum'
+    Execute Sql String      COMMIT
 
     &{CATEGORY}             Category.Create Category Food
     Execute Sql String      DELETE FROM maliin.categories WHERE name = '${CATEGORY.name}' AND is_investiment = '${CATEGORY.is_investiment}'

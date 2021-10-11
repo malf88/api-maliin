@@ -11,9 +11,7 @@ class Bill extends ApiModel
         'description'       =>  'required',
         'amount'            =>  'required|numeric',
         'date'              =>  'required|date|before_or_equal:due_date',
-        'pay_day'           =>  'date',
         'category_id'       =>  'required|exists:categories,id',
-        'bill_parent_id'    =>  'exists:bills,id',
         'account_id'        =>  'required|exists:accounts,id',
         'credit_card_id'    =>  'exists:credit_cards,id',
         'due_date'          =>  'required_without:credit_card_id|date|after_or_equal:date'

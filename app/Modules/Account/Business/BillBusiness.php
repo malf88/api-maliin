@@ -76,7 +76,7 @@ class BillBusiness implements BillBusinessInterface
     }
     private function processCreditCardBill(array $billData):void
     {
-        if($billData['credit_card_id'] == null)
+        if(!isset($billData['credit_card_id']) ||  $billData['credit_card_id'] == null)
             return;
         $this->creditCardBusiness->generateInvoiceByBill($billData['credit_card_id'],$billData['date']);
     }

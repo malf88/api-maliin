@@ -42,7 +42,6 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         $startDate  = $this->generateStartDate($date,$creditCard->close_day);
         $endDate    = $this->generateEndDate($date,$creditCard->close_day);
         $dueDate    = $this->generateDueDate($endDate,$creditCard->due_day);
-
        return [
             'start_date'        =>  $startDate,
             'end_date'          =>  $endDate,

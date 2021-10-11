@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Modules\Account\Impl\Business\CategoryBusinessInterface;
 use App\Modules\Account\ServicesLocal\CategoryServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class CategoryService implements CategoryServiceLocal
 {
@@ -26,7 +27,7 @@ class CategoryService implements CategoryServiceLocal
         return $this->categoryBusiness->getCategoriesFromUserLogged();
     }
 
-    public function updateCategory(int $id, array $dataCategory): Category
+    public function updateCategory(int $id, array $dataCategory): Model
     {
         return $this->categoryBusiness->updateCategory($id,$dataCategory);
     }
@@ -36,12 +37,12 @@ class CategoryService implements CategoryServiceLocal
         return $this->categoryBusiness->deleteCategory($id);
     }
 
-    public function getCategoryById(int $id): Category
+    public function getCategoryById(int $id): Model
     {
         return $this->categoryBusiness->getCategoryById($id);
     }
 
-    public function insertCategory(User $user, array $dataCategory): Category
+    public function insertCategory(Model $user, array $dataCategory): Model
     {
         return $this->categoryBusiness->insertCategory($user,$dataCategory);
     }

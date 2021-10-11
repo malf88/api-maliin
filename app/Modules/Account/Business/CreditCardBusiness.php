@@ -37,7 +37,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     {
          $creditCard = $this->creditCardRepository->getCreditCardById($creditCardId);
 
-         if($creditCard != null && Auth::user()->userHasCreditCard($creditCardId)){
+         if($creditCard != null && Auth::user()->userHasAccount($creditCard->account_id)){
              return $creditCard;
          }else{
              throw new ItemNotFoundException("Registro não encontrado");

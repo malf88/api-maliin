@@ -15,3 +15,4 @@ yarn-error.log
 /.vscode
 docker/robot/results
 redis.env
+tests/Integration/Account/Dados/__pycache__/

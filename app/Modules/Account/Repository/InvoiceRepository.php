@@ -66,4 +66,22 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         });
         return $bills;
     }
+
+    public function getInvoiceWithBill(int $invoiceId): Invoice
+    {
+        $invoice = Invoice::find($invoiceId);
+        $invoice->bills = Bill::where('credit_card_id',$invoice->credit_card_id)
+            ->whereBetween('date',[$invoice->start_date,$invoice->end_date])
+            ->get();
+        $invoice->bills = $this->prepareBills($invoice->bills);
+        $invoice->total_balance = $invoice->bills->sum('amount');
+        $invoice->makeVisible(['bills','total_balance']);
+        return $invoice;
+    }
+
+
+    public function getInvoice(int $invoiceId): Invoice
+    {
+        return Invoice::find($invoiceId);
+    }
 }

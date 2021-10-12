@@ -20,6 +20,7 @@ class DataFactory extends TestCase
             ->method('user')
             ->willReturn($user);
         $account->user = $user;
+        $account->id = 1;
         $invoice1 = new Invoice();
         $invoice1->end_date = Carbon::createFromFormat('d/m/Y','30/08/2021');
         $invoice1->start_date = Carbon::createFromFormat('d/m/Y','01/08/2021');
@@ -46,18 +47,21 @@ class DataFactory extends TestCase
         $creditCard1->due_day = 07;
         $creditCard1->close_day = 30;
         $creditCard1->account = $account;
+        $creditCard1->account_id = $account->id;
 
         $creditCard2 = new CreditCard();
         $creditCard2->id = 2;
         $creditCard2->name = 'Itaú';
         $creditCard2->due_day = 27;
         $creditCard2->close_day = 15;
+        $creditCard2->account_id = $account->id;
 
         $creditCard3 = new CreditCard();
         $creditCard3->id = 3;
         $creditCard3->name = 'Caixa';
         $creditCard3->due_day = 13;
         $creditCard3->close_day = 06;
+        $creditCard3->account_id = $account->id;
 
         $creditCard4 = new CreditCard();
         $creditCard4->id = 4;
@@ -123,9 +127,12 @@ class DataFactory extends TestCase
     }
     public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
     {
-        $bill = $this->createPartialMock(Bill::class,['load']);
+        $bill = $this->createPartialMock(Bill::class,['load','save']);
         $bill
             ->method('load');
+        $bill
+            ->method('save')
+            ->willReturn(1);
         $bill->description = "Mercado";
         $bill->id = $id;
         $bill->bill_parent_id = $parentId;
@@ -138,14 +145,16 @@ class DataFactory extends TestCase
     }
     public function factoryInvoiceList()
     {
-        $invoice1 = new Invoice();
+        $invoice1 = $this->createPartialMock(Invoice::class,['save']);
+        $invoice1->method('save')->willReturn(1);
         $invoice1->bills = Collection::make([
             $this->factoryBill(1,3.50),
             $this->factoryBill(2,3.30),
             $this->factoryBill(3,103.50)
         ]);
 
-        $invoice2 = new Invoice();
+        $invoice2 = $this->createPartialMock(Invoice::class,['save']);
+        $invoice2->method('save')->willReturn(1);
         $invoice2->bills = Collection::make([
             $this->factoryBill(4,3.50),
             $this->factoryBill(5,300.30),

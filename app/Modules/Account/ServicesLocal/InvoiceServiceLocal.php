@@ -9,6 +9,6 @@ namespace App\Modules\Account\ServicesLocal;
  interface InvoiceServiceLocal
 {
      public function getInvoiceByCreditCardAndDate(int $creditCardId,Carbon $date):Model|null;
-     public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):Model;
-
+     public function createInvoiceForCreditCardByDate(Model $creditCard, Carbon $date):Model;
+     public function payInvoiceAndBill(int $invoiceId):Model;
 }

@@ -9,7 +9,6 @@ jobs:
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
         with:
           php-version: '8.0'
-          command_timeout: 200m
       - uses: actions/checkout@v2
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
@@ -27,6 +26,7 @@ jobs:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
+          command_timeout: 200m
           script: |
             cd ~/app/jacksparrow
             git fetch
@@ -39,6 +39,7 @@ jobs:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
+          command_timeout: 200m
           script: |
             cd ~/app/jacksparrow
             docker-compose -f docker-compose-prd.yml run --rm composer install            

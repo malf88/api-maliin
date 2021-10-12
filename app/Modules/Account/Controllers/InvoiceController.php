@@ -15,9 +15,9 @@ class InvoiceController extends Controller
     }
     /**
      * @OA\Patch(
-     *     tags={"Invoice"},
-     *     summary="Uma lista de contas a pagar/receber",
-     *     description="Uma lista de contas a pagar/receber da conta informada",
+     *     tags={"Invoices"},
+     *     summary="Marca uma fatura como paga",
+     *     description="Marca uma fatura de cartão de crédito como paga.",
      *     path="/invoice/pay/{invoiceId}",
      *     security={
      *         {"bearerAuth": {}}

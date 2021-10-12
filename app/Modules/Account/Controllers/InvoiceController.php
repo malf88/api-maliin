@@ -14,7 +14,7 @@ class InvoiceController extends Controller
     {
     }
     /**
-     * @OA\PathItem (
+     * @OA\Patch(
      *     tags={"Invoice"},
      *     summary="Uma lista de contas a pagar/receber",
      *     description="Uma lista de contas a pagar/receber da conta informada",

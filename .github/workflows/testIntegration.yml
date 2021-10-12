@@ -1,7 +1,7 @@
 name: Testes de Integração
 on:
   push:
-    branches: [ feature/testes-de-integracao ]
+    branches: [ develop ]
 
 jobs:
   laravel-tests:

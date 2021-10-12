@@ -1,5 +1,4 @@
 FROM php:8.0-fpm
-MAINTAINER Marco Aurélio <malf88@gmail.com>
 
 WORKDIR /var/www
 ENV CURL_CA_BUNDLE /usr/lib/ssl/certs/ca-certificates.crt

@@ -26,6 +26,7 @@ jobs:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
+          command_timeout: 200m
           script: |
             cd ~/app/jacksparrow
             git fetch
@@ -38,6 +39,7 @@ jobs:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
+          command_timeout: 200m
           script: |
             cd ~/app/jacksparrow
             docker-compose -f docker-compose-prd.yml run --rm composer install            

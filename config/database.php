@@ -104,7 +104,7 @@ return [
     |
     */
 
-    'migrations' => 'maliin.migrations',
+    'migrations' => 'migrations',
 
     /*
     |--------------------------------------------------------------------------

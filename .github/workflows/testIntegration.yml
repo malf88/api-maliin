@@ -4,28 +4,18 @@ on:
     branches: [ develop ]
 
 jobs:
-  laravel-tests:
-
+  testes-integracao:
     runs-on: ubuntu-latest
-    #container: php:8.0
     services:
-      # label used to access the service container
       postgres:
-        # Docker Hub image
         image: postgres:latest
         env:
-          # optional (defaults to `postgres`)
           POSTGRES_DB: postgres_db
-          # required
           POSTGRES_PASSWORD: postgres
-          # optional (defaults to `5432`)
           POSTGRES_PORT: 5432
-          # optional (defaults to `postgres`)
           POSTGRES_USER: postgres
         ports:
-          # maps tcp port 5432 on service container to the host
           - 5432:5432
-        # set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

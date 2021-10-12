@@ -37,12 +37,11 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     {
          $creditCard = $this->creditCardRepository->getCreditCardById($creditCardId);
 
-         if($creditCard != null && Auth::user()->userHasCreditCard($creditCardId)){
+         if($creditCard != null && Auth::user()->userHasAccount($creditCard->account_id)){
              return $creditCard;
          }else{
              throw new ItemNotFoundException("Registro não encontrado");
          }
-
     }
 
     public function insertCreditCard(int $accountId, array $creditCardData):Model
@@ -58,7 +57,6 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     {
         $this->getCreditCardById($creditCardId);
         return $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
-
     }
 
     public function removeCreditCard(int $creditCardId):bool
@@ -84,4 +82,5 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         $this->getCreditCardById($creditCardId);
         return $this->invoiceBusiness->getInvoiceWithBill($creditCardId);
     }
+
 }

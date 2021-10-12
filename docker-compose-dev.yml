@@ -63,6 +63,8 @@ services:
       context: ./
       dockerfile: docker/robot/Dockerfile
     container_name: robot
+    env_file:
+      - .env
     working_dir: /testes/
     volumes:
       - ./tests/Integration:/testes/

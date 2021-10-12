@@ -11,11 +11,11 @@ class Invoice extends ApiModel
     protected $table = 'maliin.invoices';
     protected array $rules = [
         'start_date'        => 'required|date|before:end_date',
-        'end_date'          => 'required|date|after:end_date',
+        'end_date'          => 'required|date|after:start_date',
         'due_date'          => 'required|date|after:end_date',
         'month_reference'   => 'required|integer',
-        'pay_day'           => 'after_or_equal:end_date',
-        'credit_card_id'    =>  'exists:credit_cards,id'
+        'pay_day'           => 'date',
+        'credit_card_id'    => 'exists:credit_cards,id'
     ];
     protected $dates = [
         'deleted_at',

@@ -51,10 +51,6 @@ class User extends Authenticatable
     public function categories(){
         return $this->hasMany('App\Models\Category');
     }
-
-    public function creditcards(){
-        return $this->hasMany('App\Models\CreditCard');
-    }
     public function wallets(){
         return $this->hasMany('App\Models\Wallet');
     }
@@ -69,8 +65,4 @@ class User extends Authenticatable
         return $this->categories()->find($categoryId) != null;
     }
 
-    public function userHasCreditCard(int $creditCardId):bool
-    {
-        return $this->creditcards()->find($creditCardId) != null;
-    }
 }

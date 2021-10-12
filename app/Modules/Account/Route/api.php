@@ -42,4 +42,9 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::get('/{id}/invoices','BillController@invoices')->name('api.bill.invoices');
 
     });
+
+    Route::group(['prefix'=>'invoice'],function (){
+        Route::patch('/pay/{invoiceId}','InvoiceController@pay')->name('api.invoice.pay');
+
+    });
 });

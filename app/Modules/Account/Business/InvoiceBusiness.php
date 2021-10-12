@@ -4,6 +4,7 @@ namespace App\Modules\Account\Business;
 
 
 use App\Models\CreditCard;
+use App\Models\Invoice;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
@@ -115,6 +116,26 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         return $dueDate->month;
     }
 
+    public function payInvoice(int $invoiceId):Model
+    {
+        $invoiceWithBills = $this
+                    ->invoiceRepository
+                    ->getInvoiceWithBill($invoiceId);
+        $invoiceWithBills
+            ->bills
+            ->each(function($item,$key){
+                $item->pay_day = Carbon::now();
+                $item->save();
+                $item->refresh();
+            });
+        $invoice = $this
+                    ->invoiceRepository
+                    ->getInvoice($invoiceId);
+        $invoice->pay_day = Carbon::now();
+        $invoice->save();
+
+        return $invoiceWithBills->refresh();
+    }
     public function getInvoiceWithBill(int $creditCardId):Collection
     {
         return $this

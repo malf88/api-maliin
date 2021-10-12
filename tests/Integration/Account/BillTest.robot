@@ -190,6 +190,44 @@ Caso de teste 5 - Alterar uma compra
     Dictionary Should Contain Item   ${response.json()}   credit_card_id  ${new_bill_dict.credit_card_id}
     Dictionary Should Contain Item   ${response.json()}   category_id     ${new_bill_dict.category_id}
     
+Caso de teste 6 - Pagar uma fatura
+    ${token}            Resources.Get Token Authenticate
+    ${headers}          Resources.Generate Header Authorization ${token.token}
+    ${account}          Account.Create Account Xpto Json
+    &{account_dict}     Account.Create Account Xpto
+    ${response}         POST            ${URL_BASE}/account  ${account}  headers=${headers}
 
+    &{account}          Set Variable  ${response.json()}
+    ${creditcard}       CreditCard.Create Creditcard Nubank Json
+    &{creditcard_dict}  CreditCard.Create Creditcard Nubank
+    ${response}         POST         ${URL_BASE}/creditcard/account/${account.id}  ${creditcard}  headers=${headers}
+    &{response_creditcard}   Set Variable  ${response.json()}
+    Status Should Be    201          ${response}
 
+    ${category}              Category.Create Category Food Json
+    &{category_dict}         Category.Create Category Food
+    ${response}              POST        ${URL_BASE}/category  ${category}  headers=${headers}
+    &{response_category}     Set Variable  ${response.json()}
+
+    ${bill}                  Bill.Create Bill With Creditcard Json   ${response_creditcard.id}  ${response_category.id}
+    &{bill_dict}             Bill.Create Bill With Creditcard        ${response_creditcard.id}  ${response_category.id}
+
+    ${response}         POST        ${URL_BASE}/bill/account/${account.id}   ${bill}  headers=${headers}
+    Status Should Be    201         ${response}
+    
+    ${response}         GET        ${URL_BASE}/bill/account/${account.id}   headers=${headers}
+    Status Should Be    200         ${response}
+
+    &{response_invoice}    Set Variable     ${response.json()[0]} 
+
+    ${response}         PATCH        ${URL_BASE}/invoice/pay/${response_invoice.id}   headers=${headers}
+   
+        
+    Dictionary Should Contain Key    ${response.json()}   pay_day
+    Dictionary Should Contain Key    ${response.json()}   credit_card_id
+    Dictionary Should Contain Key    ${response.json()}   due_date
+    Dictionary Should Contain Key    ${response.json()}   end_date
+    Dictionary Should Contain Key    ${response.json()}   start_date
+    
+    
 

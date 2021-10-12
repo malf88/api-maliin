@@ -143,4 +143,27 @@ class InvoiceBusinessTest extends TestCase
 
         $this->assertCount(3,$invoices->get(0)->bills);
     }
+    /**
+     * @test
+     */
+    public function pagarFaturaCartaoDeCredito(){
+        $creditCardId = 1;
+        $invoiceId = 1;
+        $this->invoiceRepository
+            ->method('getInvoiceWithBill')
+            ->willReturn($this->factory->factoryInvoiceList()->get(0));
+        $this->invoiceRepository
+            ->method('getInvoice')
+            ->willReturn($this->factory->factoryInvoiceList()->get(0));
+        $this->configureMockRepository('2021-09-01');
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoice = $invoiceBusiness->payInvoice($invoiceId);
+        $invoice
+            ->bills
+            ->each(function($item,$key){
+                $this->assertEquals(Carbon::now()->format('Y-m-d'),$item->pay_day->format('Y-m-d'));
+            });
+
+        //$this->assertEquals(Carbon::now()->format('Y-m-d'),$invoice->pay_day->format('Y-m-d'));
+    }
 }

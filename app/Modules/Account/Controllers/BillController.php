@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 class BillController extends Controller
 {
     public function __construct(
-        private BillServiceLocal $billServices)
+        private BillServiceLocal $billServices
+    )
     {
     }
 

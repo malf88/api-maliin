@@ -127,9 +127,12 @@ class DataFactory extends TestCase
     }
     public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
     {
-        $bill = $this->createPartialMock(Bill::class,['load']);
+        $bill = $this->createPartialMock(Bill::class,['load','save']);
         $bill
             ->method('load');
+        $bill
+            ->method('save')
+            ->willReturn(1);
         $bill->description = "Mercado";
         $bill->id = $id;
         $bill->bill_parent_id = $parentId;
@@ -142,14 +145,16 @@ class DataFactory extends TestCase
     }
     public function factoryInvoiceList()
     {
-        $invoice1 = new Invoice();
+        $invoice1 = $this->createPartialMock(Invoice::class,['save']);
+        $invoice1->method('save')->willReturn(1);
         $invoice1->bills = Collection::make([
             $this->factoryBill(1,3.50),
             $this->factoryBill(2,3.30),
             $this->factoryBill(3,103.50)
         ]);
 
-        $invoice2 = new Invoice();
+        $invoice2 = $this->createPartialMock(Invoice::class,['save']);
+        $invoice2->method('save')->willReturn(1);
         $invoice2->bills = Collection::make([
             $this->factoryBill(4,3.50),
             $this->factoryBill(5,300.30),

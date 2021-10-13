@@ -20,7 +20,7 @@ jobs:
         run: chmod -R 777 storage bootstrap/cache
       - name: Execute tests
         run: php artisan test
-      - name: Build Laravel app
+      - name: Git pull
         uses: appleboy/ssh-action@v0.1.2
         with:
           host: ${{secrets.SSH_HOST}}
@@ -32,7 +32,7 @@ jobs:
             git fetch
             git pull
             docker system prune -a --force
-            docker-compose -f docker-compose-prd.yml build
+            docker-compose -f docker-compose-prd.yml build composer node
       - name: Composer & npm install
         uses: appleboy/ssh-action@v0.1.2
         with:
@@ -45,6 +45,16 @@ jobs:
             docker-compose -f docker-compose-prd.yml run --rm composer install            
             docker-compose -f docker-compose-prd.yml run --rm node npm install
             docker-compose -f docker-compose-prd.yml run --rm node npm run prod
+      - name: Build Laravel app
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USERNAME}}
+          command_timeout: 200m
+          script: |
+            cd ~/app/jacksparrow            
+            docker-compose -f docker-compose-prd.yml build
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:
@@ -55,4 +65,3 @@ jobs:
             cd ~/app/jacksparrow            
             docker service rm backend_api-app backend_api-queue backend_api-redis backend_api-scheduler backend_composer backend_node backend_nginx
             docker stack deploy -c docker-compose-prd.yml backend
-

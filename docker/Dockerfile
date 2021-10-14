@@ -35,8 +35,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     chown -R www-data:www-data /var/www && \
     php artisan config:clear && \
     php artisan cache:clear && \
-    php artisan test && \
-    php artisan swagger:create && \
     php artisan storage:link
 
 COPY ./docker/www.conf /usr/local/etc/php-fpm.d/www.conf

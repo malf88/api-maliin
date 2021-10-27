@@ -15,5 +15,6 @@ interface BillBusinessInterface
     public function getBillById(int $billId):Model;
     public function updateBill(int $billId,array $billData):Model|Collection;
     public function deleteBill(int $billId):bool;
+    public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
 
 }

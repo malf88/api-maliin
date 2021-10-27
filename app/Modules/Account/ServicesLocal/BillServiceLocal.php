@@ -15,4 +15,5 @@ namespace App\Modules\Account\ServicesLocal;
      public function updateChildBill(int $billId,array $billData):Collection;
      public function deleteBill(int $billId):bool;
      public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator;
+     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
 }

@@ -52,6 +52,19 @@ class BillBusiness implements BillBusinessInterface
         }
     }
 
+    public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection
+    {
+        if(Auth::user()->userHasAccount($accountId)){
+            return $this->normalizeListBills($this->billRepository->getBillsByAccount(
+                accountId: $accountId,
+                paginate: false,
+                rangeDate: $rangeDate
+            ));
+        }else{
+            throw new ItemNotFoundException('Conta não encontrada');
+        }
+    }
+
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
     {
         if(Auth::user()->userHasAccount($accountId)){

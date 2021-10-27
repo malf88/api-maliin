@@ -96,6 +96,29 @@ class BillBusinessTest extends TestCase
     /**
      * @test
      */
+    public function deveListarContasAPagarDeUmaContaComData(){
+        $accountId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $interval = ['2021-01-01','2021-01-31'];
+        $billRepository
+            ->method('getBillsByAccount')
+            ->with($accountId)
+            ->willReturn($accounts->get(0)->bills()->whereBetween('due_date', $interval));
+
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
+        $bills = $billBusiness->getBillsByAccountBetween($accountId, $interval);
+
+        $this->assertIsIterable($bills);
+        $this->assertCount(3,$bills);
+        $this->assertEquals(200.00,$bills->sum('amount'));
+
+    }
+
+    /**
+     * @test
+     */
     public function deveDispararExcecaoAoListarContasAPagarDeUmaConta(){
         $accountId = 2;
         $billRepository = $this->getMockRepository();

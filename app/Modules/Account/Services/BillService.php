@@ -52,4 +52,9 @@ class BillService implements BillServiceLocal
     {
         return $this->billBusiness->getBillsByAccountPaginate($accountId);
     }
+
+    public function getBillsByAccountBetween(int $accountId, array $rangeDate): Collection
+    {
+        return $this->billBusiness->getBillsByAccountBetween($accountId,$rangeDate);
+    }
 }

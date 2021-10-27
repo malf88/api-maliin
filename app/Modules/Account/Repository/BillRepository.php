@@ -13,21 +13,29 @@ use Illuminate\Support\Facades\DB;
 
 class BillRepository implements BillRepositoryInterface
 {
-    public function getBillsByAccount(int $accountId, bool $paginate = false):Collection|LengthAwarePaginator
+    public function getBillsByAccount(int $accountId, bool $paginate = false, array $rangeDate = null):Collection|LengthAwarePaginator
     {
         if($paginate){
-            return $this->getBillsQuery($accountId)->paginate(config('app.paginate'));
+            return $this->getBillsQuery($accountId, $rangeDate)->paginate(config('app.paginate'));
         }else{
-            return $this->getBillsQuery($accountId)->get();
+            return $this->getBillsQuery($accountId, $rangeDate)->get();
         }
     }
 
-    private function getBillsQuery(int $accountId):Builder
+    private function getBillsQuery(int $accountId, array $rangeDate = null):Builder
     {
         $invoices = Invoice::select(DB::raw("invoices.id,
                                     'Fatura do cartão de crédito '||credit_cards.name,
-                                    (SELECT SUM(amount) FROM maliin.bills WHERE credit_card_id = invoices.credit_card_id AND date between invoices.start_date AND invoices.end_date) as amount,
+                                    (SELECT
+                                        SUM(amount)
+                                     FROM maliin.bills
+                                     WHERE
+                                        credit_card_id = invoices.credit_card_id AND
+                                        date between invoices.start_date AND
+                                        invoices.end_date
+                                    ) as amount,
                                     invoices.start_date,
+                                    invoices.due_date,
                                     invoices.pay_day,
                                     invoices.credit_card_id,
                                     null,
@@ -38,10 +46,13 @@ class BillRepository implements BillRepositoryInterface
                 ->join('credit_cards','invoices.credit_card_id','=','credit_cards.id')
                 ->where('account_id',$accountId);
 
-        return Bill::select(DB::raw("id,
+
+
+        $bill =  Bill::select(DB::raw("id,
                             description,
                             amount,
                             date,
+                            due_date,
                             pay_day,
                             credit_card_id,
                             category_id,
@@ -50,8 +61,13 @@ class BillRepository implements BillRepositoryInterface
                             'false' as is_credit_card")
                     )
                     ->where('account_id',$accountId)
-                    ->where('credit_card_id')
-                    ->union($invoices);
+                    ->where('credit_card_id');
+
+            if( $rangeDate != null ){
+                $invoices->whereBetween('due_date',$rangeDate);
+                $bill->whereBetween('due_date',$rangeDate);
+            }
+            return $bill->union($invoices);
     }
 
     public function saveBill(int $accountId,array $billData):Bill

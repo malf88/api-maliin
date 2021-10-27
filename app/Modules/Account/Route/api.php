@@ -35,11 +35,14 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
     Route::group(['prefix'=>'bill'],function (){
         Route::get('/account/{accountId}','BillController@index')->name('api.bill.list');
         Route::post('/account/{accountId}','BillController@insert')->name('api.bill.insert');
+        Route::get('/account/{accountId}/between/{startDate}/{endDate}','BillController@between')->name('api.bill.between');
+
         Route::get('/{id}','BillController@show')->name('api.bill.show');
         Route::put('/{id}','BillController@update')->name('api.bill.update');
         Route::put('/{id}/pay','BillController@pay')->name('api.bill.pay');
         Route::delete('/{id}','BillController@delete')->name('api.bill.delete');
         Route::get('/{id}/invoices','BillController@invoices')->name('api.bill.invoices');
+
 
     });
 

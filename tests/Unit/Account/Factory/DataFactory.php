@@ -101,9 +101,9 @@ class DataFactory extends TestCase
             'account'   =>  '23423'
         ];
 
-        $billAccount1 = $this->factoryBill(1,100.00);
-        $billAccount2 = $this->factoryBill(2,200.00);
-        $billAccount3 = $this->factoryBill(3,-100.00);
+        $billAccount1 = $this->factoryBill(id:1, amount: 100.00, due_date: '2021-01-07');
+        $billAccount2 = $this->factoryBill(id:2, amount: 200.00,due_date: '2021-01-07');
+        $billAccount3 = $this->factoryBill(id:3,amount:-100.00,due_date: '2021-01-01');
 
         $user = new User();
         $user->id = 1;
@@ -125,7 +125,13 @@ class DataFactory extends TestCase
         return Collection::make([$account]);
 
     }
-    public function factoryBill(int $id, float $amount, int $parentId = null,string $pay_day = null,int $portion=1):Bill
+    public function factoryBill(
+        int $id,
+        float $amount,
+        int $parentId = null,
+        string $pay_day = null,
+        string $due_date = null,
+        int $portion=1):Bill
     {
         $bill = $this->createPartialMock(Bill::class,['load','save']);
         $bill
@@ -139,7 +145,7 @@ class DataFactory extends TestCase
         $bill->pay_day = $pay_day;
         $bill->amount = $amount;
         $bill->portion = $portion;
-
+        $bill->due_date = $due_date;
         return $bill;
 
     }

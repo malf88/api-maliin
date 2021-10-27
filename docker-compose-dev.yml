@@ -82,7 +82,7 @@ services:
       - ${REDIS_PORT}:6379
     networks:
       - maliin
-  nginx:
+  api-nginx:
     image: nginx:1.17-alpine
     container_name: api-nginx
     restart: unless-stopped

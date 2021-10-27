@@ -30,7 +30,7 @@ jobs:
           script: |
             cd ~/app/jacksparrow
             git fetch
-            git pull
+            git reset origin/master --hard
             docker system prune -a --force
             docker-compose -f docker-compose-prd.yml build composer node
       - name: Composer & npm install

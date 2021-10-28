@@ -103,7 +103,7 @@ class BillBusinessTest extends TestCase
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $interval = ['2021-01-01','2021-01-31'];
         $billRepository
-            ->method('getBillsByAccount')
+            ->method('getBillsByAccountWithRangeDate')
             ->with($accountId)
             ->willReturn($accounts->get(0)->bills()->whereBetween('due_date', $interval));
 

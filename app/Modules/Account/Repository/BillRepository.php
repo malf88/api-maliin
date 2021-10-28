@@ -13,18 +13,58 @@ use Illuminate\Support\Facades\DB;
 
 class BillRepository implements BillRepositoryInterface
 {
-    public function getBillsByAccount(int $accountId, bool $paginate = false, array $rangeDate = null):Collection|LengthAwarePaginator
+    public function getBillsByAccount(int $accountId, bool $paginate = false):Collection|LengthAwarePaginator
     {
         if($paginate){
-            return $this->getBillsQuery($accountId, $rangeDate)->paginate(config('app.paginate'));
+            return $this->getBillsQuery($accountId)->paginate(config('app.paginate'));
         }else{
-            return $this->getBillsQuery($accountId, $rangeDate)->get();
+            return $this->getBillsQuery($accountId)->get();
         }
     }
-
-    private function getBillsQuery(int $accountId, array $rangeDate = null):Builder
+    public function getBillsByAccountWithRangeDate(int $accountId, array $rangeDate = null,bool $paginate = false):Collection|LengthAwarePaginator
     {
-        $invoices = Invoice::select(DB::raw("invoices.id,
+        if($paginate){
+            return $this->getBillsQueryWithRangeDate($accountId,$rangeDate)->paginate(config('app.paginate'));
+        }else{
+            return $this->getBillsQueryWithRangeDate($accountId,$rangeDate)->get();
+        }
+    }
+    private function getBillsQueryWithRangeDate(int $accountId, array $rangeDate):Builder
+    {
+        return  $this->getQueryBill($accountId)
+            ->whereBetween('due_date',$rangeDate)
+            ->union(
+                    $this->getQueryInvoiceAsBill($accountId)
+                         ->whereBetween('due_date',$rangeDate)
+            );
+    }
+    private function getBillsQuery(int $accountId,):Builder
+    {
+        return  $this->getQueryBill($accountId)
+                    ->union($this->getQueryInvoiceAsBill($accountId));
+
+    }
+    public function getQueryBill(int $accountId):Builder
+    {
+        return $bill =  Bill::select(DB::raw("id,
+                            description,
+                            amount,
+                            date,
+                            due_date,
+                            pay_day,
+                            credit_card_id,
+                            category_id,
+                            barcode,
+                            bill_parent_id,
+                            'false' as is_credit_card")
+        )
+            ->where('account_id',$accountId)
+            ->where('credit_card_id');
+    }
+
+    public function getQueryInvoiceAsBill(int $accountId):Builder
+    {
+        return Invoice::select(DB::raw("invoices.id,
                                     'Fatura do cartão de crédito '||credit_cards.name,
                                     (SELECT
                                         SUM(amount)
@@ -42,32 +82,9 @@ class BillRepository implements BillRepositoryInterface
                                     '',
                                     null,
                                     true")
-                )
-                ->join('credit_cards','invoices.credit_card_id','=','credit_cards.id')
-                ->where('account_id',$accountId);
-
-
-
-        $bill =  Bill::select(DB::raw("id,
-                            description,
-                            amount,
-                            date,
-                            due_date,
-                            pay_day,
-                            credit_card_id,
-                            category_id,
-                            barcode,
-                            bill_parent_id,
-                            'false' as is_credit_card")
-                    )
-                    ->where('account_id',$accountId)
-                    ->where('credit_card_id');
-
-            if( $rangeDate != null ){
-                $invoices->whereBetween('due_date',$rangeDate);
-                $bill->whereBetween('due_date',$rangeDate);
-            }
-            return $bill->union($invoices);
+        )
+            ->join('credit_cards','invoices.credit_card_id','=','credit_cards.id')
+            ->where('account_id',$accountId);
     }
 
     public function saveBill(int $accountId,array $billData):Bill

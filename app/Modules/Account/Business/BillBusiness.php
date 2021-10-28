@@ -55,9 +55,8 @@ class BillBusiness implements BillBusinessInterface
     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection
     {
         if(Auth::user()->userHasAccount($accountId)){
-            return $this->normalizeListBills($this->billRepository->getBillsByAccount(
+            return $this->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
                 accountId: $accountId,
-                paginate: false,
                 rangeDate: $rangeDate
             ));
         }else{

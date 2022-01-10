@@ -42,7 +42,8 @@ jobs:
           command_timeout: 200m
           script: |
             cd ~/app/api-maliin
-            docker-compose -f docker-compose-prd.yml run --rm composer install
+            rm composer.lock
+            docker-compose -f docker-compose-prd.yml run --rm composer install --ignore-platform-reqs
       - name: Build Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:

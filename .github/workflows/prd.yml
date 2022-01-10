@@ -28,7 +28,7 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           command_timeout: 200m
           script: |
-            cd ~/app/jacksparrow
+            cd ~/app/api-maliin
             git fetch
             git reset origin/master --hard
             docker system prune -a --force
@@ -41,7 +41,7 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           command_timeout: 200m
           script: |
-            cd ~/app/jacksparrow
+            cd ~/app/api-maliin
             docker-compose -f docker-compose-prd.yml run --rm composer install
       - name: Build Laravel app
         uses: appleboy/ssh-action@v0.1.2
@@ -51,7 +51,7 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           command_timeout: 200m
           script: |
-            cd ~/app/jacksparrow
+            cd ~/app/api-maliin
             docker-compose -f docker-compose-prd.yml build
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
@@ -60,5 +60,5 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
           script: |
-            cd ~/app/jacksparrow
+            cd ~/app/api-maliin
             docker stack deploy -c docker-compose-prd.yml backend

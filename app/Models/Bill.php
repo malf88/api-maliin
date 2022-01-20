@@ -15,7 +15,7 @@ class Bill extends ApiModel
         'bill_parent_id'    =>  'nullable|exists:bills,id',
         'account_id'        =>  'required|exists:accounts,id',
         'credit_card_id'    =>  'exists:credit_cards,id',
-        'due_date'          =>  'required_without:credit_card_id|date|after_or_equal:date'
+        'due_date'          =>  'nullable|required_without:credit_card_id|date|after_or_equal:date'
     ];
     protected $table = 'maliin.bills';
     protected $visible = [

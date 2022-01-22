@@ -28,7 +28,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         gd \
         pgsql \
         pdo_pgsql \
-        sockets \
         zip && \
     sed -i "s/CipherString = .*$/#CipherString/" /etc/ssl/openssl.cnf && \
     chmod +x /usr/local/bin/start && \

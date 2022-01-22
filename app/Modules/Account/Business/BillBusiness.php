@@ -39,6 +39,7 @@ class BillBusiness implements BillBusinessInterface
 
         $bills->each(function($item,$key){
             $item = $this->findChildBill($item);
+            $item->category = $item->category;
         });
         return $bills;
     }

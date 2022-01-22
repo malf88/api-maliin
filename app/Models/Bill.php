@@ -8,14 +8,14 @@ class Bill extends ApiModel
 {
     use SoftDeletes;
     protected array $rules = [
-        'description'       =>  'required',
-        'amount'            =>  'required|numeric',
-        'date'              =>  'required|date|before_or_equal:due_date',
-        'category_id'       =>  'required|exists:categories,id',
-        'bill_parent_id'    =>  'nullable|exists:bills,id',
-        'account_id'        =>  'required|exists:accounts,id',
-        'credit_card_id'    =>  'exists:credit_cards,id',
-        'due_date'          =>  'nullable|required_without:credit_card_id|date|after_or_equal:date'
+        'description'       =>  ['required'],
+        'amount'            =>  ['required','numeric'],
+        'date'              =>  ['required','date','exclude_if:due_date,null','before_or_equal:due_date'],
+        'category_id'       =>  ['required','exists:categories,id'],
+        'bill_parent_id'    =>  ['nullable','exists:bills,id'],
+        'account_id'        =>  ['required','exists:accounts,id'],
+        'credit_card_id'    =>  ['nullable','exists:credit_cards,id'],
+        'due_date'          =>  ['nullable','required_without:credit_card_id','date','after_or_equal:date']
     ];
     protected $table = 'maliin.bills';
     protected $visible = [

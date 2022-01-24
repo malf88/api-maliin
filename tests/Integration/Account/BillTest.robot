@@ -260,7 +260,11 @@ Caso de teste 7 - Listar compras normais por data
     ${response}         GET        ${URL_BASE}/bill/account/${account.id}/between/2021-10-01/2021-10-30   headers=${headers}
     Status Should Be    200         ${response}
 
-    FOR  ${item}  IN  @{response.json()}
+    Dictionary Should Contain Key   ${response.json()['total']}     total_cash_in
+    Dictionary Should Contain Key   ${response.json()['total']}     total_cash_out
+    Dictionary Should Contain Key   ${response.json()['total']}     total_estimated
+    Dictionary Should Contain Key   ${response.json()['total']}     total_paid
+    FOR  ${item}  IN  @{response.json()['bills']}
         Dictionary Should Contain Key    ${item}   description
         Dictionary Should Contain Key    ${item}   date
         Dictionary Should Contain Key    ${item}   credit_card_id

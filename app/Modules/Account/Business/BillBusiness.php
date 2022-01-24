@@ -36,7 +36,6 @@ class BillBusiness implements BillBusinessInterface
     }
     public function normalizeListBills(Collection|LengthAwarePaginator $bills):Collection|LengthAwarePaginator
     {
-
         $bills->each(function($item,$key){
             $item = $this->findChildBill($item);
             $item->category = $item->category;
@@ -55,11 +54,21 @@ class BillBusiness implements BillBusinessInterface
 
     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection
     {
+
         if(Auth::user()->userHasAccount($accountId)){
-            return $this->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
+            $billList = $this->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
                 accountId: $accountId,
                 rangeDate: $rangeDate
             ));
+            return Collection::make([
+                'bills' => $billList,
+                'total' => Collection::make([
+                    'total_cash_in' => $this->billRepository->getTotalCashIn($billList),
+                    'total_cash_out' => $this->billRepository->getTotalCashOut($billList),
+                    'total_estimated' =>$this->billRepository->getTotalEstimated($billList),
+                    'total_paid' =>$this->billRepository->getTotalPaid($billList)
+                ])
+            ]);
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
         }

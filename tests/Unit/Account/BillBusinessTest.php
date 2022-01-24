@@ -33,12 +33,21 @@ class BillBusinessTest extends TestCase
 
     public function getMockRepository(){
         $mock = $this->createMock(BillRepository::class);
+        $collectionBill = Collection::make([
+            $this->accountFactory->factoryBill(2,300,1,portion:2),
+            $this->accountFactory->factoryBill(3,200,1,portion:3),
+            $this->accountFactory->factoryBill(4,-100,1,portion:4)
+        ]);
         $mock->method('getChildBill')
-            ->willReturn(Collection::make([
-                $this->accountFactory->factoryBill(2,300,1,portion:2),
-                $this->accountFactory->factoryBill(3,200,1,portion:3),
-                $this->accountFactory->factoryBill(4,-100,1,portion:4)
-            ]));
+            ->willReturn($collectionBill);
+        $mock->method('getTotalEstimated')
+            ->willReturn((float) $collectionBill->sum('amount'));
+        $mock->method('getTotalPaid')
+            ->willReturn((float) $collectionBill->whereNotNull('pay_day')->sum('amount'));
+        $mock->method('getTotalCashIn')
+            ->willReturn((float) $collectionBill->where('amount','>=',0)->sum('amount'));
+        $mock->method('getTotalCashOut')
+            ->willReturn((float) $collectionBill->where('amount','<',0)->sum('amount'));
         return $mock;
 
     }
@@ -109,10 +118,13 @@ class BillBusinessTest extends TestCase
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $bills = $billBusiness->getBillsByAccountBetween($accountId, $interval);
-
         $this->assertIsIterable($bills);
-        $this->assertCount(3,$bills);
-        $this->assertEquals(200.00,$bills->sum('amount'));
+        $this->assertCount(3,$bills['bills']);
+        $this->assertEquals(200.00,$bills['bills']->sum('amount'));
+        $this->assertEquals(500,$bills['total']['total_cash_in']);
+        $this->assertEquals(-100,$bills['total']['total_cash_out']);
+        $this->assertEquals(400,$bills['total']['total_estimated']);
+        $this->assertEquals(0,$bills['total']['total_paid']);
 
     }
 

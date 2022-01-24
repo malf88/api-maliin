@@ -21,6 +21,22 @@ class BillRepository implements BillRepositoryInterface
             return $this->getBillsQuery($accountId)->get();
         }
     }
+    public function getTotalEstimated(Collection $bills):float
+    {
+        return $bills->sum('amount');
+    }
+    public function getTotalPaid(Collection $bills):float
+    {
+        return $bills->whereNotNull('pay_day')->sum('amount');
+    }
+    public function getTotalCashIn(Collection $bills):float
+    {
+        return $bills->where('amount','>=',0)->sum('amount');
+    }
+    public function getTotalCashOut(Collection $bills):float
+    {
+        return $bills->where('amount','<',0)->sum('amount');
+    }
     public function getBillsByAccountWithRangeDate(int $accountId, array $rangeDate = null,bool $paginate = false):Collection|LengthAwarePaginator
     {
         if($paginate){

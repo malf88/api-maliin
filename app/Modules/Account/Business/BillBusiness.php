@@ -103,6 +103,11 @@ class BillBusiness implements BillBusinessInterface
         $this->creditCardBusiness->generateInvoiceByBill($billData['credit_card_id'],$billData['date']);
     }
 
+    private function getDueDate(array $billData):Carbon|null
+    {
+        return (isset($billData['due_date']) && $billData['due_date'] != null)? Carbon::create($billData['due_date']) : null;
+    }
+
     private function saveMultiplePortions(int $accountId, array $billData):Collection
     {
         if(isset($billData['credit_card_id']))
@@ -115,7 +120,7 @@ class BillBusiness implements BillBusinessInterface
             1,
             $totalPortion
         );
-        $due_date = (isset($billData['due_date']) && $billData['due_date'] != null)? Carbon::create($billData['due_date']) : null;
+        $due_date = $this->getDueDate($billData);
         $billData['portion'] = 1;
         $billData['due_date'] = $due_date;
         $this->processCreditCardBill($billData);
@@ -169,7 +174,7 @@ class BillBusiness implements BillBusinessInterface
     private function updateChildBill(int $billId,array $billData):Model
     {
         $bill = $this->getBillById($billId);
-        $due_date = (isset($billData['due_date']) && $billData['due_date'] != null)? Carbon::create($billData['due_date']) : null;
+        $due_date = $this->getDueDate($billData);
         $totalBillsSelected = $bill->bill_parent->count()+1;
         $description = $billData['description'];
         $date = Carbon::make($billData['date']);
@@ -215,5 +220,15 @@ class BillBusiness implements BillBusinessInterface
     {
         $this->getBillById($billId);
         return $this->billRepository->deleteBill($billId);
+    }
+
+    public function getPeriodWithBill(int $accountId):Collection
+    {
+        if(Auth::user()->userHasAccount($accountId)) {
+            return $this->billRepository->getMonthWithBill($accountId);
+        }else{
+            throw new ItemNotFoundException('Conta a pagar não encontrada');
+        }
+
     }
 }

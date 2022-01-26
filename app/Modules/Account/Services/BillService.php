@@ -57,4 +57,8 @@ class BillService implements BillServiceLocal
     {
         return $this->billBusiness->getBillsByAccountBetween($accountId,$rangeDate);
     }
+    public function getPeriodWithBill(int $accountId):Collection
+    {
+        return $this->billBusiness->getPeriodWithBill($accountId);
+    }
 }

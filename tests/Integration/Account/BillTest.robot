@@ -273,3 +273,36 @@ Caso de teste 7 - Listar compras normais por data
         Dictionary Should Contain Item   ${item}   category_id     ${bill_dict.category_id}
     END
 
+Caso de teste 8 - Listar periodos com compras
+    ${token}            Resources.Get Token Authenticate
+    ${headers}          Resources.Generate Header Authorization ${token.token}
+    ${account}          Account.Create Account Xpto Json
+    &{account_dict}     Account.Create Account Xpto
+    ${response}         POST            ${URL_BASE}/account  ${account}  headers=${headers}
+
+    &{account}          Set Variable  ${response.json()}
+    ${creditcard}       CreditCard.Create Creditcard Nubank Json
+    &{creditcard_dict}  CreditCard.Create Creditcard Nubank
+    ${response}         POST         ${URL_BASE}/creditcard/account/${account.id}  ${creditcard}  headers=${headers}
+    &{response_creditcard}   Set Variable  ${response.json()}
+    Status Should Be    201          ${response}
+
+    ${category}              Category.Create Category Food Json
+    &{category_dict}         Category.Create Category Food
+    ${response}              POST        ${URL_BASE}/category  ${category}  headers=${headers}
+    &{response_category}     Set Variable  ${response.json()}
+    FOR  ${key}  IN  1  2  3
+        ${bill}                  Bill.Create Bill Without Creditcard Json   ${response_category.id}
+        &{bill_dict}             Bill.Create Bill Without Creditcard        ${response_category.id}
+        ${response}         POST        ${URL_BASE}/bill/account/${account.id}   ${bill}  headers=${headers}
+        Status Should Be    201         ${response}
+    END
+
+    ${response}     GET    ${URL_BASE}/bill/account/${account.id}/periods   headers=${headers}
+
+    FOR  ${item}  IN  @{response.json()}
+        Dictionary Should Contain Key    ${item}   month
+        Dictionary Should Contain Key    ${item}   year
+    END
+
+

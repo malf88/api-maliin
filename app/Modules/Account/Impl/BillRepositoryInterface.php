@@ -15,6 +15,7 @@ interface BillRepositoryInterface
     public function getBillById(int $billId):Bill;
     public function getChildBill(int $billId, int $billParentId):Collection;
     public function deleteBill(int $billId):bool;
+    public function getMonthWithBill(int $accountId):Collection;
     public function getTotalEstimated(Collection $bills):float;
     public function getTotalPaid(Collection $bills):float;
     public function getTotalCashIn(Collection $bills):float;

@@ -347,6 +347,31 @@ class BillController extends Controller
         return $this->billServices->updateBill($id,['pay_day' => Carbon::today()->format('Y/m/d')]);
     }
     /**
-     * TODO Implementar o pagar e o deletar.
+     * @OA\Get(
+     *     tags={"Bills"},
+     *     summary="Uma lista de contas a pagar/receber",
+     *     description="Uma lista de contas a pagar/receber da conta informada",
+     *     path="/bill/periods",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="accountId",
+     *         in="path",
+     *         description="Id da conta",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Uma lista de períodos que possuem alguma conta."),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * )
      */
+
+    public function periods(int $accountId)
+    {
+        return $this->billServices->getPeriodWithBill($accountId);
+    }
 }

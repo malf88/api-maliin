@@ -294,9 +294,6 @@ class BillBusinessTest extends TestCase
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bill = $billBusiness->getBillById($billId);
-
-
-
     }
 
     /**
@@ -497,6 +494,44 @@ class BillBusinessTest extends TestCase
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
         $this->expectException(ItemNotFoundException::class);
         $bill = $billBusiness->deleteBill($billId);
+    }
+
+    /**
+     * @test
+     */
+    public function deveTrazerMesesComCompras(){
+        $accountId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $billRepository
+            ->method('getMonthWithBill')
+            ->with($accountId)
+            ->willReturn(Collection::make([['month' => '01', 'year' => '2018']]));
+
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
+        $dates = $billBusiness->getPeriodWithBill($accountId);
+        $this->assertIsIterable($dates);
+
+        $this->assertEquals('01',$dates->get(0)['month']);
+        $this->assertEquals('2018',$dates->get(0)['year']);
+    }
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoTrazerMesesComComprasDeContaInexistente(){
+        $accountId = 2;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $billRepository
+            ->method('getMonthWithBill')
+            ->with($accountId)
+            ->willReturn(Collection::make([['month' => '01', 'year' => '2018']]));
+
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness);
+        $this->expectException(ItemNotFoundException::class);
+        $dates = $billBusiness->getPeriodWithBill($accountId);
     }
 
 }

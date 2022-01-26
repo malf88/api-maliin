@@ -60,6 +60,20 @@ class BillRepository implements BillRepositoryInterface
                     ->union($this->getQueryInvoiceAsBill($accountId));
 
     }
+    public function getMonthWithBill(int $accountId):Collection
+    {
+        $registros = DB::select("SELECT DISTINCT(EXTRACT(YEAR FROM  due_date)) as year,EXTRACT(MONTH FROM  due_date) as month
+                                    FROM maliin.bills
+                                    WHERE due_date IS NOT NULL AND account_id = $accountId
+                                    UNION
+                                    SELECT DISTINCT(EXTRACT(YEAR FROM  due_date)),EXTRACT(MONTH FROM  due_date)
+                                    FROM maliin.invoices
+                                        JOIN maliin.credit_cards using(id)
+                                    WHERE account_id = $accountId
+                                    ORDER BY 1,2 ASC
+                                    ");
+        return Collection::make($registros);
+    }
     public function getQueryBill(int $accountId):Builder
     {
         return $bill =  Bill::select(DB::raw("id,

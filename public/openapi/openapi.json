@@ -612,6 +612,41 @@
                 ]
             }
         },
+        "/bill/periods": {
+            "get": {
+                "tags": [
+                    "Bills"
+                ],
+                "summary": "Uma lista de contas a pagar/receber",
+                "description": "Uma lista de contas a pagar/receber da conta informada",
+                "operationId": "afd4ac3dc54d2e65310d6c84025e08d7",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "path",
+                        "description": "Id da conta",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uma lista de períodos que possuem alguma conta."
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/category": {
             "get": {
                 "tags": [

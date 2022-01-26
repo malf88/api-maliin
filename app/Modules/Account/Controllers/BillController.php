@@ -351,7 +351,7 @@ class BillController extends Controller
      *     tags={"Bills"},
      *     summary="Uma lista de contas a pagar/receber",
      *     description="Uma lista de contas a pagar/receber da conta informada",
-     *     path="/bill/periods",
+     *     path="/bill/account/{accountId}/periods",
      *     security={
      *         {"bearerAuth": {}}
      *     },

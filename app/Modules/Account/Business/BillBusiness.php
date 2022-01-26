@@ -31,16 +31,27 @@ class BillBusiness implements BillBusinessInterface
         }else{
             $bill->load('bill_parent');
         }
+        $bill->bill_parent->each(function($item,$key){
+            $item->category = $item->category;
+            $item->makeVisible(['category']);
+        });
         $bill->makeVisible(['bill_parent']);
         return $bill;
     }
     public function normalizeListBills(Collection|LengthAwarePaginator $bills):Collection|LengthAwarePaginator
     {
         $bills->each(function($item,$key){
-            $item = $this->findChildBill($item);
-            $item->category = $item->category;
+            $item = $this->normalizeBill($item);
         });
         return $bills;
+    }
+
+    public function normalizeBill(Model $bill):Model
+    {
+        $bill = $this->findChildBill($bill);
+        $bill->category = $bill->category;
+
+        return $bill;
     }
 
     public function getBillsByAccount(int $accountId):Collection
@@ -151,10 +162,10 @@ class BillBusiness implements BillBusinessInterface
     }
     public function getBillById(int $billId):Model
     {
-        $bill = $this->billRepository->getBillById($billId);
+        $bill = $this->normalizeBill($this->billRepository->getBillById($billId));
 
         if(Auth::user()->userHasAccount($bill->account_id)){
-            return $this->findChildBill($bill);
+            return $bill;
         }else{
             throw new ItemNotFoundException('Conta a pagar não encontrada');
         }

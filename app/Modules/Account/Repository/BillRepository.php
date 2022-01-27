@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Repository;
 
 use App\Models\Bill;
+use App\Models\Category;
 use App\Models\Invoice;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -125,6 +126,10 @@ class BillRepository implements BillRepositoryInterface
         $bill->save();
         return $bill;
 
+    }
+    public function getCategory(Bill $bill):Category
+    {
+        return $bill->category;
     }
     public function getChildBill(int $billId, int $billParentId):Collection
     {

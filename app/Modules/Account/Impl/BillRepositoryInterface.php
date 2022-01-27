@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Impl;
 
 use App\Models\Bill;
+use App\Models\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -20,4 +21,5 @@ interface BillRepositoryInterface
     public function getTotalPaid(Collection $bills):float;
     public function getTotalCashIn(Collection $bills):float;
     public function getTotalCashOut(Collection $bills):float;
+    public function getCategory(Bill $bill):Category;
 }

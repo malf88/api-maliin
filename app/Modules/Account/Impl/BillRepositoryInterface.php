@@ -21,5 +21,5 @@ interface BillRepositoryInterface
     public function getTotalPaid(Collection $bills):float;
     public function getTotalCashIn(Collection $bills):float;
     public function getTotalCashOut(Collection $bills):float;
-    public function getCategory(Bill $bill):Category;
+    public function getCategory(Bill $bill):Category|null;
 }

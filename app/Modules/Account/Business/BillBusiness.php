@@ -26,13 +26,11 @@ class BillBusiness implements BillBusinessInterface
     }
     private function findChildBill(Model $bill):Model
     {
-
         if($bill->bill_parent_id != null){
             $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
         }else{
             $bill->load('bill_parent');
         }
-
         $bill->bill_parent->each(function($item,$key){
             $item->category = $item->category;
             $item->makeVisible(['category']);
@@ -51,11 +49,8 @@ class BillBusiness implements BillBusinessInterface
 
     public function normalizeBill(Model $bill):Model
     {
-
         $bill = $this->findChildBill($bill);
-
         $bill->category = $this->billRepository->getCategory($bill);
-
         return $bill;
     }
 

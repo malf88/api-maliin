@@ -127,7 +127,7 @@ class BillRepository implements BillRepositoryInterface
         return $bill;
 
     }
-    public function getCategory(Bill $bill):Category
+    public function getCategory(Bill $bill):Category|null
     {
         return $bill->category;
     }

@@ -121,9 +121,11 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         $invoiceWithBills = $this
                     ->invoiceRepository
                     ->getInvoiceWithBill($invoiceId);
+
         $invoiceWithBills
             ->bills
             ->each(function($item,$key){
+                unset($item->bill_parent);
                 $item->pay_day = Carbon::now();
                 $item->save();
                 $item->refresh();

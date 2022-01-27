@@ -4,6 +4,7 @@ namespace Tests\Unit\Account\Factory;
 
 use App\Models\Account;
 use App\Models\Bill;
+use App\Models\Category;
 use App\Models\CreditCard;
 use App\Models\Invoice;
 use App\Models\User;
@@ -133,12 +134,19 @@ class DataFactory extends TestCase
         string $due_date = null,
         int $portion=1):Bill
     {
-        $bill = $this->createPartialMock(Bill::class,['load','save']);
+        $bill = $this->createPartialMock(Bill::class,['load','save','getBillParentAttribute']);
+
         $bill
             ->method('load');
+
+        $bill
+            ->method('getBillParentAttribute')
+            ->willReturn(Collection::empty());
+
         $bill
             ->method('save')
             ->willReturn(1);
+
         $bill->description = "Mercado";
         $bill->id = $id;
         $bill->bill_parent_id = $parentId;

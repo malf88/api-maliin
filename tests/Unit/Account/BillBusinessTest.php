@@ -4,6 +4,7 @@ namespace Tests\Unit\Account;
 
 use App\Models\Account;
 use App\Models\Bill;
+use App\Models\Category;
 use App\Models\User;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\BillBusiness;
@@ -44,6 +45,8 @@ class BillBusinessTest extends TestCase
             ->willReturn((float) $collectionBill->sum('amount'));
         $mock->method('getTotalPaid')
             ->willReturn((float) $collectionBill->whereNotNull('pay_day')->sum('amount'));
+        $mock->method('getCategory')
+            ->willReturn(new Category(['name' => 'Transporte']));
         $mock->method('getTotalCashIn')
             ->willReturn((float) $collectionBill->where('amount','>=',0)->sum('amount'));
         $mock->method('getTotalCashOut')

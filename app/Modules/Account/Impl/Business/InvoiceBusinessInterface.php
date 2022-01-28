@@ -11,6 +11,6 @@ interface InvoiceBusinessInterface
 {
     public function getInvoiceByCreditCardAndDate(int $creditCardId, Carbon $date): Model|null;
     public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):Model;
-    public function getInvoiceWithBill(int $creditCardId):Collection;
+    public function getInvoiceWithBills(int $invoiceId):Model;
     public function payInvoice(int $invoiceId):Model;
 }

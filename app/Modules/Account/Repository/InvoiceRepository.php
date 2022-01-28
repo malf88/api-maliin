@@ -67,7 +67,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         return $bills;
     }
 
-    public function getInvoiceWithBill(int $invoiceId): Invoice
+    public function getInvoiceWithBills(int $invoiceId): Invoice
     {
         $invoice = Invoice::find($invoiceId);
         $invoice->bills = Bill::where('credit_card_id',$invoice->credit_card_id)

@@ -1082,6 +1082,41 @@
                 ]
             }
         },
+        "/invoice/{invoiceId}": {
+            "get": {
+                "tags": [
+                    "Invoices"
+                ],
+                "summary": "Retorna uma única fatura indicada pelo invoiceId",
+                "description": "Uma lista de contas a pagar/receber da conta informada",
+                "operationId": "35c0b6d1401a9965977e5e9471ef0832",
+                "parameters": [
+                    {
+                        "name": "invoiceId",
+                        "in": "path",
+                        "description": "Id da fatura",
+                        "required": true,
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uma lista de contas a pagar/receber"
+                    },
+                    "404": {
+                        "description": "Conta não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/invoice/pay/{invoiceId}": {
             "patch": {
                 "tags": [

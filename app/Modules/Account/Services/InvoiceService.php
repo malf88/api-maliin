@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\ServicesLocal\InvoiceServiceLocal;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class InvoiceService implements InvoiceServiceLocal
@@ -29,5 +30,9 @@ class InvoiceService implements InvoiceServiceLocal
     public function payInvoiceAndBill(int $invoiceId): Model
     {
         return $this->invoiceBusiness->payInvoice($invoiceId);
+    }
+    public function getInvoiceWithBills(int $invoiceId):Model
+    {
+        return $this->invoiceBusiness->getInvoiceWithBills($invoiceId);
     }
 }

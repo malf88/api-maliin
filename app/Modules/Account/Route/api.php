@@ -49,6 +49,6 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
 
     Route::group(['prefix'=>'invoice'],function (){
         Route::patch('/pay/{invoiceId}','InvoiceController@pay')->name('api.invoice.pay');
-
+        Route::get('/{invoiceId}','InvoiceController@index')->name('api.invoice.index');
     });
 });

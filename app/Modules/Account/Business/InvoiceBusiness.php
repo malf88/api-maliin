@@ -120,7 +120,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     {
         $invoiceWithBills = $this
                     ->invoiceRepository
-                    ->getInvoiceWithBill($invoiceId);
+                    ->getInvoiceWithBills($invoiceId);
 
         $invoiceWithBills
             ->bills
@@ -138,11 +138,20 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
         return $invoiceWithBills->refresh();
     }
-    public function getInvoiceWithBill(int $creditCardId):Collection
+
+    public function getInvoicesWithBill(int $creditCardId):Collection
     {
         return $this
                 ->invoiceRepository
                 ->getInvoicesWithBills($creditCardId);
     }
+
+    public function getInvoiceWithBills(int $invoiceId):Model
+    {
+        return $this
+            ->invoiceRepository
+            ->getInvoiceWithBills($invoiceId);
+    }
+
 
 }

@@ -23,7 +23,6 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     {
 
     }
-
     public function getListCreditCardByAccount(int $accountId):Collection
     {
         if(Auth::user()->userHasAccount($accountId)){
@@ -80,7 +79,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     public function getInvoicesWithBillByCreditCard(int $creditCardId):Collection
     {
         $this->getCreditCardById($creditCardId);
-        return $this->invoiceBusiness->getInvoiceWithBill($creditCardId);
+        return $this->invoiceBusiness->getInvoicesWithBill($creditCardId);
     }
 
 }

@@ -14,6 +14,34 @@ class InvoiceController extends Controller
     {
     }
     /**
+     * @OA\Get(
+     *     tags={"Invoices"},
+     *     summary="Retorna uma única fatura indicada pelo invoiceId",
+     *     description="Uma lista de contas a pagar/receber da conta informada",
+     *     path="/invoice/{invoiceId}",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="invoiceId",
+     *         in="path",
+     *         description="Id da fatura",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Uma lista de contas a pagar/receber"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * )
+     */
+
+    public function index(int $invoiceId)
+    {
+        return $this->invoiceServices->getInvoiceWithBills($invoiceId);
+    }
+    /**
      * @OA\Patch(
      *     tags={"Invoices"},
      *     summary="Marca uma fatura como paga",

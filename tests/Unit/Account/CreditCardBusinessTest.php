@@ -312,7 +312,7 @@ class CreditCardBusinessTest extends TestCase
 
         $creditCardId = 1;
         $this->invoiceBusiness
-            ->method('getInvoiceWithBill')
+            ->method('getInvoicesWithBill')
             ->willReturn($this->factory->factoryInvoiceList());
         $this->prepareCreditCardRepository($creditCardId);
         $this->prepareAccountBusiness();

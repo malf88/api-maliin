@@ -130,27 +130,27 @@ class InvoiceBusinessTest extends TestCase
     /**
      * @test
      */
-    public function deveRetornarListaFaturasComDeContasAPagarOuReceberPorCartaoDeCredito()
+    public function deveRetornarFaturaComListaDeContasAPagarOuReceber()
     {
 
-        $creditCardId = 1;
+        $invoiceId = 1;
         $this->invoiceRepository
-            ->method('getInvoicesWithBills')
-            ->willReturn($this->factory->factoryInvoiceList());
+            ->method('getInvoiceWithBills')
+            ->willReturn($this->factory->factoryInvoiceList()->get(0));
         $this->configureMockRepository('2021-09-01');
         $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
-        $invoices = $invoiceBusiness->getInvoiceWithBill($creditCardId);
+        $invoice = $invoiceBusiness->getInvoiceWithBills($invoiceId);
 
-        $this->assertCount(3,$invoices->get(0)->bills);
+        $this->assertCount(3,$invoice->bills);
     }
     /**
      * @test
      */
-    public function pagarFaturaCartaoDeCredito(){
+    public function devePagarFaturaCartaoDeCredito(){
         $creditCardId = 1;
         $invoiceId = 1;
         $this->invoiceRepository
-            ->method('getInvoiceWithBill')
+            ->method('getInvoiceWithBills')
             ->willReturn($this->factory->factoryInvoiceList()->get(0));
         $this->invoiceRepository
             ->method('getInvoice')
@@ -164,6 +164,6 @@ class InvoiceBusinessTest extends TestCase
                 $this->assertEquals(Carbon::now()->format('Y-m-d'),$item->pay_day->format('Y-m-d'));
             });
 
-        //$this->assertEquals(Carbon::now()->format('Y-m-d'),$invoice->pay_day->format('Y-m-d'));
     }
+
 }

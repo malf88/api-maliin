@@ -9,9 +9,11 @@ use App\Modules\Account\Controllers\BillController;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
+use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Services\BillService;
+use App\Modules\Account\Services\BillStandarizedService;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
 use Illuminate\Support\ServiceProvider;
 
@@ -35,6 +37,16 @@ class BillServiceProvider extends ServiceProvider
             ->give(AccountBusiness::class);
         $this->app
             ->when(BillBusiness::class)
+            ->needs(BillRepositoryInterface::class)
+            ->give(BillRepository::class);
+
+        $this->app
+            ->when(BillBusiness::class)
+            ->needs(BillStandarizedInterface::class)
+            ->give(BillStandarizedService::class);
+
+        $this->app
+            ->when(BillStandarizedService::class)
             ->needs(BillRepositoryInterface::class)
             ->give(BillRepository::class);
 

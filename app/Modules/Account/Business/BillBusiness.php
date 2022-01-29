@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
+use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
+use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,45 +21,18 @@ class BillBusiness implements BillBusinessInterface
 
     public function __construct(
         private BillRepositoryInterface $billRepository,
-        private CreditCardBusinessInterface $creditCardBusiness
+        private CreditCardBusinessInterface $creditCardBusiness,
+        private BillStandarizedService $billStandarized
     )
     {
 
     }
-    private function findChildBill(Model $bill):Model
-    {
-        if($bill->bill_parent_id != null){
-            $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
-        }else{
-            $bill->load('bill_parent');
-        }
-        $bill->bill_parent->each(function($item,$key){
-            $item->category = $item->category;
-            $item->makeVisible(['category']);
-        });
 
-        $bill->makeVisible(['bill_parent']);
-        return $bill;
-    }
-    public function normalizeListBills(Collection|LengthAwarePaginator $bills):Collection|LengthAwarePaginator
-    {
-        $bills->each(function($item,$key){
-            $item = $this->normalizeBill($item);
-        });
-        return $bills;
-    }
-
-    public function normalizeBill(Model $bill):Model
-    {
-        $bill = $this->findChildBill($bill);
-        $bill->category = $this->billRepository->getCategory($bill);
-        return $bill;
-    }
 
     public function getBillsByAccount(int $accountId):Collection
     {
         if(Auth::user()->userHasAccount($accountId)){
-            return $this->normalizeListBills($this->billRepository->getBillsByAccount($accountId));
+            return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId));
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
         }
@@ -67,7 +42,7 @@ class BillBusiness implements BillBusinessInterface
     {
 
         if(Auth::user()->userHasAccount($accountId)){
-            $billList = $this->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
+            $billList = $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
                 accountId: $accountId,
                 rangeDate: $rangeDate
             ));
@@ -88,7 +63,7 @@ class BillBusiness implements BillBusinessInterface
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
     {
         if(Auth::user()->userHasAccount($accountId)){
-            return $this->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
+            return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
         }
@@ -162,7 +137,7 @@ class BillBusiness implements BillBusinessInterface
     }
     public function getBillById(int $billId):Model
     {
-        $bill = $this->normalizeBill($this->billRepository->getBillById($billId));
+        $bill = $this->billStandarized->normalizeBill($this->billRepository->getBillById($billId));
 
         if(Auth::user()->userHasAccount($bill->account_id)){
             return $bill;

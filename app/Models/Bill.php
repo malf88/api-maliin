@@ -30,6 +30,7 @@ class Bill extends ApiModel
         'bill_parent',
         'is_parent',
         'category',
+        'credit_card',
         'account_id',
         'id',
         'credit_card_id',
@@ -74,7 +75,9 @@ class Bill extends ApiModel
     public function category(){
         return $this->belongsTo('App\Models\Category');
     }
-
+    public function credit_card(){
+        return $this->belongsTo('App\Models\CreditCard');
+    }
     public function account(){
         return $this->belongsTo('App\Models\Account');
     }

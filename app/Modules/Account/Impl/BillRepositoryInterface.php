@@ -4,6 +4,7 @@ namespace App\Modules\Account\Impl;
 
 use App\Models\Bill;
 use App\Models\Category;
+use App\Models\CreditCard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -22,4 +23,5 @@ interface BillRepositoryInterface
     public function getTotalCashIn(Collection $bills):float;
     public function getTotalCashOut(Collection $bills):float;
     public function getCategory(Bill $bill):Category|null;
+    public function getCreditCard(Bill $bill):CreditCard|null;
 }

@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
@@ -16,7 +17,8 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 {
 
     public function __construct(
-        private InvoiceRepositoryInterface $invoiceRepository
+        private InvoiceRepositoryInterface $invoiceRepository,
+        private BillStandarizedInterface  $billStandarized
     )
     {
 
@@ -148,9 +150,11 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
     public function getInvoiceWithBills(int $invoiceId):Model
     {
-        return $this
+        $invoice =  $this
             ->invoiceRepository
             ->getInvoiceWithBills($invoiceId);
+        $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
+        return $invoice;
     }
 
 

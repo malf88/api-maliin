@@ -2,15 +2,18 @@
 
 namespace App\Modules\Account\Providers;
 
+use App\Modules\Account\Business\BillBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Controllers\InvoiceController;
 use App\Modules\Account\Impl\BillRepositoryInterface;
+use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Repository\InvoiceRepository;
+use App\Modules\Account\Services\BillStandarizedService;
 use App\Modules\Account\Services\InvoiceService;
 use App\Modules\Account\ServicesLocal\InvoiceServiceLocal;
 use Illuminate\Support\ServiceProvider;
@@ -36,8 +39,8 @@ class InvoiceServiceProvider extends ServiceProvider
 
         $this->app
             ->when(InvoiceBusiness::class)
-            ->needs(CreditCardBusinessInterface::class)
-            ->give(CreditCardBusiness::class);
+            ->needs(BillStandarizedInterface::class)
+            ->give(BillStandarizedService::class);
 
         $this->app
             ->when(InvoiceService::class)

@@ -6,8 +6,10 @@ use App\Models\Invoice;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
+use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use App\Modules\Account\Repository\InvoiceRepository;
+use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +22,8 @@ class InvoiceBusinessTest extends TestCase
     private DataFactory $factory;
     private InvoiceRepository $invoiceRepository;
     private CreditCardRepository $creditCardRepository;
-    private AccountBusiness $accountBusiness;
+    private BillStandarizedService $billStandarizedService;
+
     private int $creditCardId = 1;
     public function setUp(): void
     {
@@ -29,7 +32,7 @@ class InvoiceBusinessTest extends TestCase
         $this->invoiceRepository = $this->createMock(InvoiceRepository::class);
         $this->creditCardRepository = $this->createMock(CreditCardRepository::class);
         $this->accountBusiness = $this->createMock(AccountBusiness::class);
-
+        $this->billStandarizedService = new BillStandarizedService($this->createMock(BillRepository::class));
         $this->invoiceRepository = $this->createMock(InvoiceRepository::class);
         $this->factory = new DataFactory();
         $user = $this->factory->factoryUser(1);
@@ -65,7 +68,7 @@ class InvoiceBusinessTest extends TestCase
         $this->configureMockRepository($date);
         $creditCards = $this->factory->factoryCreditCards();
         $this->configureCreditCardBusiness();
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
 
         $invoice = $invoiceBusiness->getInvoiceByCreditCardAndDate($this->creditCardId,Carbon::make($date));
 
@@ -85,7 +88,7 @@ class InvoiceBusinessTest extends TestCase
         $this->configureMockRepository($date);
         $this->configureCreditCardBusiness();
         $creditCards = $this->factory->factoryCreditCards();
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
 
         $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
 
@@ -118,7 +121,7 @@ class InvoiceBusinessTest extends TestCase
             ->method('insertInvoice')
             ->willReturn($invoice);
         $this->configureCreditCardBusiness();
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
 
         $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
         $this->assertEquals('2021-08-31',$invoice->start_date->format('Y-m-d'));
@@ -138,7 +141,7 @@ class InvoiceBusinessTest extends TestCase
             ->method('getInvoiceWithBills')
             ->willReturn($this->factory->factoryInvoiceList()->get(0));
         $this->configureMockRepository('2021-09-01');
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
         $invoice = $invoiceBusiness->getInvoiceWithBills($invoiceId);
 
         $this->assertCount(3,$invoice->bills);
@@ -156,7 +159,7 @@ class InvoiceBusinessTest extends TestCase
             ->method('getInvoice')
             ->willReturn($this->factory->factoryInvoiceList()->get(0));
         $this->configureMockRepository('2021-09-01');
-        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository);
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
         $invoice = $invoiceBusiness->payInvoice($invoiceId);
         $invoice
             ->bills

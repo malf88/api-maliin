@@ -47,25 +47,13 @@ class InvoiceRepository implements InvoiceRepositoryInterface
             $item->bills = Bill::where('credit_card_id',$item->credit_card_id)
                             ->whereBetween('date',[$item->start_date,$item->end_date])
                             ->get();
-            $item->bills = $this->prepareBills($item->bills);
+            //$item->bills = $this->prepareBills($item->bills);
             $item->total_balance = $item->bills->sum('amount');
             $item->makeVisible(['bills','total_balance']);
         });
         return $invoices;
     }
 
-    private function prepareBills(Collection $bills):Collection
-    {
-        $bills->each(function($bill,$key){
-            if($bill->bill_parent_id != null){
-                $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
-            }else{
-                $bill->load('bill_parent');
-            }
-            $bill->makeVisible(['bill_parent']);
-        });
-        return $bills;
-    }
 
     public function getInvoiceWithBills(int $invoiceId): Invoice
     {
@@ -73,9 +61,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         $invoice->bills = Bill::where('credit_card_id',$invoice->credit_card_id)
             ->whereBetween('date',[$invoice->start_date,$invoice->end_date])
             ->get();
-        $invoice->bills = $this->prepareBills($invoice->bills);
+        //$invoice->bills = $this->prepareBills($invoice->bills);
         $invoice->total_balance = $invoice->bills->sum('amount');
-        $invoice->makeVisible(['bills','total_balance']);
+        $invoice->makeVisible(['total_balance']);
         return $invoice;
     }
 

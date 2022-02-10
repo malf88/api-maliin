@@ -18,9 +18,9 @@ class BillRepository implements BillRepositoryInterface
     public function getBillsByAccount(int $accountId, bool $paginate = false):Collection|LengthAwarePaginator
     {
         if($paginate){
-            return $this->getBillsQuery($accountId)->paginate(config('app.paginate'));
+            return $this->getBillsQuery($accountId)->orderBy('date','ASC')->paginate(config('app.paginate'));
         }else{
-            return $this->getBillsQuery($accountId)->get();
+            return $this->getBillsQuery($accountId)->orderBy('date','ASC')->get();
         }
     }
     public function getTotalEstimated(Collection $bills):float
@@ -51,14 +51,17 @@ class BillRepository implements BillRepositoryInterface
     {
         return  $this->getQueryBill($accountId)
             ->whereBetween('due_date',$rangeDate)
+            ->orderBy('date','ASC')
             ->union(
                     $this->getQueryInvoiceAsBill($accountId)
                          ->whereBetween('due_date',$rangeDate)
+                         ->orderBy('due_date','ASC')
             );
     }
     private function getBillsQuery(int $accountId,):Builder
     {
         return  $this->getQueryBill($accountId)
+            ->orderBy('date','ASC')
                     ->union($this->getQueryInvoiceAsBill($accountId));
 
     }
@@ -116,7 +119,8 @@ class BillRepository implements BillRepositoryInterface
                                     true")
         )
             ->join('credit_cards','invoices.credit_card_id','=','credit_cards.id')
-            ->where('account_id',$accountId);
+            ->where('account_id',$accountId)
+            ->orderBy('start_date','ASC');
     }
 
     public function saveBill(int $accountId,array $billData):Bill
@@ -145,7 +149,7 @@ class BillRepository implements BillRepositoryInterface
             })
             ->where('bills.id',$billParentId)
             ->where('filho.id','<>',$billId)
-            ->orderBy('filho.created_at','ASC')
+            ->orderBy('filho.due_date','ASC')
             ->get();
     }
     public function getBillById(int $billId):Bill

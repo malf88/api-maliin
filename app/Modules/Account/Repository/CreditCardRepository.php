@@ -12,7 +12,7 @@ class CreditCardRepository implements CreditCardRepositoryInterface
 {
     public function getCreditCardsByAccountId(int $accountId):Collection
     {
-        return Account::find($accountId)->creditCards;
+        return Account::find($accountId)->creditCards()->orderBy('name', 'ASC')->get();
     }
 
     public function getCreditCardById(int $creditCardId):?CreditCard

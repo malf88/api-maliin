@@ -11,7 +11,7 @@ class AccountRepository implements AccountRepositoryInterface
 {
     public function getAccountFromUser(User $user):Collection
     {
-        $listAccount = $user->accounts;
+        $listAccount = $user->accounts()->orderBy('name','ASC')->get();
         return $listAccount;
     }
     public function saveAccount(User $user,array $accountInfo):Account

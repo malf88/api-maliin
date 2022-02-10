@@ -15,7 +15,6 @@ use Illuminate\Database\Query\Builder;
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
     public function __construct(
-        private BillRepositoryInterface $billRepository
     )
     {
     }
@@ -46,6 +45,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         $invoices->each(function($item,$key){
             $item->bills = Bill::where('credit_card_id',$item->credit_card_id)
                             ->whereBetween('date',[$item->start_date,$item->end_date])
+                            ->orderBy('date','ASC')
                             ->get();
             //$item->bills = $this->prepareBills($item->bills);
             $item->total_balance = $item->bills->sum('amount');
@@ -60,6 +60,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         $invoice = Invoice::find($invoiceId);
         $invoice->bills = Bill::where('credit_card_id',$invoice->credit_card_id)
             ->whereBetween('date',[$invoice->start_date,$invoice->end_date])
+            ->orderBy('date','ASC')
             ->get();
         //$invoice->bills = $this->prepareBills($invoice->bills);
         $invoice->total_balance = $invoice->bills->sum('amount');

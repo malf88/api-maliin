@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 class CategoryRepository implements CategoryRepositoryInterface
 {
     public function getCategoriesFromUser(User $user):Collection{
-        return $user->categories()->get();
+        return $user->categories()->orderBy('name','ASC')->get();
     }
 
     public function saveCategory(User $user,array $categoryData):Category

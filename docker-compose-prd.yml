@@ -18,7 +18,7 @@ services:
     networks:
       - traefik-public
   composer:
-    image: composer:2
+    image: composer:2.3.2
     container_name: composer
     restart: unless-stopped
     env_file:

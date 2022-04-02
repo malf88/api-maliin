@@ -44,7 +44,7 @@ services:
     networks:
       - maliin
   composer:
-    image: composer:2
+    image: composer:2.3.2
     container_name: composer
     env_file:
       - .env

@@ -30,7 +30,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => 3600,
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +42,6 @@ return [
     | request. You may change the middleware listed below as required.
     |
     */
-
     'middleware' => [
         'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
         'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,

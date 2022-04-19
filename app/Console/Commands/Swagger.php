@@ -42,7 +42,7 @@ class Swagger extends Command
             base_path('app'),
             base_path('config')
         ]);
-        Storage::disk('swagger')->put('openapi.json', $openAPI->toJson());
+        Storage::disk('public')->put('openapi.json', $openAPI->toJson());
         $this->info("Arquivo swagger criado com sucesso");
     }
 }

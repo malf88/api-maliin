@@ -53,8 +53,51 @@ class ApiAuthController extends Controller
                 'token_type' => 'Bearer',
             ];
     }
-
+    /**
+     * @OA\Get(
+     *     tags={"Login"},
+     *     summary="Retorna os dados do usuário logado",
+     *     description="Realiza o login do usuário e retorna um token",
+     *     path="/user",
+     *
+     *     @OA\Response(
+     *          response="200",
+     *          description="Usuário logado",
+     *          @OA\JsonContent()
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          description="Acesso não autorizado",
+     *          @OA\JsonContent()
+     *      ),
+     * ),
+     *
+     */
     public function getUser(Request $request){
         return $request->user();
+    }
+    /**
+     * @OA\Put(
+     *     tags={"Login"},
+     *     summary="Retorna os dados do usuário logado",
+     *     description="Realiza o logout do usuário",
+     *     path="/logout",
+     *
+     *     @OA\Response(
+     *          response="200",
+     *          description="Usuário deslogado",
+     *          @OA\JsonContent()
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          description="Acesso não autorizado",
+     *          @OA\JsonContent()
+     *      ),
+     * ),
+     *
+     */
+    public function logout(Request $request){
+
+        return $request->user()->tokens()->where('token', $request->user()->currentAccessToken()->token)->delete();
     }
 }

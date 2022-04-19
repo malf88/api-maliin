@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::group(['middleware' =>['json.response','auth:sanctum'],'namespace' => '\App\Http\Controllers\Api'],function(){
     Route::get('/user', 'ApiAuthController@getUser');
-
+    Route::put('/logout', 'ApiAuthController@logout');
     Route::group(['prefix'=>'account'],function (){
         Route::get('/');
     });

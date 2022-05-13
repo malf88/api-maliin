@@ -62,4 +62,4 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           script: |
             cd ~/app/api-maliin
-            docker stack deploy -c docker-compose-prd.yml backend
+            docker stack deploy -c docker-compose-prd.yml api-maliin

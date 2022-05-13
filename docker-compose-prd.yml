@@ -86,10 +86,10 @@ services:
         - traefik.port=80
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.api_maliin-http.rule=Host(`api.hml.malf88.xyz`)
+        - traefik.http.routers.api_maliin-http.rule=Host(`api.malf88.xyz`)
         - traefik.http.routers.api_maliin-http.entrypoints=http
         - traefik.http.routers.api_maliin-http.middlewares=https-redirect
-        - traefik.http.routers.api_maliin-https.rule=Host(`api.hml.malf88.xyz`)
+        - traefik.http.routers.api_maliin-https.rule=Host(`api.malf88.xyz`)
         - traefik.http.routers.api_maliin-https.entrypoints=https
         - traefik.http.routers.api_maliin-https.tls=true
         - traefik.http.routers.api_maliin-https.tls.certresolver=le

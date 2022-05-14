@@ -50,27 +50,7 @@ services:
       - .env
     volumes:
       - ./:/app
-  node:
-    image: node:12-alpine
-    container_name: node
-    env_file:
-      - .env
-    working_dir: /usr/src/app
-    volumes:
-      - ./:/usr/src/app
-  robot:
-    build:
-      context: ./
-      dockerfile: docker/robot/Dockerfile
-    container_name: robot
-    env_file:
-      - .env
-    working_dir: /testes/
-    volumes:
-      - ./tests/Integration:/testes/
-      - ./docker/robot/results:/report/
-    networks:
-      - maliin
+
   api-redis:
     container_name: api-redis
     image: redis

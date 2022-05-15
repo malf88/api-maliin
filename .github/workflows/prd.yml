@@ -31,8 +31,6 @@ jobs:
             cd ~/app/api-maliin
             git fetch
             git reset origin/master --hard
-            docker-compose -f docker-compose-prd.yml down -v
-            docker network rm api-maliin_default
             docker network prune
             docker system prune -a --force
             docker-compose -f docker-compose-prd.yml build composer node

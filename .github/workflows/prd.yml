@@ -32,7 +32,7 @@ jobs:
             git fetch
             git reset origin/master --hard
             docker network rm api-maliin_default
-            docker networks prune
+            docker network prune
             docker system prune -a --force
             docker-compose -f docker-compose-prd.yml build composer node
       - name: Composer & npm install

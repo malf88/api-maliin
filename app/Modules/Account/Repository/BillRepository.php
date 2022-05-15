@@ -154,6 +154,7 @@ class BillRepository implements BillRepositoryInterface
             ->with(['category','credit_card'])
             ->where('bills.id',$billParentId)
             ->where('filho.id','<>',$billId)
+            ->whereNull('deleted_at')
             ->orderBy('filho.due_date','ASC')
             ->get();
     }

@@ -25,6 +25,8 @@ services:
       - .env
     volumes:
       - ./:/app
+    networks:
+      - traefik-public
   node:
     image: node:12-alpine
     container_name: node
@@ -33,6 +35,8 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./:/usr/src/app
+    networks:
+      - traefik-public
   api-scheduler:
     image: api-app
     container_name: scheduler-api

@@ -4,7 +4,7 @@
     "description": "Sistema de gestão financeira",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "require": {
         "php": "^8.1",
         "fruitcake/laravel-cors": "^2.0",

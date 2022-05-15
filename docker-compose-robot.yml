@@ -1,0 +1,18 @@
+version: '3'
+services:
+  robot:
+    build:
+      context: ./
+      dockerfile: docker/robot/Dockerfile
+    container_name: robot
+    env_file:
+      - .env
+    working_dir: /testes/
+    volumes:
+      - ./tests/Integration:/testes/
+      - ./docker/robot/results:/report/
+    networks:
+      - maliin
+networks:
+  maliin:
+    driver: bridge

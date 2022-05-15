@@ -91,6 +91,12 @@ return [
             'driver' => 'errorlog',
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'custom_error' => [
+            'driver' => 'single',
+            'level'  => 'info',
+            'path'   => storage_path('logs/errors.log'),
+            'bubble' => false
+        ],
 
         'null' => [
             'driver' => 'monolog',

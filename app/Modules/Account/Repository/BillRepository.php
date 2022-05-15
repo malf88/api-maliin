@@ -52,10 +52,13 @@ class BillRepository implements BillRepositoryInterface
         return  $this->getQueryBill($accountId)
             ->whereBetween('due_date',$rangeDate)
             ->orderBy('date','ASC')
+            ->orderBy('id','ASC')
+            ->with(['category','credit_card'])
             ->union(
                     $this->getQueryInvoiceAsBill($accountId)
                          ->whereBetween('due_date',$rangeDate)
                          ->orderBy('due_date','ASC')
+                         ->orderBy('id','ASC')
             );
     }
     private function getBillsQuery(int $accountId,):Builder
@@ -81,7 +84,8 @@ class BillRepository implements BillRepositoryInterface
     }
     public function getQueryBill(int $accountId):Builder
     {
-        return $bill =  Bill::select(DB::raw("id,
+        return $bill =  Bill::select(DB::raw(
+                            "id,
                             description,
                             amount,
                             date,
@@ -91,8 +95,8 @@ class BillRepository implements BillRepositoryInterface
                             category_id,
                             barcode,
                             bill_parent_id,
-                            'false' as is_credit_card")
-        )
+                            'false' as is_credit_card"
+        ))
             ->where('account_id',$accountId)
             ->where('credit_card_id');
     }
@@ -147,6 +151,7 @@ class BillRepository implements BillRepositoryInterface
             ->leftJoin('maliin.bills as filho',function($join) use($billId){
                 $join->on('filho.bill_parent_id','=','bills.id')->orOn('bills.id','=','filho.id');
             })
+            ->with(['category','credit_card'])
             ->where('bills.id',$billParentId)
             ->where('filho.id','<>',$billId)
             ->orderBy('filho.due_date','ASC')
@@ -154,7 +159,7 @@ class BillRepository implements BillRepositoryInterface
     }
     public function getBillById(int $billId):Bill
     {
-        return Bill::find($billId);
+        return Bill::with(['category','credit_card'])->find($billId);
     }
 
     public function updateBill(int $accountId, array $billData): Bill

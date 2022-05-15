@@ -2,11 +2,8 @@
 
 namespace App\Modules\Account\Business;
 
-use App\Models\User;
 use App\Modules\Account\Impl\BillRepositoryInterface;
-use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
-use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
@@ -128,7 +125,6 @@ class BillBusiness implements BillBusinessInterface
         $due_date = $this->addMonthDueDate($due_date);
         $date->addMonth();
         for($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++){
-
             $billData['description'] = $this->getNewDescriptionWithPortion(
                 $descriptionBeforeCreateBill,
                 $interatorPortion,
@@ -138,7 +134,6 @@ class BillBusiness implements BillBusinessInterface
             $billData['portion'] = $interatorPortion;
             $billData['due_date'] = $due_date;
             $billData['date'] = $date;
-
             $this->processCreditCardBill($billData);
             $bill = $this->billRepository->saveBill($accountId,$billData);
             $billsInserted->add($bill);
@@ -182,9 +177,10 @@ class BillBusiness implements BillBusinessInterface
         $this->processCreditCardBill($billData);
         $due_date = $this->addMonthDueDate($due_date);
         $date->addMonth();
-        $bill->bill_parent->each(function($item,$key) use($date,$due_date, $totalBillsSelected, $description, $billData)
+        $bill->bill_parent->each(function($item,$key) use($date,$due_date, $totalBillsSelected, $description, $billData, $bill)
         {
-            if($item->pay_day == null) {
+
+            if($item->pay_day == null && $item->portion > $bill->portion) {
                 $billData['description'] = $this->getNewDescriptionWithPortion(
                                                 $description,
                                                 $item->portion,
@@ -202,7 +198,9 @@ class BillBusiness implements BillBusinessInterface
     }
     private function getNewDescriptionWithPortion(string $description,int $portionActual,int $portionTotal):string
     {
-        return $description . '['.$portionActual. '/' .$portionTotal .']';
+        $description = preg_replace('/\[\d\/\d\]/','', $description);
+        return $description . ' ['.$portionActual. '/' .$portionTotal .']';
+
     }
 
     private function addMonthDueDate(Carbon|null $date):Carbon|null

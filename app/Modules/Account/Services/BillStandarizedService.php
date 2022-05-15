@@ -26,10 +26,6 @@ class BillStandarizedService implements \App\Modules\Account\Impl\Business\BillS
     public function normalizeBill(Model $bill):Model
     {
         $bill = $this->findChildBill($bill);
-        $bill->category = $this->billRepository->getCategory($bill);
-        $bill->credit_card = $this->billRepository->getCreditCard($bill);
-        $bill->makeVisible(['category','credit_card']);
-
         return $bill;
     }
 
@@ -41,8 +37,6 @@ class BillStandarizedService implements \App\Modules\Account\Impl\Business\BillS
             $bill->load('bill_parent');
         }
         $bill->bill_parent->each(function($item,$key){
-            $item->category = $item->category;
-            $item->credit_card = $item->credit_card;
             $item->makeVisible(['category','credit_card']);
         });
         $bill->makeVisible(['bill_parent']);

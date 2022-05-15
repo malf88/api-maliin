@@ -29,23 +29,35 @@ class BillBusiness implements BillBusinessInterface
     }
 
 
-    public function getBillsByAccount(int $accountId):Collection
+    public function getBillsByAccount(int $accountId, bool $normalize = false):Collection
     {
         if(Auth::user()->userHasAccount($accountId)){
-            return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId));
+            if($normalize){
+                return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId));
+            }else{
+                return $this->billRepository->getBillsByAccount($accountId);
+            }
+
         }else{
             throw new ItemNotFoundException('Conta não encontrada');
         }
     }
 
-    public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection
+    public function getBillsByAccountBetween(int $accountId,array $rangeDate, bool $normalize = false):Collection
     {
 
         if(Auth::user()->userHasAccount($accountId)){
-            $billList = $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
-                accountId: $accountId,
-                rangeDate: $rangeDate
-            ));
+            if($normalize) {
+                $billList = $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
+                    accountId: $accountId,
+                    rangeDate: $rangeDate
+                ));
+            }else{
+                $billList = $this->billRepository->getBillsByAccountWithRangeDate(
+                    accountId: $accountId,
+                    rangeDate: $rangeDate
+                );
+            }
             return Collection::make([
                 'bills' => $billList,
                 'total' => Collection::make([

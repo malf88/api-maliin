@@ -56,6 +56,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
                             id,
                             credit_card_id,
                             portion'))
+                            ->with(['category','credit_card'])
                             ->where('credit_card_id',$item->credit_card_id)
                             ->whereBetween('date',[$item->start_date,$item->end_date])
                             ->orderBy('date','ASC')
@@ -83,6 +84,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
                             id,
                             credit_card_id,
                             portion'))
+            ->with(['category','credit_card'])
             ->where('credit_card_id',$invoice->credit_card_id)
             ->whereBetween('date',[$invoice->start_date,$invoice->end_date])
             ->orderBy('date','ASC')

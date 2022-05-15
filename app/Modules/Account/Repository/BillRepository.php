@@ -148,24 +148,25 @@ class BillRepository implements BillRepositoryInterface
     public function getChildBill(int $billId, int $billParentId):Collection
     {
         return Bill::select(
-            DB::raw('filho.description,
-            filho.amount,
-            filho.date,
-            COALESCE(filho.due_date,
-                (SELECT invoices.due_date
-                FROM maliin.invoices
-                WHERE
-                    filho.date BETWEEN start_date AND end_date AND
-                    invoices.credit_card_id = filho.credit_card_id)
-            ) as due_date,
-            filho.pay_day,
-            filho.barcode,
-            filho.bill_parent_id,
-            filho.category_id,
-            filho.account_id,
-            filho.id,
-            filho.credit_card_id,
-            filho.portion'))
+            DB::raw(
+                'filho.description,
+                        filho.amount,
+                        filho.date,
+                        COALESCE(filho.due_date,
+                            (SELECT invoices.due_date
+                            FROM maliin.invoices
+                            WHERE
+                                filho.date BETWEEN start_date AND end_date AND
+                                invoices.credit_card_id = filho.credit_card_id)
+                        ) as due_date,
+                        filho.pay_day,
+                        filho.barcode,
+                        filho.bill_parent_id,
+                        filho.category_id,
+                        filho.account_id,
+                        filho.id,
+                        filho.credit_card_id,
+                        filho.portion'))
             ->leftJoin('maliin.bills as filho',function($join) use($billId){
                 $join->on('filho.bill_parent_id','=','bills.id')->orOn('bills.id','=','filho.id');
             })

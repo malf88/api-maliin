@@ -198,7 +198,7 @@ class BillBusiness implements BillBusinessInterface
     }
     private function getNewDescriptionWithPortion(string $description,int $portionActual,int $portionTotal):string
     {
-        $description = preg_replace('/\[\d\/\d\]/','', $description);
+        $description = preg_replace('/\s\[\d{1,}\/\d{1,}\]/','', $description);
         return $description . ' ['.$portionActual. '/' .$portionTotal .']';
 
     }

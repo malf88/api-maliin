@@ -31,11 +31,9 @@ class BillStandarizedService implements \App\Modules\Account\Impl\Business\BillS
 
     private function findChildBill(Model $bill):Model
     {
-        if($bill->bill_parent_id != null){
-            $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
-        }else{
-            $bill->load('bill_parent');
-        }
+
+        $bill->bill_parent = $this->billRepository->getChildBill($bill->id,$bill->bill_parent_id);
+
         $bill->bill_parent->each(function($item,$key){
             $item->makeVisible(['category','credit_card']);
         });

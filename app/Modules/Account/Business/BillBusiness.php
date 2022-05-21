@@ -179,7 +179,6 @@ class BillBusiness implements BillBusinessInterface
         $date->addMonth();
         $bill->bill_parent->each(function($item,$key) use($date,$due_date, $totalBillsSelected, $description, $billData, $bill)
         {
-
             if($item->pay_day == null && $item->portion > $bill->portion) {
                 $billData['description'] = $this->getNewDescriptionWithPortion(
                                                 $description,
@@ -198,7 +197,7 @@ class BillBusiness implements BillBusinessInterface
     }
     private function getNewDescriptionWithPortion(string $description,int $portionActual,int $portionTotal):string
     {
-        $description = preg_replace('/\[\d\/\d\]/','', $description);
+        $description = preg_replace('/\s\[\d{1,}\/\d{1,}\]/','', $description);
         return $description . ' ['.$portionActual. '/' .$portionTotal .']';
 
     }

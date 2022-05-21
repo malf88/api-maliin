@@ -116,10 +116,7 @@ class DataFactory extends TestCase
         $account
             ->method('bills')
             ->willReturn($billCollection);
-        $account
-            ->method('load')
-            ->with(['bills'])
-            ->willReturn($account);
+
         $account->user = $user;
         $account->fill($accountInfo);
         $account->id = 1;
@@ -154,6 +151,7 @@ class DataFactory extends TestCase
         $bill->amount = $amount;
         $bill->portion = $portion;
         $bill->due_date = $due_date;
+        $bill->account_id = 1;
         return $bill;
 
     }

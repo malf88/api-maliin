@@ -32,7 +32,17 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(1);
         Auth::shouldReceive('user')
             ->andReturn($user);
-        $this->billStandarizedService = new BillStandarizedService($this->getMockRepository());
+        $this->billStandarizedService = $this->createMock(BillStandarizedService::class);
+
+        $list = Collection::make([
+            $this->accountFactory->factoryBill(2,100,1,portion:2),
+            $this->accountFactory->factoryBill(3,200,1,portion:3),
+            $this->accountFactory->factoryBill(4,-100,1,portion:4)
+        ]);
+        $this->billStandarizedService->method('normalizeListBills')
+            ->willReturn(
+                new LengthAwarePaginator($list, $list->count(),5)
+            );
     }
 
     public function getMockRepository(){
@@ -54,6 +64,7 @@ class BillBusinessTest extends TestCase
             ->willReturn((float) $collectionBill->where('amount','>=',0)->sum('amount'));
         $mock->method('getTotalCashOut')
             ->willReturn((float) $collectionBill->where('amount','<',0)->sum('amount'));
+
         return $mock;
 
     }
@@ -255,16 +266,14 @@ class BillBusinessTest extends TestCase
         $user = $this->accountFactory->factoryUser(1);
         $account = $accounts->get(0);
         $account->user = $user;
-        $bill = $this->createPartialMock(Bill::class,['account','load']);
-        $bill->method('load');
+        $bill = $this->createPartialMock(Bill::class,['account']);
         $bill->method('account')
             ->willReturn($account);
 
         $bill->account = $account;
         $bill->fill($this->factoryBillData());
-        $billRepository
-            ->method('getBillById')
-            ->with($billId)
+
+        $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
@@ -296,6 +305,8 @@ class BillBusinessTest extends TestCase
             ->method('getBillById')
             ->with($billId)
             ->willReturn($bill);
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $this->expectException(ItemNotFoundException::class);
@@ -323,11 +334,11 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billRepository
-            ->method('getBillById')
-            ->willReturn($bill);
+
         $billRepository
             ->method('updateBill')
+            ->willReturn($bill);
+        $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $bill = $billBusiness->updateBill($billId,$billData);
@@ -353,17 +364,28 @@ class BillBusinessTest extends TestCase
         $bill->bill_parent_id = 1;
         $bill->id = 1;
         $bill->account = $account;
+        $bill->bill_parent =
+            Collection::make([
+                $this->accountFactory->factoryBill(2,300,1,portion:2),
+                $this->accountFactory->factoryBill(3,200,1,portion:3),
+                $this->accountFactory->factoryBill(4,-100,1,portion:4)
+            ]);
 
         $bill->fill($this->factoryBillData());
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billRepository
-            ->method('getBillById')
-            ->willReturn($bill);
+
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
+        $billRepository
+            ->method('getBillById')
+            ->willReturn($bill);
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+
+
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $bills = $billBusiness->updateBill($billId,$billData);
 
@@ -398,9 +420,9 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billRepository
-            ->method('getBillById')
+        $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
+
         $billRepository
             ->method('updateBill')
             ->willReturn($bill);
@@ -431,9 +453,9 @@ class BillBusinessTest extends TestCase
         $bill->account = $account;
 
         $billRepository = $this->getMockRepository();
-        $billRepository
-            ->method('getBillById')
+        $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
+
         $bill->fill($billData);
         $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
@@ -461,8 +483,7 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-        $billRepository
-            ->method('getBillById')
+        $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
         $billRepository
             ->method('deleteBill')
@@ -493,8 +514,7 @@ class BillBusinessTest extends TestCase
         $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billRepository = $this->getMockRepository();
-        $billRepository
-            ->method('getBillById')
+        $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);

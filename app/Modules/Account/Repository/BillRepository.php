@@ -78,7 +78,7 @@ class BillRepository implements BillRepositoryInterface
                                     FROM maliin.invoices
                                         JOIN maliin.credit_cards using(id)
                                     WHERE account_id = $accountId
-                                    ORDER BY 1,2 ASC
+                                    ORDER BY 1 DESC ,2 DESC
                                     ");
         return Collection::make($registros);
     }

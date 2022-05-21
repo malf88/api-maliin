@@ -51,15 +51,12 @@ class BillRepository implements BillRepositoryInterface
     {
         return  $this->getQueryBill($accountId)
             ->whereBetween('due_date',$rangeDate)
-            ->orderBy('date','ASC')
-            ->orderBy('id','ASC')
             ->with(['category','credit_card'])
             ->union(
                     $this->getQueryInvoiceAsBill($accountId)
                          ->whereBetween('due_date',$rangeDate)
-                         ->orderBy('due_date','ASC')
-                         ->orderBy('id','ASC')
-            );
+            )
+            ->orderBy('date','ASC');
     }
     private function getBillsQuery(int $accountId,):Builder
     {

@@ -179,7 +179,6 @@ class BillBusiness implements BillBusinessInterface
         $date->addMonth();
         $bill->bill_parent->each(function($item,$key) use($date,$due_date, $totalBillsSelected, $description, $billData, $bill)
         {
-
             if($item->pay_day == null && $item->portion > $bill->portion) {
                 $billData['description'] = $this->getNewDescriptionWithPortion(
                                                 $description,

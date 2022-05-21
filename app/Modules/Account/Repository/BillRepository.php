@@ -145,9 +145,9 @@ class BillRepository implements BillRepositoryInterface
     {
         return $bill->credit_card;
     }
-    public function getChildBill(int $billId, int $billParentId):Collection
+    public function getChildBill(int $billId, int $billParentId = null):Collection
     {
-        return Bill::select(
+        $queryFindChild = Bill::select(
             DB::raw(
                 'filho.description,
                         filho.amount,
@@ -171,11 +171,15 @@ class BillRepository implements BillRepositoryInterface
                 $join->on('filho.bill_parent_id','=','bills.id')->orOn('bills.id','=','filho.id');
             })
             ->with(['category','credit_card'])
-            ->where('bills.id',$billParentId)
             ->where('filho.id','<>',$billId)
             ->whereNull('filho.deleted_at')
-            ->orderBy('filho.due_date','ASC')
-            ->get();
+            ->orderBy('filho.due_date','ASC');
+        if($billParentId != null){
+            $queryFindChild->where('bills.id',$billParentId);
+        }else{
+            $queryFindChild->where('bills.id',$billId);
+        }
+        return $queryFindChild->get();
     }
     public function getBillById(int $billId):Bill
     {

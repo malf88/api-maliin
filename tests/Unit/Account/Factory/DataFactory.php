@@ -158,11 +158,12 @@ class DataFactory extends TestCase
 
         $bill->description = "Mercado";
         $bill->id = $id;
+        $bill->date = Carbon::now();
         $bill->bill_parent_id = $parentId;
-        $bill->pay_day = $pay_day;
+        $bill->pay_day = $pay_day? Carbon::createFromDate($pay_day) : null;
         $bill->amount = $amount;
         $bill->portion = $portion;
-        $bill->due_date = $due_date;
+        $bill->due_date = $due_date? Carbon::createFromDate($due_date) : null;
         $bill->account_id = 1;
         return $bill;
 

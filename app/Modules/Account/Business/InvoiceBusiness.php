@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
@@ -162,5 +163,13 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         return $invoice;
     }
 
+    public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService,int $invoiceId, bool $normalize = false):void
+    {
+        $invoice =  $this
+            ->getInvoiceWithBills($invoiceId,$normalize);
+        $pdf = $billPdfService->generate(Collection::make($invoice->toArray()));
+
+        $pdf->stream($invoiceId.'-'.$invoice->start_date.'-'.$invoice->end_date.'.pdf');
+    }
 
 }

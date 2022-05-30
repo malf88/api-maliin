@@ -9,9 +9,11 @@ use App\Modules\Account\Controllers\BillController;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
+use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Repository\BillRepository;
+use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\Services\BillService;
 use App\Modules\Account\Services\BillStandarizedService;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
@@ -19,6 +21,10 @@ use Illuminate\Support\ServiceProvider;
 
 class BillServiceProvider extends ServiceProvider
 {
+
+    public $bindings = [
+        BillPdfInterface::class => BillPdfService::class,
+    ];
     public function register()
     {
         $this->app

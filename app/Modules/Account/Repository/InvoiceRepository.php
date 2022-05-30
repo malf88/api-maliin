@@ -70,7 +70,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 
     public function getInvoiceWithBills(int $invoiceId): Invoice
     {
-        $invoice = Invoice::find($invoiceId);
+        $invoice = Invoice::with('credit_card')->find($invoiceId);
         $invoice->bills = Bill::select(
             DB::raw('description,
                             amount,

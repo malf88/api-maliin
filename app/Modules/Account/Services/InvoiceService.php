@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Services;
 
 use App\Models\User;
+use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\ServicesLocal\InvoiceServiceLocal;
 use Carbon\Carbon;
@@ -34,5 +35,10 @@ class InvoiceService implements InvoiceServiceLocal
     public function getInvoiceWithBills(int $invoiceId):Model
     {
         return $this->invoiceBusiness->getInvoiceWithBills($invoiceId);
+    }
+
+    public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService, int $invoiceId, bool $normalize = false): void
+    {
+        $this->invoiceBusiness->getInvoiceWithBillsInPDF($billPdfService,$invoiceId,$normalize);
     }
 }

@@ -170,13 +170,18 @@ class DataFactory extends TestCase
     }
     public function factoryInvoiceList()
     {
-        $invoice1 = $this->createPartialMock(Invoice::class,['save']);
+        $invoice1 = $this->createPartialMock(Invoice::class,['save','with']);
         $invoice1->method('save')->willReturn(1);
+        $invoice1->start_date = Carbon::createFromDate('2020-01-01');
+        $invoice1->end_date = Carbon::createFromDate('2020-01-31');
+        $invoice1->due_date = Carbon::createFromDate('2020-02-06');
         $invoice1->bills = Collection::make([
             $this->factoryBill(1,3.50),
             $this->factoryBill(2,3.30),
             $this->factoryBill(3,103.50)
         ]);
+        $invoice1->credit_card = $this->factoryCreditCards()->first();
+        $invoice1->total_balance = -100.00;
 
         $invoice2 = $this->createPartialMock(Invoice::class,['save']);
         $invoice2->method('save')->willReturn(1);
@@ -185,6 +190,11 @@ class DataFactory extends TestCase
             $this->factoryBill(5,300.30),
             $this->factoryBill(6,100.50)
         ]);
+        $invoice2->start_date = Carbon::createFromDate('2020-01-01');
+        $invoice2->end_date = Carbon::createFromDate('2020-01-31');
+        $invoice2->due_date = Carbon::createFromDate('2020-02-06');
+        $invoice2->credit_card = $this->factoryCreditCards()->first();
+        $invoice2->total_balance = -100.00;
         return Collection::make([$invoice1,$invoice2]);
     }
 }

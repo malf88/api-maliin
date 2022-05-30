@@ -40,7 +40,7 @@ class Invoice extends ApiModel
 
     ];
 
-    public function creditcard(){
+    public function credit_card(){
         return $this->belongsTo('App\Models\CreditCard');
     }
 }

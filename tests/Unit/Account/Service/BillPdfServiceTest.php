@@ -17,7 +17,14 @@ class BillPdfServiceTest extends TestCase
         $dataFactory = new DataFactory();
 
         $billPdfService = new BillPdfService();
-        $billList = Collection::make($dataFactory->factoryBills());
+        $billList = Collection::make([
+            'bills' => Collection::make($dataFactory->factoryBills()),
+            'total' => [
+                'total_cash_in' => 300.00,
+                'total_cash_out' => 200.00,
+                'total_paid' => 100.00,
+            ]
+        ]);
         $pdf = $billPdfService->generate($billList);
         $this->assertIsObject($pdf);
     }

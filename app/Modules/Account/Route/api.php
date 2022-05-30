@@ -35,6 +35,8 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
     Route::group(['prefix'=>'bill'],function (){
         Route::get('/account/{accountId}','BillController@index')->name('api.bill.list');
         Route::post('/account/{accountId}','BillController@insert')->name('api.bill.insert');
+        Route::get('/account/{accountId}/between/{startDate}/{endDate}/pdf','BillController@generatePDFWithBillsBetween')->name('api.bill.between.pdf');
+
         Route::get('/account/{accountId}/between/{startDate}/{endDate}','BillController@between')->name('api.bill.between');
         Route::get('/account/{accountId}/periods','BillController@periods')->name('api.bill.period');
 

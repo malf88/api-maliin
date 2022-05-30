@@ -374,4 +374,55 @@ class BillController extends Controller
     {
         return $this->billServices->getPeriodWithBill($accountId);
     }
+
+    /**
+     * @OA\Get(
+     *     tags={"Bills"},
+     *     summary="Uma lista de contas a pagar/receber em formato PDF",
+     *     description="Uma lista de contas a pagar/receber da conta informada",
+     *     path="/bill/account/{accountId}/between/{startDate}/{endDate}/pdf",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="accountId",
+     *         in="path",
+     *         description="Id da conta",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Parameter(
+     *         name="startDate",
+     *         in="path",
+     *         description="Data do início do intervalo",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="date",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Parameter(
+     *         name="endDate",
+     *         in="path",
+     *         description="Data de término do intervalo",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="date",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Uma lista de contas a pagar/receber"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * )
+     */
+
+    public function generatePDFWithBillsBetween(int $accountId, string $startDate, string $endDate)
+    {
+        $this->billServices->generatePdfByPeriod(
+            accountId: $accountId,
+            rangeDate:[$startDate,$endDate]);
+    }
 }

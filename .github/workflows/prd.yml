@@ -3,7 +3,101 @@ on:
   push:
     branches: [master]
 jobs:
+  testes-unitarios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        with:
+          php-version: '8.1'
+      - uses: actions/checkout@v2
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Generate key
+        run: php artisan key:generate
+      - name: Directory Permissions
+        run: chmod -R 777 storage bootstrap/cache
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        run: php artisan test
+  testes-integracao:
+    runs-on: ubuntu-latest
+    needs: testes-unitarios
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: postgres_db
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        with:
+          php-version: '8.1'
+      - uses: actions/checkout@v2
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Install dependency
+        run: |
+          sudo apt-get install php-pgsql
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Generate key
+        run: php artisan key:generate
+      - name: Directory Permissions
+        run: chmod -R 777 storage bootstrap/cache
+      - name: Create Database
+        run: |
+          psql -h localhost -U postgres -c 'CREATE DATABASE "jacksparrow"';
+          psql -h localhost -U postgres -d jacksparrow -c 'CREATE SCHEMA IF NOT EXISTS  maliin';
+
+        env:
+          PGPASSWORD: postgres
+      - name: Execute migrations and setup server
+        env:
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_DATABASE: jacksparrow
+          DB_CONNECTION: pgsql
+        run: |
+          php artisan migrate
+          php artisan serve &
+      - name: Install Robot
+        run: |
+          sudo apt-get update -y  && \
+          sudo apt-get install -y \
+          libpq-dev \
+          gcc && \
+          pip3 install --no-cache-dir --upgrade pip && \
+          pip3 install -U --no-cache-dir  \
+                    robotframework \
+                    robotframework-requests \
+                    robotframework-databaselibrary \
+                    psycopg2
+        env:
+          PGPASSWORD: postgres
+      - name: Integration tests
+        run: |
+          python3 -m robot --removekeywords name:Connect_To_Database .
+        env:
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_PORT: 5432
+          DB_HOST: localhost
+          DB_DATABASE: jacksparrow
+          DB_CONNECTION: pgsql
+          ROBOT_URL: http://localhost:8000/api
   deploy:
+    needs: testes-integracao
     runs-on: ubuntu-latest
     steps:
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e

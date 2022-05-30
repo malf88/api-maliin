@@ -3,12 +3,13 @@
 namespace App\Modules\Account\Services;
 
 use App\Modules\Account\Impl\BillRepositoryInterface;
+use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-class BillStandarizedService implements \App\Modules\Account\Impl\Business\BillStandarizedInterface
+class BillStandarizedService implements BillStandarizedInterface
 {
     public function __construct(private BillRepositoryInterface $billRepository)
     {

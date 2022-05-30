@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
+use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -225,5 +226,16 @@ class BillBusiness implements BillBusinessInterface
             throw new ItemNotFoundException('Conta a pagar não encontrada');
         }
 
+    }
+    public function generatePdfByPeriod(BillPdfService $billPdfService, int $accountId,array $period):void
+    {
+        if(Auth::user()->userHasAccount($accountId)) {
+            $bills = $this->getBillsByAccountBetween($accountId,$period);
+            $domPdf = $billPdfService->generate($bills);
+            $domPdf->stream($accountId.'-'.$period[0].'-'.$period[1].'.pdf');
+
+        }else{
+            throw new ItemNotFoundException('Conta a pagar não encontrada');
+        }
     }
 }

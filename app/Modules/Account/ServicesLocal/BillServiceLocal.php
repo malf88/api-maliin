@@ -17,4 +17,5 @@ namespace App\Modules\Account\ServicesLocal;
      public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator;
      public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
      public function getPeriodWithBill(int $accountId):Collection;
+     public function generatePdfByPeriod(int $accountId,array $rangeDate):void;
 }

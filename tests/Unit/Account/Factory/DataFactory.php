@@ -95,6 +95,13 @@ class DataFactory extends TestCase
 
         return $user;
     }
+    public function factoryBills():Collection
+    {
+        $billAccount1 = $this->factoryBill(id:1, amount: 100.00, due_date: '2021-01-07');
+        $billAccount2 = $this->factoryBill(id:2, amount: 200.00,due_date: '2021-01-07');
+        $billAccount3 = $this->factoryBill(id:3,amount:-100.00,due_date: '2021-01-01');
+        return Collection::make([$billAccount1,$billAccount2,$billAccount3]);
+    }
     public function factoryAccount():Collection{
         $accountInfo = [
             'name'      => 'João',
@@ -131,7 +138,7 @@ class DataFactory extends TestCase
         string $due_date = null,
         int $portion=1):Bill
     {
-        $bill = $this->createPartialMock(Bill::class,['load','save','getBillParentAttribute']);
+        $bill = $this->createPartialMock(Bill::class,['load','save','getBillParentAttribute','getCategoryAttribute']);
 
         $bill
             ->method('load');
@@ -139,7 +146,12 @@ class DataFactory extends TestCase
         $bill
             ->method('getBillParentAttribute')
             ->willReturn(Collection::empty());
-
+        $bill
+            ->method('getCategoryAttribute')
+            ->willReturn(new Category([
+                'id' => 1,
+                'name' => 'Alimentação'
+            ]));
         $bill
             ->method('save')
             ->willReturn(1);

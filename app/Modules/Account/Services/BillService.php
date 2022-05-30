@@ -61,4 +61,8 @@ class BillService implements BillServiceLocal
     {
         return $this->billBusiness->getPeriodWithBill($accountId);
     }
+    public function generatePdfByPeriod(int $accountId, array $rangeDate):void
+    {
+        $this->billBusiness->generatePdfByPeriod(new BillPdfService(), $accountId,$rangeDate);
+    }
 }

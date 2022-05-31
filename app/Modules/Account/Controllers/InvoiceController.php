@@ -69,7 +69,10 @@ class InvoiceController extends Controller
 
     public function indexPdf(int $invoiceId)
     {
-        $this->invoiceServices->getInvoiceWithBillsInPDF(new InvoicePdfService(), $invoiceId);
+        return response()
+            ->streamDownload(function () use ($invoiceId) {
+                $this->invoiceServices->getInvoiceWithBillsInPDF(new InvoicePdfService(), $invoiceId);
+            });
     }
     /**
      * @OA\Patch(

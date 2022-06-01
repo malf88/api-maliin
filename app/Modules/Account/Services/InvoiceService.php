@@ -37,8 +37,8 @@ class InvoiceService implements InvoiceServiceLocal
         return $this->invoiceBusiness->getInvoiceWithBills($invoiceId);
     }
 
-    public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService, int $invoiceId, bool $normalize = false): void
+    public function getInvoiceWithBillsInPDF(int $invoiceId, bool $normalize = false): void
     {
-        $this->invoiceBusiness->getInvoiceWithBillsInPDF($billPdfService,$invoiceId,$normalize);
+        $this->invoiceBusiness->getInvoiceWithBillsInPDF(new InvoicePdfService(),$invoiceId,$normalize);
     }
 }

@@ -71,7 +71,7 @@ class InvoiceController extends Controller
     {
         return response()
             ->streamDownload(function () use ($invoiceId) {
-                $this->invoiceServices->getInvoiceWithBillsInPDF(new InvoicePdfService(), $invoiceId);
+                $this->invoiceServices->getInvoiceWithBillsInPDF($invoiceId);
             });
     }
     /**

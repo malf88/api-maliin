@@ -12,6 +12,6 @@ namespace App\Modules\Account\ServicesLocal;
      public function createInvoiceForCreditCardByDate(Model $creditCard, Carbon $date):Model;
      public function payInvoiceAndBill(int $invoiceId):Model;
      public function getInvoiceWithBills(int $invoiceId):Model;
-     public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService,int $invoiceId, bool $normalize = false):void;
+     public function getInvoiceWithBillsInPDF(int $invoiceId, bool $normalize = false):void;
 
 }

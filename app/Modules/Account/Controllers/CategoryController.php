@@ -3,16 +3,15 @@
 namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Account\Impl\Business\CategoryBusinessInterface;
 use App\Modules\Account\ServicesLocal\CategoryServiceLocal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
-    private CategoryServiceLocal $categoryServices;
-    public function __construct(CategoryServiceLocal $categoryService)
+    public function __construct(private CategoryBusinessInterface $categoryServices)
     {
-        $this->categoryServices = $categoryService;
     }
     /**
      * @OA\Get(

@@ -24,55 +24,10 @@ class BillServiceProvider extends ServiceProvider
 
     public $bindings = [
         BillPdfInterface::class => BillPdfService::class,
+        BillBusinessInterface::class => BillBusiness::class,
+        BillRepositoryInterface::class => BillRepository::class,
+        BillStandarizedInterface::class => BillStandarizedService::class,
+
     ];
-    public function register()
-    {
-        $this->app
-            ->when(BillController::class)
-            ->needs(BillServiceLocal::class)
-            ->give(BillService::class);
-
-        $this->app
-            ->when(BillBusiness::class)
-            ->needs(CreditCardBusinessInterface::class)
-            ->give(CreditCardBusiness::class);
-
-        $this->app
-            ->when(BillBusiness::class)
-            ->needs(AccountBusinessInterface::class)
-            ->give(AccountBusiness::class);
-        $this->app
-            ->when(BillBusiness::class)
-            ->needs(BillRepositoryInterface::class)
-            ->give(BillRepository::class);
-
-        $this->app
-            ->when(BillBusiness::class)
-            ->needs(BillStandarizedInterface::class)
-            ->give(BillStandarizedService::class);
-
-        $this->app
-            ->when(BillStandarizedService::class)
-            ->needs(BillRepositoryInterface::class)
-            ->give(BillRepository::class);
-
-        $this->app
-            ->when(BillService::class)
-            ->needs(BillBusinessInterface::class)
-            ->give(BillBusiness::class);
-    }
-    public function boot()
-    {
-//        if (!Collection::hasMacro('paginate')) {
-//
-//            Collection::macro('paginate',
-//                function ($perPage = 15, $page = null, $options = []) {
-//                    $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-//                    return (new LengthAwarePaginator(
-//                        $this->forPage($page, $perPage), $this->count(), $perPage, $page, $options))
-//                        ->withPath('');
-//                });
-//        }
-    }
 
 }

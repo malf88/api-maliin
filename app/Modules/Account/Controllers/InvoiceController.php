@@ -3,15 +3,15 @@
 namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\Services\InvoicePdfService;
-use App\Modules\Account\ServicesLocal\InvoiceServiceLocal;
 use Illuminate\Http\Request;
 
 
 class InvoiceController extends Controller
 {
     public function __construct(
-        private InvoiceServiceLocal $invoiceServices)
+        private InvoiceBusinessInterface $invoiceServices)
     {
     }
     /**
@@ -71,7 +71,7 @@ class InvoiceController extends Controller
     {
         return response()
             ->streamDownload(function () use ($invoiceId) {
-                $this->invoiceServices->getInvoiceWithBillsInPDF($invoiceId);
+                $this->invoiceServices->getInvoiceWithBillsInPDF(new InvoicePdfService(),$invoiceId);
             });
     }
     /**
@@ -99,6 +99,6 @@ class InvoiceController extends Controller
      */
     public function pay(Request $request, int $invoiceId)
     {
-        return $this->invoiceServices->payInvoiceAndBill($invoiceId);
+        return $this->invoiceServices->payInvoice($invoiceId);
     }
 }

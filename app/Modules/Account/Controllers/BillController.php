@@ -3,6 +3,8 @@
 namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Account\Impl\Business\BillBusinessInterface;
+use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -10,7 +12,7 @@ use Illuminate\Http\Request;
 class BillController extends Controller
 {
     public function __construct(
-        private BillServiceLocal $billServices
+        private BillBusinessInterface $billServices
     )
     {
     }
@@ -421,8 +423,12 @@ class BillController extends Controller
 
     public function generatePDFWithBillsBetween(int $accountId, string $startDate, string $endDate)
     {
-        $this->billServices->generatePdfByPeriod(
-            accountId: $accountId,
-            rangeDate:[$startDate,$endDate]);
+        return response()
+            ->streamDownload(function () use ($accountId, $startDate, $endDate) {
+                $this->billServices->generatePdfByPeriod(
+                    new BillPdfService(),
+                    accountId: $accountId,
+                    period: [$startDate, $endDate]);
+            });
     }
 }

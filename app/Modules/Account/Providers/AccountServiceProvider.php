@@ -13,21 +13,10 @@ use Illuminate\Support\ServiceProvider;
 
 class AccountServiceProvider extends ServiceProvider
 {
-    public function register()
-    {
-        $this->app
-            ->when(AccountController::class)
-            ->needs(AccountServiceLocal::class)
-            ->give(AccountService::class);
-        $this->app
-            ->when(AccountService::class)
-            ->needs(AccountBusinessInterface::class)
-            ->give(AccountBusiness::class);
+    public $bindings = [
+        AccountBusinessInterface::class => AccountBusiness::class,
+        AccountRepositoryInterface::class => AccountRepository::class,
 
-        $this->app
-            ->when(AccountBusiness::class)
-            ->needs(AccountRepositoryInterface::class)
-            ->give(AccountRepository::class);
-    }
+    ];
 
 }

@@ -4,16 +4,17 @@ namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\CreditCard;
+use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\ServicesLocal\CreditCardServiceLocal;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class CreditCardController extends Controller
 {
-    private CreditCardServiceLocal $creditCardServices;
-    public function __construct(CreditCardServiceLocal $creditCardServices)
+
+    public function __construct(private CreditCardBusinessInterface $creditCardServices)
     {
-        $this->creditCardServices = $creditCardServices;
+
     }
      /**
       * @OA\Get(

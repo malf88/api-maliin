@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\ServicesLocal\AccountServiceLocal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class AccountController extends Controller
 {
     public function __construct(
-        private AccountServiceLocal $accountServices
+        private AccountBusinessInterface $accountServices
     )
     {
     }

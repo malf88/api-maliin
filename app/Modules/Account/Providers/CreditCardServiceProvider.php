@@ -17,30 +17,10 @@ use Illuminate\Support\ServiceProvider;
 
 class CreditCardServiceProvider extends ServiceProvider
 {
-    public function register()
-    {
-        $this->app
-            ->when(CreditCardController::class)
-            ->needs(CreditCardServiceLocal::class)
-            ->give(CreditCardService::class);
-
-        $this->app
-            ->when(CreditCardService::class)
-            ->needs(CreditCardBusinessInterface::class)
-            ->give(CreditCardBusiness::class);
-
-        $this->app
-            ->when(CreditCardBusiness::class)
-            ->needs(InvoiceBusinessInterface::class)
-            ->give(InvoiceBusiness::class);
-        $this->app
-            ->when(CreditCardBusiness::class)
-            ->needs(AccountBusinessInterface::class)
-            ->give(AccountBusiness::class);
-        $this->app
-            ->when(CreditCardBusiness::class)
-            ->needs(CreditCardRepositoryInterface::class)
-            ->give(CreditCardRepository::class);
-    }
+    public $bindings = [
+        CreditCardBusinessInterface::class => CreditCardBusiness::class,
+        CreditCardRepositoryInterface::class => CreditCardRepository::class,
+        InvoiceBusinessInterface::class => InvoiceBusiness::class,
+    ];
 
 }

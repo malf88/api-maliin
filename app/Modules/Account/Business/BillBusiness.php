@@ -47,10 +47,12 @@ class BillBusiness implements BillBusinessInterface
 
         if(Auth::user()->userHasAccount($accountId)){
             if($normalize) {
-                $billList = $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccountWithRangeDate(
-                    accountId: $accountId,
-                    rangeDate: $rangeDate
-                ));
+                $billList = $this->billStandarized->normalizeListBills(
+                    $this->billRepository->getBillsByAccountWithRangeDate(
+                        accountId: $accountId,
+                        rangeDate: $rangeDate
+                    )
+                );
             }else{
                 $billList = $this->billRepository->getBillsByAccountWithRangeDate(
                     accountId: $accountId,

@@ -13,22 +13,10 @@ use Illuminate\Support\ServiceProvider;
 
 class CategoryServiceProvider extends ServiceProvider
 {
-    public function register()
-    {
+    public $bindings = [
+        CategoryBusinessInterface::class => CategoryBusiness::class,
+        CategoryRepositoryInterface::class => CategoryRepository::class,
 
-        $this->app
-            ->when(CategoryController::class)
-            ->needs(CategoryServiceLocal::class)
-            ->give(CategoryService::class);
-        $this->app
-            ->when(CategoryBusiness::class)
-            ->needs(CategoryRepositoryInterface::class)
-            ->give(CategoryRepository::class);
-
-        $this->app
-            ->when(CategoryService::class)
-            ->needs(CategoryBusinessInterface::class)
-            ->give(CategoryBusiness::class);
-    }
-
+    ];
+   
 }

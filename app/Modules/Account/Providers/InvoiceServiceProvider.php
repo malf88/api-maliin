@@ -20,32 +20,8 @@ use Illuminate\Support\ServiceProvider;
 
 class InvoiceServiceProvider extends ServiceProvider
 {
-    public function register()
-    {
-        $this->app
-            ->when(InvoiceController::class)
-            ->needs(InvoiceServiceLocal::class)
-            ->give(InvoiceService::class);
-
-        $this->app
-            ->when(InvoiceBusiness::class)
-            ->needs(InvoiceRepositoryInterface::class)
-            ->give(InvoiceRepository::class);
-
-        $this->app
-            ->when(InvoiceRepository::class)
-            ->needs(BillRepositoryInterface::class)
-            ->give(BillRepository::class);
-
-        $this->app
-            ->when(InvoiceBusiness::class)
-            ->needs(BillStandarizedInterface::class)
-            ->give(BillStandarizedService::class);
-
-        $this->app
-            ->when(InvoiceService::class)
-            ->needs(InvoiceBusinessInterface::class)
-            ->give(InvoiceBusiness::class);
-    }
-
+    public $bindings = [
+        InvoiceBusinessInterface::class => InvoiceBusiness::class,
+        InvoiceRepositoryInterface::class => InvoiceRepository::class,
+    ];
 }

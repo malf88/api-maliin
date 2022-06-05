@@ -18,6 +18,6 @@ interface BillBusinessInterface
     public function deleteBill(int $billId):bool;
     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
     public function getPeriodWithBill(int $accountId):Collection;
-    public function generatePdfByPeriod(BillPdfService $billPdfService,int $accountId,array $rangeDate):void;
+    public function generatePdfByPeriod(BillPdfService $billPdfService,int $accountId,array $period):void;
 
 }

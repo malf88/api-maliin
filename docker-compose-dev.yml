@@ -6,17 +6,16 @@ services:
     restart: unless-stopped
     build:
       context: ./
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile_debug
       args:
         - "BUILD_APP_ENV=${APP_ENV}"
+    network_mode: host
     env_file:
       - .env
     volumes:
       - ./:/var/www/
     environment:
       - CONTAINER_ROLE=app
-    networks:
-      - maliin
   api-scheduler:
     image: api-app
     container_name: scheduler-api
@@ -27,8 +26,6 @@ services:
       - api-app
     environment:
       CONTAINER_ROLE: scheduler
-    networks:
-      - maliin
   api-queue:
     image: api-app
     container_name: api-queue
@@ -41,8 +38,6 @@ services:
       - ./:/var/www/
     environment:
       CONTAINER_ROLE: queue
-    networks:
-      - maliin
   composer:
     image: composer:2.3.2
     container_name: composer
@@ -60,8 +55,6 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - ${REDIS_PORT}:6379
-    networks:
-      - maliin
   api-nginx:
     image: nginx:1.17-alpine
     container_name: api-nginx
@@ -70,13 +63,7 @@ services:
       - api-app
     env_file:
       - .env
-    ports:
-      - ${PORT}:80
+    network_mode: host
     volumes:
       - ./:/var/www
-      - ./docker/nginx:/etc/nginx/conf.d
-    networks:
-      - maliin
-networks:
-  maliin:
-    driver: bridge
+      - ./docker/local/nginx:/etc/nginx/conf.d

@@ -1,5 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Route;
+Route::group(['prefix'=>'version', 'middleware' =>['json.response'], 'namespace' => 'Account\Controllers'],function () {
+    Route::get('/', 'UtilController@index');
+});
 
 Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Account\Controllers'],function(){
 

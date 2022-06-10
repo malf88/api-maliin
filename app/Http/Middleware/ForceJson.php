@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\VersionHelper;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,10 @@ class ForceJson
     public function handle(Request $request, Closure $next)
     {
         $request->headers->set('Accept', 'application/json');
-        return $next($request);
+        $response = $next($request);
+        $version = VersionHelper::version();
+        $response->headers->set('maliin-version', $version);
+        return $response;
     }
+
 }

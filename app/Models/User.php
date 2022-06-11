@@ -57,12 +57,17 @@ class User extends Authenticatable
 
     public function userHasAccount(int $accountId):bool
     {
-        return $this->accounts()->find($accountId) != null;
+        return $this->accounts()->find($accountId) != null || $this->sharedAccounts()->find($accountId) != null;
     }
 
     public function userHasCateogory(int $categoryId):bool
     {
         return $this->categories()->find($categoryId) != null;
+    }
+
+    public function sharedAccounts()
+    {
+        return $this->belongsToMany(Account::class, 'maliin.accounts_users');
     }
 
 }

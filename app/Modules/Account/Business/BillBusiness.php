@@ -6,7 +6,6 @@ use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
-use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -84,7 +83,7 @@ class BillBusiness implements BillBusinessInterface
 
     public function insertBill(int $accountId,$billData):Model|Collection
     {
-        if(Auth::user()->userHasAccount($accountId)){
+        if(Auth::user()->userIsOwnerAccount($accountId)){
             if(isset($billData['portion']) && $billData['portion'] > 1){
                 return $this->saveMultiplePortions($accountId,$billData);
             }else{
@@ -111,6 +110,7 @@ class BillBusiness implements BillBusinessInterface
     {
         if(isset($billData['credit_card_id']))
             $billData['due_date'] = null;
+
         $billsInserted = new Collection();
         $totalPortion = $billData['portion'];
         $descriptionBeforeCreateBill = $billData['description'];
@@ -159,12 +159,17 @@ class BillBusiness implements BillBusinessInterface
 
     public function updateBill(int $billId,array $billData):Model|Collection
     {
-        $this->getBillById($billId);
-        if(!isset($billData['update_childs']) || !$billData['update_childs']){
-            $this->processCreditCardBill($billData);
-            return $this->billRepository->updateBill($billId,$billData);
+
+        $bill = $this->getBillById($billId);
+        if(Auth::user()->userIsOwnerAccount($bill->account_id)) {
+            if (!isset($billData['update_childs']) || !$billData['update_childs']) {
+                $this->processCreditCardBill($billData);
+                return $this->billRepository->updateBill($billId, $billData);
+            } else {
+                return $this->updateChildBill($billId, $billData);
+            }
         }else{
-            return $this->updateChildBill($billId,$billData);
+            throw new ItemNotFoundException('Lançamento não encontrado');
         }
     }
 
@@ -203,7 +208,6 @@ class BillBusiness implements BillBusinessInterface
     {
         $description = preg_replace('/\s\[\d{1,}\/\d{1,}\]/','', $description);
         return $description . ' ['.$portionActual. '/' .$portionTotal .']';
-
     }
 
     private function addMonthDueDate(Carbon|null $date):Carbon|null

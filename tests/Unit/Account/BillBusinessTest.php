@@ -443,6 +443,39 @@ class BillBusinessTest extends TestCase
         $this->assertEquals(1,$bills->id);
 
     }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoAlterarUmaContaAPagarESeusFilhosQueNaoEDono(){
+        $this->accountFactory->configureUserSession(true);
+        $billId = 2;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['update_childs'] = true;
+
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('account')
+            ->willReturn($account);
+
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+
+        $bill->id = 1;
+        $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+
+        $this->expectException(ItemNotFoundException::class);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $bills = $billBusiness->updateBill($billId,$billData);
+
+    }
     /**
      * @test
      */
@@ -501,6 +534,35 @@ class BillBusinessTest extends TestCase
             ->method('deleteBill')
             ->willReturn(true);
 
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $bill = $billBusiness->deleteBill($billId);
+
+        $this->assertEquals(true,$bill);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoDeletarContaAPagarPorNaoSerDonoDoLancamento(){
+        $this->accountFactory->configureUserSession(true);
+        $billId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
+        $bill->method('account')
+            ->willReturn($account);
+        $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+        $this->expectException(ItemNotFoundException::class);
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $bill = $billBusiness->deleteBill($billId);
 

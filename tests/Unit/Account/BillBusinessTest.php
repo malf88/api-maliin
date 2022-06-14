@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\Account;
 
-use App\Models\Account;
+
 use App\Models\Bill;
 use App\Models\Category;
-use App\Models\User;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\BillBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
@@ -19,19 +18,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
-use const OpenApi\COLOR_RED;
 
 class BillBusinessTest extends TestCase
 {
     private DataFactory $accountFactory;
     private BillStandarizedService $billStandarizedService;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->accountFactory = new DataFactory();
         $user = $this->accountFactory->factoryUser(1);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
         $this->billStandarizedService = $this->createMock(BillStandarizedService::class);
 
         $list = Collection::make([
@@ -101,6 +98,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasAPagarDeUmaConta(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -123,6 +121,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasAPagarDeUmaContaComData(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -149,6 +148,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoListarContasAPagarDeUmaConta(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
@@ -162,6 +162,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasAPagarDeUmaContaPaginada(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -186,6 +187,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoListarContasAPagarDeUmaContaPaginada(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
@@ -198,6 +200,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveSalvarContasAPagarEmUmaConta(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $billData = $this->factoryBillData();
         $bill = new Bill();
@@ -222,6 +225,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveSalvarContasAPagarEmUmaContaComParcelas(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $billData = $this->factoryBillData();
         $billData['portion'] = 3;
@@ -245,6 +249,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoSalvarContasAPagar(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
 
         $billData = $this->factoryBillData();
@@ -259,6 +264,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveRetornarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession();
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -286,6 +292,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoRetornarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession(true);
         $billId = 5;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -317,6 +324,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession();
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -350,6 +358,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmaContaAPagarESeusIrmaos(){
+        $this->accountFactory->configureUserSession();
         $billId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -398,6 +407,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmaContaAPagarESeusFilhos(){
+        $this->accountFactory->configureUserSession();
         $billId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -437,6 +447,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoAlterarUmaContaAPagarESeusFilhos(){
+        $this->accountFactory->configureUserSession(true);
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -468,6 +479,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDeletarContaAPagar(){
+        $this->accountFactory->configureUserSession();
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $user = $this->accountFactory->factoryUser(1);
@@ -499,6 +511,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoDeletarContaAPagar(){
+        $this->accountFactory->configureUserSession(true);
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
 
@@ -526,6 +539,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveTrazerMesesComCompras(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -546,6 +560,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoTrazerMesesComComprasDeContaInexistente(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();

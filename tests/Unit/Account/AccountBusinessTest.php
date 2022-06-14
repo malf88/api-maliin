@@ -12,22 +12,19 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
 use Tests\TestCase;
+use Tests\Unit\Account\Factory\DataFactory;
 
 class AccountBusinessTest extends TestCase
 {
     public function setUp(): void
     {
-
         parent::setUp();
-        $accounts = $this->factoryAccount();
-        $user = $this->createPartialMock(User::class,['accounts']);
-        $user->method('accounts')
-            ->willReturn($accounts);
-
-        Auth::shouldReceive('user')
-            ->andReturn($user);
+        $this->accountRepository = $this->app->make(AccountRepository::class);
     }
-
+    private function configureUserSession($exception = false)
+    {
+        (new DataFactory())->configureUserSession($exception);
+    }
     private function factoryAccount(){
         $accountInfo = [
             'name'      => 'João',
@@ -73,7 +70,7 @@ class AccountBusinessTest extends TestCase
         $user = new User();
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountFactory = $this->factoryAccount();
-
+        $this->configureUserSession();
         $accountRepositoryMock->method('getAccountFromUser')
             ->with($user)
             ->willReturn($accountFactory);
@@ -90,7 +87,7 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasDoUsuarioLogado(){
-
+        $this->configureUserSession();
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountRepositoryMock->method('getAccountFromUser')
             ->willReturn($this->factoryAccount());
@@ -106,7 +103,7 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveInserirContaParaUsuario(){
-
+        $this->configureUserSession();
         $user = new User();
         $accountInfo = [
             'name'      => 'João',
@@ -134,7 +131,7 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarConta(){
-
+        $this->configureUserSession();
         $accountInfo = [
             'name'      => 'João',
             'bank'      => '102 - Nu pagamentos SA',
@@ -148,6 +145,7 @@ class AccountBusinessTest extends TestCase
         $accountRepositoryMock->method('updateAccount')
             ->with($id,$accountInfo)
             ->willReturn($accounts->get(0));
+
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
         $newAccount = $accountBusiness->updateAccount($id,$accountInfo);
 
@@ -161,6 +159,7 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoAlterarContaDeOutroUsuarioOuInexistente(){
+        $this->configureUserSession(true);
         $accountInfo = [
             'name'      => 'João',
             'bank'      => '102 - Nu pagamentos SA',
@@ -181,6 +180,7 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveRemoverConta(){
+        $this->configureUserSession();
         $id = 1;
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountRepositoryMock->method('deleteAccount')
@@ -196,7 +196,7 @@ class AccountBusinessTest extends TestCase
      */
     public function deveRetornarExcecaoAoRemoverConta()
     {
-
+        $this->configureUserSession(true);
         $id = 2;
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
@@ -208,6 +208,7 @@ class AccountBusinessTest extends TestCase
      */
     public function deveRetornarUmaContaPeloId()
     {
+        $this->configureUserSession();
         $id = 1;
         $account = $this->factoryAccount()->get(0);
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
@@ -224,6 +225,7 @@ class AccountBusinessTest extends TestCase
      */
     public function deveRetornarUmaExcecaoParaContaNaoEncontradaAoBuscarContaInexistente()
     {
+        $this->configureUserSession(true);
         $id = 2;
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
@@ -235,10 +237,26 @@ class AccountBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoRemoverContaInexistente(){
+        $this->configureUserSession(true);
         $id = 2;
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $this->expectException(ItemNotFoundException::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
         $result = $accountBusiness->deleteAccount($id);
+    }
+
+    /**
+     * @test
+     */
+    public function deveAdicionarUsuarioAUmaContaExistente(){
+        $this->configureUserSession();
+        $idAccount = 1;
+        $idUser = 2;
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('addUserToAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(true);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock);
+        $result = $accountBusiness->addUserInAccount($idAccount,$idUser);
     }
 }

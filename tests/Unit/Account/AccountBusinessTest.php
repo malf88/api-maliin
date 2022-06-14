@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Account;
 
+use App\Exceptions\ExistsException;
 use App\Models\Account;
 use App\Models\Bill;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Illuminate\Support\MultipleItemsFoundException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
 
@@ -253,10 +255,51 @@ class AccountBusinessTest extends TestCase
         $idAccount = 1;
         $idUser = 2;
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(false);
+
         $accountRepositoryMock->method('addUserToAccount')
             ->with($idAccount,$idUser)
             ->willReturn(true);
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
-        $result = $accountBusiness->addUserInAccount($idAccount,$idUser);
+        $result = $accountBusiness->addUserToAccount($idAccount,$idUser);
+        $this->assertTrue($result);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararUmaExcecaoAoAdicionarUsuarioAUmaContaNaoExistente(){
+        $this->configureUserSession(true);
+        $idAccount = 1;
+        $idUser = 2;
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('addUserToAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(true);
+        $this->expectException(ItemNotFoundException::class);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock);
+        $result = $accountBusiness->addUserToAccount($idAccount,$idUser);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararUmaExcecaoAoAdicionarUsuarioExistenteAUmaContaExistente(){
+        $this->configureUserSession();
+        $idAccount = 1;
+        $idUser = 2;
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->with($idAccount, $idUser)
+            ->willReturn(true);
+
+        $accountRepositoryMock->method('addUserToAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(true);
+        $this->expectException(ExistsException::class);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock);
+        $result = $accountBusiness->addUserToAccount($idAccount,$idUser);
     }
 }

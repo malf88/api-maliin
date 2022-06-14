@@ -2,6 +2,7 @@
 
 namespace App\Modules\Account\Business;
 
+use App\Exceptions\ExistsException;
 use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Illuminate\Support\MultipleItemsFoundException;
 
 class AccountBusiness implements AccountBusinessInterface
 {
@@ -93,7 +95,7 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function updateAccount(int $id,array $accountInfo):Model
     {
-        if(Auth::user()->userHasAccount($id)){
+        if(Auth::user()->userIsOwnerAccount($id)){
             return $this->accountRepository->updateAccount($id,$accountInfo);
         }else{
             throw new ItemNotFoundException("Registro não encontrado");
@@ -106,8 +108,18 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function deleteAccount(int $id):bool
     {
-        if (Auth::user()->userHasAccount($id)) {
+        if (Auth::user()->userIsOwnerAccount($id)) {
             return $this->accountRepository->deleteAccount($id);
+        } else {
+            throw new ItemNotFoundException("Registro não encontrado");
+        }
+    }
+    public function addUserToAccount(int $accountId,int $userId):bool
+    {
+        if (Auth::user()->userIsOwnerAccount($accountId)) {
+            if($this->accountRepository->userHasSharedAccount($accountId,$userId))
+                throw new ExistsException("Usuário já está associado a conta");
+            return $this->accountRepository->addUserToAccount($accountId, $userId);
         } else {
             throw new ItemNotFoundException("Registro não encontrado");
         }

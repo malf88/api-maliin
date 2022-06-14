@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
 
 class AccountRepository implements AccountRepositoryInterface
 {
@@ -45,5 +46,21 @@ class AccountRepository implements AccountRepositoryInterface
     public function getAccountById(int $id):Account
     {
         return Account::find($id);
+    }
+    public function userHasSharedAccount(int $accountId, int $userId):bool
+    {
+        $account = Account::find($accountId);
+        return $account->sharedUsers()->where('user_id', $userId)->exists();
+    }
+    public function addUserToAccount($accountId, $userId): bool
+    {
+        $account = Account::find($accountId);
+        try{
+            $account->sharedUsers()->attach($userId);
+            return $account->save();
+        }catch (RelationNotFoundException $e){
+            return false;
+        }
+
     }
 }

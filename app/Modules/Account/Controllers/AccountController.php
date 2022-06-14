@@ -184,4 +184,43 @@ class AccountController extends Controller
     {
         return $this->accountServices->deleteAccount($id);
     }
+
+    /**
+     * @OA\Put(
+     *     tags={"Accounts"},
+     *     summary="Exclui a conta com o {id}",
+     *     description="Exclui a conta com o {id} informado",
+     *     path="/account/{account_id}/user/{user_id}",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="account_id",
+     *         in="path",
+     *         description="Id da conta",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *  @OA\Parameter(
+     *         name="user_id",
+     *         in="path",
+     *         description="Id do usuário a ser vinculado à conta",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Excluído com sucesso"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * ),
+     *
+     */
+    public function addUserToAccount(int $account_id, int $user_id)
+    {
+        return $this->accountServices->addUserToAccount($account_id, $user_id);
+    }
 }

@@ -13,4 +13,6 @@ interface AccountRepositoryInterface
     public function updateAccount(int $id, array $accountInfo):Account;
     public function deleteAccount(int $id):bool;
     public function getAccountById(int $id):Account;
+    public function addUserToAccount($accountId, $userId):bool;
+    public function userHasSharedAccount(int $accountId, int $userId):bool;
 }

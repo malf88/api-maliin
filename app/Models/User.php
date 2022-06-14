@@ -59,7 +59,13 @@ class User extends Authenticatable
     {
         return $this->accounts()->find($accountId) != null || $this->sharedAccounts()->find($accountId) != null;
     }
-
+    public function userIsOwnerAccount(int $accountId):bool
+    {
+        return $this->accounts()
+                ->where('id',$accountId)
+                ->where('user_id', $this->id)
+                ->count() > 0;
+    }
     public function userHasCateogory(int $categoryId):bool
     {
         return $this->categories()->find($categoryId) != null;

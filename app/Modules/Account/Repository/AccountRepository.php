@@ -52,6 +52,7 @@ class AccountRepository implements AccountRepositoryInterface
         $account = Account::find($accountId);
         return $account->sharedUsers()->where('user_id', $userId)->exists();
     }
+
     public function addUserToAccount($accountId, $userId): bool
     {
         $account = Account::find($accountId);
@@ -62,5 +63,16 @@ class AccountRepository implements AccountRepositoryInterface
             return false;
         }
 
+    }
+
+    public function removeUserToAccount($accountId, $userId): bool
+    {
+        $account = Account::find($accountId);
+        try{
+            $account->sharedUsers()->detach($userId);
+            return $account->save();
+        }catch (RelationNotFoundException $e){
+            return false;
+        }
     }
 }

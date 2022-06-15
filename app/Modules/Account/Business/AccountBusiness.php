@@ -121,6 +121,17 @@ class AccountBusiness implements AccountBusinessInterface
             throw new ExistsException("Usuário já está associado a conta");
 
         return $this->accountRepository->addUserToAccount($accountId, $userId);
+    }
+
+    public function removeUserToAccount(int $accountId,int $userId):bool
+    {
+        if (!Auth::user()->userIsOwnerAccount($accountId))
+            throw new ItemNotFoundException("Registro não encontrado");
+
+        if (!$this->accountRepository->userHasSharedAccount($accountId,$userId))
+            throw new ExistsException("Usuário não está associado a conta");
+
+        return $this->accountRepository->removeUserToAccount($accountId, $userId);
 
     }
 }

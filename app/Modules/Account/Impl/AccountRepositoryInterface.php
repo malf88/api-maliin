@@ -15,4 +15,5 @@ interface AccountRepositoryInterface
     public function getAccountById(int $id):Account;
     public function addUserToAccount($accountId, $userId):bool;
     public function userHasSharedAccount(int $accountId, int $userId):bool;
+    public function removeUserToAccount($accountId, $userId):bool;
 }

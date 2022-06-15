@@ -300,4 +300,58 @@ class AccountBusinessTest extends TestCase
         $accountBusiness = new AccountBusiness($accountRepositoryMock);
         $result = $accountBusiness->addUserToAccount($idAccount,$idUser);
     }
+
+    ////
+    /**
+     * @test
+     */
+    public function deveRemoverUsuarioAUmaContaExistente(){
+        $this->configureUserSession();
+        $idAccount = 1;
+        $idUser = 2;
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(true);
+
+        $accountRepositoryMock->method('removeUserToAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(true);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock);
+        $result = $accountBusiness->removeUserToAccount($idAccount,$idUser);
+        $this->assertTrue($result);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararUmaExcecaoAoRemoverUsuarioAUmaContaNaoExistente(){
+        $this->configureUserSession(true);
+        $idAccount = 1;
+        $idUser = 2;
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('removeUserToAccount')
+            ->with($idAccount,$idUser)
+            ->willReturn(true);
+        $this->expectException(ItemNotFoundException::class);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock);
+        $result = $accountBusiness->removeUserToAccount($idAccount,$idUser);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararUmaExcecaoAoRemoverUsuarioExistenteAUmaContaExistente(){
+        $this->configureUserSession();
+        $idAccount = 1;
+        $idUser = 2;
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->with($idAccount, $idUser)
+            ->willReturn(false);
+
+        $this->expectException(ExistsException::class);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock);
+        $result = $accountBusiness->removeUserToAccount($idAccount,$idUser);
+    }
 }

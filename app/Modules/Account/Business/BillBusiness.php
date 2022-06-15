@@ -221,8 +221,12 @@ class BillBusiness implements BillBusinessInterface
     }
     public function deleteBill(int $billId):bool
     {
-        $this->getBillById($billId);
-        return $this->billRepository->deleteBill($billId);
+        $bill = $this->getBillById($billId);
+        if(Auth::user()->userIsOwnerAccount($bill->account_id)) {
+            return $this->billRepository->deleteBill($billId);
+        }else{
+            throw new ItemNotFoundException('Lançamento não encontrado');
+        }
     }
 
     public function getPeriodWithBill(int $accountId):Collection

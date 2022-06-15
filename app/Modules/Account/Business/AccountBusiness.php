@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
-use Illuminate\Support\MultipleItemsFoundException;
 
 class AccountBusiness implements AccountBusinessInterface
 {
@@ -53,11 +52,10 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function getAccountById(int $id):Account
     {
-        if(Auth::user()->userHasAccount($id)){
-            return $this->prepareAccount($this->accountRepository->getAccountById($id));
-        }else{
+        if(!Auth::user()->userHasAccount($id))
             throw new ItemNotFoundException('Registro não encontrado');
-        }
+
+        return $this->prepareAccount($this->accountRepository->getAccountById($id));
     }
 
     /**
@@ -95,11 +93,11 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function updateAccount(int $id,array $accountInfo):Model
     {
-        if(Auth::user()->userIsOwnerAccount($id)){
-            return $this->accountRepository->updateAccount($id,$accountInfo);
-        }else{
+        if(!Auth::user()->userIsOwnerAccount($id))
             throw new ItemNotFoundException("Registro não encontrado");
-        }
+
+        return $this->accountRepository->updateAccount($id,$accountInfo);
+
     }
 
     /**
@@ -108,20 +106,21 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function deleteAccount(int $id):bool
     {
-        if (Auth::user()->userIsOwnerAccount($id)) {
-            return $this->accountRepository->deleteAccount($id);
-        } else {
+        if (!Auth::user()->userIsOwnerAccount($id))
             throw new ItemNotFoundException("Registro não encontrado");
-        }
+
+        return $this->accountRepository->deleteAccount($id);
+
     }
     public function addUserToAccount(int $accountId,int $userId):bool
     {
-        if (Auth::user()->userIsOwnerAccount($accountId)) {
-            if($this->accountRepository->userHasSharedAccount($accountId,$userId))
-                throw new ExistsException("Usuário já está associado a conta");
-            return $this->accountRepository->addUserToAccount($accountId, $userId);
-        } else {
+        if (!Auth::user()->userIsOwnerAccount($accountId))
             throw new ItemNotFoundException("Registro não encontrado");
-        }
+
+        if ($this->accountRepository->userHasSharedAccount($accountId,$userId))
+            throw new ExistsException("Usuário já está associado a conta");
+
+        return $this->accountRepository->addUserToAccount($accountId, $userId);
+
     }
 }

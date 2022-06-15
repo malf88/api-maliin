@@ -10,9 +10,7 @@ use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
-use Illuminate\Support\MultipleItemsFoundException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
 

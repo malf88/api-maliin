@@ -26,3 +26,16 @@ Caso de teste 2 - Fazer logout
     Status Should Be   200
     Should Be Equal As Strings   ${response.json()}    1
 
+Caso de teste 3 - Deve trazer dados do usuário
+    &{USER}             User.Dados Joao Silva
+    ${USER}             Cenarios.Create User    ${USER}
+    ${response}         Request GET        ${URL_BASE}/user    ${USER}
+
+    Status Should Be    200         ${response}
+    Dictionary Should Contain Key   ${response.json()}   email
+    Dictionary Should Contain Key   ${response.json()}   first_name
+    Dictionary Should Contain Key   ${response.json()}   last_name
+    Dictionary Should Contain Key   ${response.json()}   id
+    Dictionary Should Contain Item  ${response.json()}   email        ${USER.email}
+    Dictionary Should Contain Item  ${response.json()}   first_name   ${USER.name}
+    Dictionary Should Contain Item  ${response.json()}   last_name    ${USER.lastname}

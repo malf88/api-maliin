@@ -21,3 +21,9 @@ Request PUT
     ${header}      Generate Header Authorization     ${USER}
     ${response}    PUT    ${URL}  ${DATA}    headers=${header}
     [Return]     ${response}
+
+Request GET
+    [Arguments]  ${URL}     ${USER}    ${PARAMS}={} 
+    ${header}      Generate Header Authorization     ${USER}
+    ${response}    GET    ${URL}  params=${PARAMS}   headers=${header}   expected_status=any
+    [Return]     ${response}

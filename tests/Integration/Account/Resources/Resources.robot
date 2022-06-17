@@ -6,7 +6,7 @@ ${URL_BASE}     %{ROBOT_URL}
 
 **Keywords**
 Get Token Authenticate
-    ${USER}         Cenarios.Create User
+    [Arguments]  ${USER}
     ${response}     POST     ${URL_BASE}/token    ${USER}
     [Return]        &{response.json()}
 

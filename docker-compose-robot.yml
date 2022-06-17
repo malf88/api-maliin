@@ -11,8 +11,7 @@ services:
     volumes:
       - ./tests/Integration:/testes/
       - ./docker/robot/results:/report/
-    networks:
-      - maliin
+    network_mode: host
 networks:
   maliin:
     driver: bridge

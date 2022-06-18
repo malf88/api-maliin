@@ -13,7 +13,7 @@ class AccountRepository implements AccountRepositoryInterface
     public function getAccountFromUser(User $user):Collection
     {
         $listAccount = Account::select('accounts.*')
-            ->join('maliin.accounts_users', 'accounts_users.account_id', '=', 'accounts.id')
+            ->leftJoin('maliin.accounts_users', 'accounts_users.account_id', '=', 'accounts.id')
             ->where('accounts_users.user_id', $user->id)
             ->orWhere('accounts.user_id', $user->id)
             ->orderBy('name','ASC')

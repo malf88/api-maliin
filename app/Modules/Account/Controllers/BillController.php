@@ -202,7 +202,7 @@ class BillController extends Controller
      */
     public function insert(Request $request, $accountId)
     {
-        return $this->billServices->insertBill($accountId,$request->all());
+        return response($this->billServices->insertBill($accountId,$request->all()),201);
     }
 
     /**

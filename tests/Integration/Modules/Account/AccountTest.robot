@@ -11,6 +11,7 @@ Resource    Resources/AccountResource.robot
 Caso de teste 01 - Deve inserir uma conta
     &{ACCOUNT}    Account.Dados Xpto
     &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER}
     ${response}    Insert Account    ${ACCOUNT}    ${USER}
     Status Should Be    201
     Dictionary Should Contain Item    ${response.json()}    name      ${ACCOUNT.name}

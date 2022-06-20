@@ -25,8 +25,12 @@ Create User
 
 Delete User
     [Arguments]    ${USER}
-    Connect Database   
+    Connect Database 
+    Execute Sql String      DELETE FROM maliin.invoices WHERE credit_card_id IN (SELECT id FROM maliin.credit_cards WHERE account_id IN (SELECT id FROM maliin.accounts WHERE user_id IN (SELECT id FROM maliin.users WHERE first_name = '${USER.name}' AND last_name = '${USER.lastname}' AND email = '${USER.email}' AND password = '${USER.password_hash}')))
 
+    Execute Sql String      DELETE FROM maliin.bills WHERE account_id IN (SELECT id FROM maliin.accounts WHERE user_id IN (SELECT id FROM maliin.users WHERE first_name = '${USER.name}' AND last_name = '${USER.lastname}' AND email = '${USER.email}' AND password = '${USER.password_hash}')) 
+    Execute Sql String      DELETE FROM maliin.credit_cards WHERE account_id IN (SELECT id FROM maliin.accounts WHERE user_id IN (SELECT id FROM maliin.users WHERE first_name = '${USER.name}' AND last_name = '${USER.lastname}' AND email = '${USER.email}' AND password = '${USER.password_hash}')) 
+    Execute Sql String      DELETE FROM maliin.categories WHERE user_id IN (SELECT id FROM maliin.users WHERE first_name = '${USER.name}' AND last_name = '${USER.lastname}' AND email = '${USER.email}' AND password = '${USER.password_hash}')
     Execute Sql String      DELETE FROM maliin.accounts_users WHERE account_id IN (SELECT id FROM maliin.accounts WHERE user_id IN (SELECT id FROM maliin.users WHERE first_name = '${USER.name}' AND last_name = '${USER.lastname}' AND email = '${USER.email}' AND password = '${USER.password_hash}'))
     Execute Sql String      DELETE FROM maliin.accounts WHERE user_id IN (SELECT id FROM maliin.users WHERE first_name = '${USER.name}' AND last_name = '${USER.lastname}' AND email = '${USER.email}' AND password = '${USER.password_hash}')
         

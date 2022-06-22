@@ -21,28 +21,18 @@ Proccess Test Insert Bill
     ${IDS}        Insert Scenario    ${USER}
     &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id}           
 
-    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}
+    ${response}           Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}   ${PORTION}   ${CREDITCARD}
+    ${BILL.account_id}    Set Variable  ${IDS.account_id}
 
     Status Should Be    201
     IF   ${BILL.portion} > 1
       FOR   ${item}    IN    @{response.json()}
-            &{billItem}     Set To Dictionary     ${item}
-            
-            Dictionary Should Contain Key     ${billItem}    date
-            Dictionary Should Contain Item    ${billItem}    description      ${BILL.description} [${billItem.portion}/${BILL.portion}]
-            Dictionary Should Contain Key     ${billItem}    due_date         
-            Dictionary Should Contain Item    ${billItem}    category_id      ${BILL.category_id}
-            Dictionary Should Contain Item    ${billItem}    account_id       ${IDS.account_id}
-          
+            &{billItem}     Set To Dictionary     ${item}            
+            Should Be Validate Fields    ${billItem}    ${BILL}          
       END  
     ELSE
-        Dictionary Should Contain Item    ${response.json()}    category_id      ${BILL.category_id}
-        Dictionary Should Contain Key     ${response.json()}     date
-        Dictionary Should Contain Item    ${response.json()}    description      ${BILL.description}
-        Dictionary Should Contain Key     ${response.json()}     due_date         
-        Dictionary Should Contain Item    ${response.json()}    category_id      ${BILL.category_id}
-        Dictionary Should Contain Item    ${response.json()}    portion          ${BILL.portion}
-        Dictionary Should Contain Item    ${response.json()}    account_id       ${IDS.account_id}     
+        &{billItem}     Set To Dictionary     ${response.json()}  
+        Should Be Validate Fields    ${billItem}    ${BILL}  
     END
     
 Proccess Teste Get Bill
@@ -53,17 +43,36 @@ Proccess Teste Get Bill
     &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id}           
 
     ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
-    IF  ${PORTION} > 1
-        ${response}    Get A Bill    ${response.json()[0]['id']}    ${USER}
-        Dictionary Should Contain Item    ${response.json()}    description      ${BILL.description} [1/${PORTION}]
+    
+    IF    ${PORTION} > 1
+        &{INSERTED_BILL}     Set To Dictionary     ${response.json()[0]}
     ELSE
-        ${response}    Get A Bill    ${response.json()['id']}    ${USER}
-        Dictionary Should Contain Item    ${response.json()}    description      ${BILL.description}
+        &{INSERTED_BILL}     Set To Dictionary   ${response.json()}
+    END
+    ${response}    Get A Bill    ${INSERTED_BILL.id}    ${USER}
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}
+    &{billItem}     Set To Dictionary     ${response.json()}  
+    Should Be Validate Fields    ${billItem}    ${BILL}
+
+Proccess Teste Update Bill
+    [Arguments]    ${CREDITCARD}    ${PORTION}
+    &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER} 
+    ${IDS}        Insert Scenario    ${USER}
+    &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id} 
+
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}       
+
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    IF    ${PORTION} > 1
+        &{INSERTED_BILL}     Set To Dictionary     ${response.json()[0]}
+    ELSE
+        &{INSERTED_BILL}     Set To Dictionary   ${response.json()}
     END
 
-    Dictionary Should Contain Item    ${response.json()}    category_id      ${BILL.category_id}
-    Dictionary Should Contain Key     ${response.json()}    date
-    Dictionary Should Contain Key     ${response.json()}    due_date    
-    Dictionary Should Contain Item    ${response.json()}    portion          1   
-    Dictionary Should Contain Item    ${response.json()}    category_id      ${BILL.category_id}
-    Dictionary Should Contain Item    ${response.json()}    account_id       ${IDS.account_id}     
+    ${BILL_ID}     Set Variable  ${INSERTED_BILL.id} 
+    ${BILL.amount}  Set Variable  12.32
+    ${response}    Update Bill    ${BILL}    ${BILL_ID}    ${USER}
+    
+    &{billItem}     Set To Dictionary     ${response.json()}  
+    Should Be Validate Fields    ${billItem}    ${BILL}

@@ -11,6 +11,7 @@ Library     ../../../Dados/User.py
 Library     ../../../Dados/Category.py
 Library     ../../../Dados/Bill.py
 Library    ../../../Dados/Creditcard.py
+Library    Collections
 
 *** Variables ***
 ${URL_BILL}    ${URL_BASE}/bill
@@ -29,6 +30,13 @@ Insert Bill
 
     ${BILL.portion}    Set Variable  ${PORTION}
     ${response}    Request POST    ${URL_BILL}/account/${ACCOUNT_ID}    ${USER}    ${BILL}
+    [Return]       ${response}
+
+Update Bill
+    [Arguments]    ${BILL}  ${BILL_ID}  ${USER}  ${PORTION}=1  ${CREDITCARD}=False
+
+    ${BILL.portion}    Set Variable  ${PORTION}
+    ${response}    Request PUT    ${URL_BILL}/${BILL_ID}   ${USER}    ${BILL}
     [Return]       ${response}
 
 Get A Bill
@@ -56,3 +64,22 @@ Insert CreditCard Scenario
     &{CREDITCARD}    Dados Nubank
     ${response}     Insert Creditcard    ${IDS.account_id}    ${CREDITCARD}    ${USER}
     [Return]     ${response.json()['id']}
+
+Should Be Description
+    [Arguments]  ${RESPONSE}  ${BILL}
+    IF  ${BILL.portion} > 1        
+        Dictionary Should Contain Item    ${RESPONSE}    description      ${BILL.description} [${RESPONSE.portion}/${BILL.portion}]
+    ELSE
+        Dictionary Should Contain Item    ${RESPONSE}    description      ${BILL.description}
+    END
+
+Should Be Validate Fields
+    [Arguments]    ${RESPONSE}        ${BILL}
+    Should Be Description    ${RESPONSE}    ${BILL}
+    Dictionary Should Contain Item    ${RESPONSE}    category_id      ${BILL.category_id}
+    Dictionary Should Contain Key     ${RESPONSE}    date
+    Dictionary Should Contain Key     ${RESPONSE}    due_date    
+    Should Be True    ${RESPONSE.portion} <= ${BILL.portion}
+    Dictionary Should Contain Item    ${RESPONSE}    category_id      ${BILL.category_id}
+    Dictionary Should Contain Item    ${RESPONSE}    account_id       ${BILL.account_id}     
+    Dictionary Should Contain Item    ${RESPONSE}    barcode          ${BILL.barcode} 

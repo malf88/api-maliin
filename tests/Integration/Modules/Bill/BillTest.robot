@@ -66,7 +66,8 @@ Caso de teste 22 - Deve buscar todos os lançamentos da conta com parcela       
 
 Caso de teste 23 - Deve buscar todos os lançamentos da conta por período            False                      1
     [Template]     Proccess Teste Get All Bills Per Period
-    [Tags]    Between
 Caso de teste 24 - Deve buscar todos os lançamentos da conta por período com parcela              False                      4
     [Template]     Proccess Teste Get All Bills Per Period   
-    [Tags]    Between
+
+Caso de teste 25 - Deve buscar os períodos com lançamento              False                      1
+    [Template]     Proccess Teste Get All Periods

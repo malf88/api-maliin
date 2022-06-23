@@ -168,3 +168,27 @@ Proccess Teste Get All Bills Per Period
 
     Should Be Equal As Integers  ${length}  1
     
+Proccess Teste Get All Periods
+    [Arguments]    ${CREDITCARD}    ${PORTION}
+    &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER} 
+    ${IDS}        Insert Scenario    ${USER}
+
+    &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id}           
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    ${BILL.due_date}    Set Variable    2021-09-10
+    ${BILL.date}    Set Variable    2021-09-10
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    
+   
+    ${response}    Get All Periods    ${IDS.account_id}    ${USER}
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}
+    FOR    ${item}    IN    @{response.json()}
+        &{billItem}     Set To Dictionary     ${item} 
+        Dictionary Should Contain Item    ${billItem}    year    2021
+        Dictionary Should Contain Key    ${billItem}    month
+    END
+     
+    ${length}    Get Length    ${response.json()}
+
+    Should Be Equal As Integers  ${length}  2

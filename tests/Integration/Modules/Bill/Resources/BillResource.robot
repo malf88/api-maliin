@@ -65,6 +65,10 @@ Get All Bill Per Period
     ${response}    Request GET    ${URL_BILL}/account/${ACCOUNT_ID}/between/${START_DATE}/${END_DATE}   ${USER}
     [Return]       ${response}
 
+Get All Periods
+    [Arguments]    ${ACCOUNT_ID}  ${USER}
+    ${response}    Request GET    ${URL_BILL}/account/${ACCOUNT_ID}/periods   ${USER}
+    [Return]       ${response}
 Insert Scenario
     [Arguments]    ${USER}
     &{CATEGORY}   Category.Dados Lanches

@@ -13,7 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        Schema::table('maliin.users', function (Blueprint $table) {
+            $table->dropColumn('document');
+            $table->dropColumn('gender');
+            $table->dropColumn('phone');
+            $table->dropColumn('api_token');
+        });
     }
 
     /**

@@ -145,4 +145,26 @@ Proccess Teste Get All Bills
 
      Should Be Equal As Integers  ${length}  ${TOT}
       
+Proccess Teste Get All Bills Per Period
+    [Arguments]    ${CREDITCARD}    ${PORTION}
+    &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER} 
+    ${IDS}        Insert Scenario    ${USER}
+
+    &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id}           
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    ${BILL.due_date}    Set Variable    2021-09-10
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    
+   
+    ${response}    Get All Bill Per Period    ${IDS.account_id}    ${USER}    2021-10-01   2021-10-31
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}
+    FOR    ${item}    IN    @{response.json()['bills']}
+        &{billItem}     Set To Dictionary     ${item} 
+        Should Be Validate Fields    ${billItem}    ${BILL}
+    END
+     
+    ${length}    Get Length    ${response.json()['bills']}
+
+    Should Be Equal As Integers  ${length}  1
     

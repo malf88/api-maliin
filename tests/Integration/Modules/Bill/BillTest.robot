@@ -39,4 +39,29 @@ Caso de teste 11 - Deve alterar um lançamento com cartão                      
 Caso de teste 12 - Deve alterar um lançamento com cartão e parcela             True                       4
     [Template]     Proccess Teste Update Bill
 
+Caso de teste 13 - Deve excluir um lançamento                                  False                      1
+    [Template]     Proccess Teste Delete Bill
+
+Caso de teste 14 - Deve excluir um lançamento com parcela                      False                      4
+    [Template]     Proccess Teste Delete Bill
+
+Caso de teste 15 - Deve excluir um lançamento cartão                           True                       1
+    [Template]     Proccess Teste Delete Bill
+Caso de teste 16 - Deve excluir um lançamento cartão e parcela                 True                       4
+    [Template]     Proccess Teste Delete Bill
+Caso de teste 17 - Deve pagar um lançamento                                    False                      1
+    [Template]     Proccess Teste Pay Bill
+
+Caso de teste 18 - Deve pagar um lançamento com parcela                        False                      4
+    [Template]     Proccess Teste Pay Bill
+
+Caso de teste 19 - Deve pagar um lançamento cartão                             True                       1
+    [Template]     Proccess Teste Pay Bill
+Caso de teste 20 - Deve pagar um lançamento cartão e parcela                   True                       4
+    [Template]     Proccess Teste Pay Bill
+Caso de teste 21 - Deve buscar todos os lançamentos da conta            False                      1
+    [Template]     Proccess Teste Get All Bills
+Caso de teste 22 - Deve buscar todos os lançamentos da conta com parcela              False                      4
+    [Template]     Proccess Teste Get All Bills
+
     

@@ -15,6 +15,7 @@ def create_bill_without_creditcard(categoryId):
         'date': '2021-10-21',
         'due_date': '2021-10-22',
         'category_id': categoryId,
+        'barcode':'Teste',
         'portion': 1
     }
 

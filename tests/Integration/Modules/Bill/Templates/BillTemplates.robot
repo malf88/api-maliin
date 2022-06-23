@@ -76,3 +76,73 @@ Proccess Teste Update Bill
     
     &{billItem}     Set To Dictionary     ${response.json()}  
     Should Be Validate Fields    ${billItem}    ${BILL}
+
+
+Proccess Teste Delete Bill
+    [Arguments]    ${CREDITCARD}    ${PORTION}
+    &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER} 
+    ${IDS}        Insert Scenario    ${USER}
+    &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id} 
+
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}       
+
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    IF    ${PORTION} > 1
+        &{INSERTED_BILL}     Set To Dictionary     ${response.json()[0]}
+    ELSE
+        &{INSERTED_BILL}     Set To Dictionary   ${response.json()}
+    END
+
+    ${BILL_ID}     Set Variable  ${INSERTED_BILL.id} 
+    ${BILL.amount}  Set Variable  12.32
+    ${response}    Delete Bill    ${BILL_ID}    ${USER}
+    
+    Should Be Equal As Integers    ${response.json()}    1
+
+
+Proccess Teste Pay Bill
+    [Arguments]    ${CREDITCARD}    ${PORTION}
+    &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER} 
+    ${IDS}        Insert Scenario    ${USER}
+    &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id} 
+
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}       
+
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    IF    ${PORTION} > 1
+        &{INSERTED_BILL}     Set To Dictionary     ${response.json()[0]}
+    ELSE
+        &{INSERTED_BILL}     Set To Dictionary   ${response.json()}
+    END
+
+    ${BILL_ID}     Set Variable  ${INSERTED_BILL.id} 
+    ${response}    Pay Bill    ${BILL_ID}    ${USER}
+    
+    &{billItem}     Set To Dictionary     ${response.json()}  
+    Should Be Validate Fields    ${billItem}    ${BILL}
+
+Proccess Teste Get All Bills
+    [Arguments]    ${CREDITCARD}    ${PORTION}
+    &{USER}       User.Dados Joao Silva
+    ${USER}       Cenarios.Create User    ${USER} 
+    ${IDS}        Insert Scenario    ${USER}
+    &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id}           
+
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
+    
+   
+    ${response}    Get All Bill    ${IDS.account_id}    ${USER}
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}
+    FOR    ${item}    IN    @{response.json()}
+        &{billItem}     Set To Dictionary     ${item} 
+        Should Be Validate Fields    ${billItem}    ${BILL}
+    END
+     ${tot}    Evaluate        ${PORTION} * 2
+     ${length}    Get Length    ${response.json()}
+
+     Should Be Equal As Integers  ${length}  ${TOT}
+      
+    

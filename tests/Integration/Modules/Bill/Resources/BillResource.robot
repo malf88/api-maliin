@@ -33,10 +33,21 @@ Insert Bill
     [Return]       ${response}
 
 Update Bill
-    [Arguments]    ${BILL}  ${BILL_ID}  ${USER}  ${PORTION}=1  ${CREDITCARD}=False
+    [Arguments]    ${BILL}  ${BILL_ID}  ${USER}  ${PORTION}=1
 
     ${BILL.portion}    Set Variable  ${PORTION}
     ${response}    Request PUT    ${URL_BILL}/${BILL_ID}   ${USER}    ${BILL}
+    [Return]       ${response}
+
+Pay Bill
+    [Arguments]    ${BILL_ID}   ${USER}
+
+    ${response}    Request PUT    ${URL_BILL}/${BILL_ID}/pay   ${USER}
+    [Return]       ${response}
+Delete Bill
+    [Arguments]    ${BILL_ID}  ${USER}
+
+    ${response}    Request DELETE    ${URL_BILL}/${BILL_ID}   ${USER}
     [Return]       ${response}
 
 Get A Bill
@@ -44,6 +55,10 @@ Get A Bill
     ${response}    Request GET    ${URL_BILL}/${BILL_ID}   ${USER}
     [Return]       ${response}
 
+Get All Bill
+    [Arguments]    ${ACCOUNT_ID}  ${USER}
+    ${response}    Request GET    ${URL_BILL}/account/${ACCOUNT_ID}   ${USER}
+    [Return]       ${response}
 
 Insert Scenario
     [Arguments]    ${USER}

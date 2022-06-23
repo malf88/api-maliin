@@ -91,6 +91,7 @@ class BillRepository implements BillRepositoryInterface
                             credit_card_id,
                             category_id,
                             barcode,
+                            portion,
                             bill_parent_id,
                             'false' as is_credit_card"
         ))
@@ -116,6 +117,7 @@ class BillRepository implements BillRepositoryInterface
                                     invoices.credit_card_id,
                                     null,
                                     '',
+                                    null,
                                     null,
                                     true")
         )

@@ -83,6 +83,7 @@ class BillRepository implements BillRepositoryInterface
     {
         return $bill =  Bill::select(DB::raw(
                             "id,
+                            account_id,
                             description,
                             amount,
                             date,
@@ -102,6 +103,7 @@ class BillRepository implements BillRepositoryInterface
     public function getQueryInvoiceAsBill(int $accountId):Builder
     {
         return Invoice::select(DB::raw("invoices.id,
+                                    (SELECT id FROM maliin.accounts WHERE accounts.id = credit_cards.account_id),
                                     'Fatura do cartão de crédito '||credit_cards.name,
                                     (SELECT
                                         SUM(amount)

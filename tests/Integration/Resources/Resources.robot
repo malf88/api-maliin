@@ -22,6 +22,11 @@ Request PUT
     ${response}    PUT    ${URL}  json=${DATA}    headers=${header}    expected_status=any
     [Return]     ${response}
 
+Request PATCH
+    [Arguments]  ${URL}     ${USER}    ${DATA}={} 
+    ${header}      Generate Header Authorization     ${USER}
+    ${response}    PATCH    ${URL}  json=${DATA}    headers=${header}    expected_status=any
+    [Return]     ${response}
 Request GET
     [Arguments]  ${URL}     ${USER}    ${PARAMS}=${EMPTY} 
     ${header}      Generate Header Authorization     ${USER}

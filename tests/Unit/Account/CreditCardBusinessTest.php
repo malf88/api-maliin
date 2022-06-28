@@ -9,8 +9,7 @@ use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
 
@@ -82,7 +81,7 @@ class CreditCardBusinessTest extends TestCase
             ->with($accountId)
             ->willReturn($this->factory->factoryCreditCards());
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCards = $creditCardBusiness->getListCreditCardByAccount($accountId);
 
     }
@@ -114,7 +113,7 @@ class CreditCardBusinessTest extends TestCase
         $this->prepareAccountBusiness();
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->getCreditCardById($creditCardId);
 
     }
@@ -162,7 +161,7 @@ class CreditCardBusinessTest extends TestCase
         ];
         $this->prepareAccountBusiness();
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->insertCreditCard($accountId,$creditCardData);
     }
 
@@ -216,7 +215,7 @@ class CreditCardBusinessTest extends TestCase
         $this->prepareAccountBusiness();
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
 
     }
@@ -273,7 +272,7 @@ class CreditCardBusinessTest extends TestCase
         $creditCard->id = $creditCardId;
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->removeCreditCard($creditCardId);
 
     }
@@ -308,7 +307,7 @@ class CreditCardBusinessTest extends TestCase
         $creditCardId = 5;
         $this->prepareAccountBusiness();
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
 
 

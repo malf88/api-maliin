@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CreditCardBusiness implements CreditCardBusinessInterface
 {
@@ -28,7 +29,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         if(Auth::user()->userHasAccount($accountId)){
             return $this->creditCardRepository->getCreditCardsByAccountId($accountId);
         }else{
-            throw new ItemNotFoundException("Conta não encontrada");
+            throw new NotFoundHttpException("Conta não encontrada");
         }
 
     }
@@ -39,7 +40,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
          if($creditCard != null && Auth::user()->userHasAccount($creditCard->account_id)){
              return $creditCard;
          }else{
-             throw new ItemNotFoundException("Registro não encontrado");
+             throw new NotFoundHttpException("Registro não encontrado");
          }
     }
 
@@ -48,7 +49,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         if(Auth::user()->userHasAccount($accountId)){
             return $this->creditCardRepository->saveCreditCard($accountId,$creditCardData);
         }else{
-            throw new ItemNotFoundException('Não foi encontrada a conta informada');
+            throw new NotFoundHttpException('Não foi encontrada a conta informada');
         }
     }
 

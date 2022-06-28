@@ -6,12 +6,19 @@ use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
 
 class AccountRepository implements AccountRepositoryInterface
 {
     public function getAccountFromUser(User $user):Collection
     {
-        $listAccount = $user->accounts()->orderBy('name','ASC')->get();
+        $listAccount = Account::select('accounts.*')
+            ->leftJoin('maliin.accounts_users', 'accounts_users.account_id', '=', 'accounts.id')
+            ->where('accounts_users.user_id', $user->id)
+            ->orWhere('accounts.user_id', $user->id)
+            ->orderBy('name','ASC')
+            ->with('user')
+            ->get();
         return $listAccount;
     }
     public function saveAccount(User $user,array $accountInfo):Account
@@ -39,5 +46,33 @@ class AccountRepository implements AccountRepositoryInterface
     public function getAccountById(int $id):Account
     {
         return Account::find($id);
+    }
+    public function userHasSharedAccount(int $accountId, int $userId):bool
+    {
+        $account = Account::find($accountId);
+        return $account->sharedUsers()->where('user_id', $userId)->exists();
+    }
+
+    public function addUserToAccount($accountId, $userId): bool
+    {
+        $account = Account::find($accountId);
+        try{
+            $account->sharedUsers()->attach($userId);
+            return $account->save();
+        }catch (RelationNotFoundException $e){
+            return false;
+        }
+
+    }
+
+    public function removeUserToAccount($accountId, $userId): bool
+    {
+        $account = Account::find($accountId);
+        try{
+            $account->sharedUsers()->detach($userId);
+            return $account->save();
+        }catch (RelationNotFoundException $e){
+            return false;
+        }
     }
 }

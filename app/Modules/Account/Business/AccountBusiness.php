@@ -2,6 +2,7 @@
 
 namespace App\Modules\Account\Business;
 
+use App\Exceptions\ExistsException;
 use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
@@ -51,11 +52,10 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function getAccountById(int $id):Account
     {
-        if(Auth::user()->userHasAccount($id)){
-            return $this->prepareAccount($this->accountRepository->getAccountById($id));
-        }else{
+        if(!Auth::user()->userHasAccount($id))
             throw new ItemNotFoundException('Registro não encontrado');
-        }
+
+        return $this->prepareAccount($this->accountRepository->getAccountById($id));
     }
 
     /**
@@ -93,11 +93,11 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function updateAccount(int $id,array $accountInfo):Model
     {
-        if(Auth::user()->userHasAccount($id)){
-            return $this->accountRepository->updateAccount($id,$accountInfo);
-        }else{
+        if(!Auth::user()->userIsOwnerAccount($id))
             throw new ItemNotFoundException("Registro não encontrado");
-        }
+
+        return $this->accountRepository->updateAccount($id,$accountInfo);
+
     }
 
     /**
@@ -106,10 +106,32 @@ class AccountBusiness implements AccountBusinessInterface
      */
     public function deleteAccount(int $id):bool
     {
-        if (Auth::user()->userHasAccount($id)) {
-            return $this->accountRepository->deleteAccount($id);
-        } else {
+        if (!Auth::user()->userIsOwnerAccount($id))
             throw new ItemNotFoundException("Registro não encontrado");
-        }
+
+        return $this->accountRepository->deleteAccount($id);
+
+    }
+    public function addUserToAccount(int $accountId,int $userId):bool
+    {
+        if (!Auth::user()->userIsOwnerAccount($accountId))
+            throw new ItemNotFoundException("Registro não encontrado");
+
+        if ($this->accountRepository->userHasSharedAccount($accountId,$userId))
+            throw new ExistsException("Usuário já está associado a conta");
+
+        return $this->accountRepository->addUserToAccount($accountId, $userId);
+    }
+
+    public function removeUserToAccount(int $accountId,int $userId):bool
+    {
+        if (!Auth::user()->userIsOwnerAccount($accountId))
+            throw new ItemNotFoundException("Registro não encontrado");
+
+        if (!$this->accountRepository->userHasSharedAccount($accountId,$userId))
+            throw new ExistsException("Usuário não está associado a conta");
+
+        return $this->accountRepository->removeUserToAccount($accountId, $userId);
+
     }
 }

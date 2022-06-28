@@ -10,10 +10,32 @@ use App\Models\Invoice;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class DataFactory extends TestCase
 {
+    public function configureUserSession($exception = false)
+    {
+
+        $user = $this->createPartialMock(User::class,['accounts', 'userHasAccount','userIsOwnerAccount']);
+        $user->method('accounts')
+            ->willReturn($this->factoryAccount());
+        if($exception) {
+            $user->method('userHasAccount')
+                ->willReturn(false);
+            $user->method('userIsOwnerAccount')
+                ->willReturn(false);
+        }else{
+            $user->method('userIsOwnerAccount')
+                ->willReturn(true);
+            $user->method('userHasAccount')
+                ->willReturn(true);
+        }
+        Auth::shouldReceive('user')
+            ->andReturn($user);
+
+    }
     public function factoryCreditCards(){
         $user = $this->factoryUser(1);
         $account = $this->createPartialMock(Account::class,['user']);
@@ -73,7 +95,7 @@ class DataFactory extends TestCase
         return Collection::make([$creditCard1,$creditCard2,$creditCard3,$creditCard4]);
     }
 
-    public function factoryUser(int $id):User
+    public function factoryUser(int $id, $exception = false):User
     {
         $account = new Account();
         $account->id = 1;
@@ -84,7 +106,14 @@ class DataFactory extends TestCase
         $creditCard->due_day = 13;
         $creditCard->close_day = 06;
 
-        $user = $this->createPartialMock(User::class,['accounts','creditCards']);
+        $user = $this->createPartialMock(User::class,['accounts','creditCards','userHasAccount']);
+        if($exception) {
+            $user->method('userHasAccount')
+                ->willReturn(false);
+        }else{
+            $user->method('userHasAccount')
+                ->willReturn(true);
+        }
         $user
             ->method('accounts')
             ->willReturn(Collection::make([$account]));

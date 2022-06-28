@@ -9,8 +9,7 @@ use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
 
@@ -27,8 +26,6 @@ class CreditCardBusinessTest extends TestCase
     {
         parent::setUp();
         $this->factory = new DataFactory();
-        $user = $this->factory->factoryUser(1);
-        Auth::shouldReceive('user')->andReturn($user);
 
         $this->creditCardRepository = $this->createMock(CreditCardRepository::class);
         $this->accountRepository = $this->createMock(AccountRepository::class);
@@ -58,6 +55,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveListarCartoesDeCreditoDeUmaConta(){
+        $this->factory->configureUserSession();
         $accountId = 1;
         $this->prepareAccountBusiness();
         $this->creditCardRepository
@@ -74,6 +72,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoListarCartoesDeCreditoDeUmaConta(){
+        $this->factory->configureUserSession(true);
         $accountId = 2;
         $this->prepareAccountBusiness();
 
@@ -82,7 +81,7 @@ class CreditCardBusinessTest extends TestCase
             ->with($accountId)
             ->willReturn($this->factory->factoryCreditCards());
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCards = $creditCardBusiness->getListCreditCardByAccount($accountId);
 
     }
@@ -90,6 +89,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveRetornarUmCartaoDeCreditoComIdInformado(){
+        $this->factory->configureUserSession();
         $accountId = 1;
         $creditCardId = 1;
         $this->prepareAccountBusiness();
@@ -108,11 +108,12 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveRetornarUmaExcecaoAoRetornarUmCartaoDeCreditoComIdInformado(){
+        $this->factory->configureUserSession(true);
        $creditCardId = 5;
         $this->prepareAccountBusiness();
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->getCreditCardById($creditCardId);
 
     }
@@ -121,6 +122,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveInserirUmCartaoDeCredito(){
+        $this->factory->configureUserSession();
         $accountId = 1;
         $creditCardId = 1;
 
@@ -150,6 +152,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoInserirUmCartaoDeCredito(){
+        $this->factory->configureUserSession(true);
         $accountId = 2;
         $creditCardData = [
             'name'      => 'Bradesco',
@@ -158,7 +161,7 @@ class CreditCardBusinessTest extends TestCase
         ];
         $this->prepareAccountBusiness();
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->insertCreditCard($accountId,$creditCardData);
     }
 
@@ -166,6 +169,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmCartaoDeCredito(){
+        $this->factory->configureUserSession();
         $creditCardId = 1;
         $accountId = 1;
         $creditCardData = [
@@ -200,6 +204,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveDispararUmaExecaoAoAlterarUmCartaoDeCredito(){
+        $this->factory->configureUserSession(true);
         $creditCardId = 5;
         $creditCardData = [
             'name'      => 'Bradesco',
@@ -210,7 +215,7 @@ class CreditCardBusinessTest extends TestCase
         $this->prepareAccountBusiness();
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
 
     }
@@ -219,6 +224,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveExcluirUmCartaoDeCredito(){
+        $this->factory->configureUserSession();
         $creditCardId = 1;
         $accountId = 1;
         $creditCardData = [
@@ -251,6 +257,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoExcluirUmCartaoDeCredito(){
+        $this->factory->configureUserSession(true);
         $creditCardId = 5;
         $creditCardData = [
             'name'      => 'Bradesco',
@@ -265,7 +272,7 @@ class CreditCardBusinessTest extends TestCase
         $creditCard->id = $creditCardId;
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->removeCreditCard($creditCardId);
 
     }
@@ -274,6 +281,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveRetornarListaDeFaturasDoCartao(){
+        $this->factory->configureUserSession();
         $creditCardId = 1;
         $this->prepareAccountBusiness();
         $creditCards = $this->factory->factoryCreditCards();
@@ -295,10 +303,11 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveRetornarUmaExcecaoAoBuscarListaDeFaturasDoCartao(){
+        $this->factory->configureUserSession(true);
         $creditCardId = 5;
         $this->prepareAccountBusiness();
         $creditCardBusiness = $this->prepareCreditCardBusiness();
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
 
 
@@ -309,7 +318,7 @@ class CreditCardBusinessTest extends TestCase
      */
     public function deveRetornarListaFaturasComDeContasAPagarOuReceberPorCartaoDeCredito()
     {
-
+        $this->factory->configureUserSession();
         $creditCardId = 1;
         $this->invoiceBusiness
             ->method('getInvoicesWithBill')

@@ -14,8 +14,8 @@ use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\ItemNotFoundException;
+
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
 
@@ -153,7 +153,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->getBillsByAccount($accountId);
 
     }
@@ -192,7 +192,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
     }
@@ -256,7 +256,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->insertBill($accountId,$billData);
     }
 
@@ -316,7 +316,7 @@ class BillBusinessTest extends TestCase
             ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bill = $billBusiness->getBillById($billId);
     }
 
@@ -471,7 +471,7 @@ class BillBusinessTest extends TestCase
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
 
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $bills = $billBusiness->updateBill($billId,$billData);
 
@@ -504,7 +504,7 @@ class BillBusinessTest extends TestCase
         $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->updateBill($billId,$billData);
     }
 
@@ -562,7 +562,7 @@ class BillBusinessTest extends TestCase
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $bill = $billBusiness->deleteBill($billId);
 
@@ -593,7 +593,7 @@ class BillBusinessTest extends TestCase
             ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bill = $billBusiness->deleteBill($billId);
     }
 
@@ -633,7 +633,7 @@ class BillBusinessTest extends TestCase
             ->willReturn(Collection::make([['month' => '01', 'year' => '2018']]));
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $dates = $billBusiness->getPeriodWithBill($accountId);
     }
 

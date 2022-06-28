@@ -12,8 +12,8 @@ Resource              ../Account/Resources/AccountResource.robot
 Resource              ../Bill/Resources/BillResource.robot
 Resource              Resources/InvoiceResource.robot
 Default Tags          Invoice
-** Test Cases **
 
+** Test Cases **
 
 Caso de teste 01 - Buscar uma fatura
     &{ACCOUNT}    Account.Dados Xpto

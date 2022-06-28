@@ -2,11 +2,13 @@
 
 namespace App\Modules\Account\Controllers;
 
+use App\Exceptions\ExistsException;
 use App\Http\Controllers\Controller;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\ServicesLocal\AccountServiceLocal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ItemNotFoundException;
 
 class AccountController extends Controller
 {
@@ -33,7 +35,7 @@ class AccountController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->accountServices->getListAllAccountFromLoggedUser();
+        return response($this->accountServices->getListAllAccountFromLoggedUser(),200);
     }
     /**
      * @OA\Get(
@@ -61,7 +63,12 @@ class AccountController extends Controller
      */
     public function show(Request $request, int $id)
     {
-        return $this->accountServices->getAccountById($id);
+        try{
+            return response($this->accountServices->getAccountById($id),200);
+        }catch (ItemNotFoundException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
     /**
      * @OA\Post(
@@ -102,7 +109,8 @@ class AccountController extends Controller
      */
     public function insert(Request $request)
     {
-        return $this->accountServices->insertAccount(Auth::user(),$request->all());
+        return response($this->accountServices->insertAccount(Auth::user(),$request->all()),201);
+
     }
     /**
      * @OA\Put(
@@ -154,7 +162,11 @@ class AccountController extends Controller
      */
     public function update(Request $request,int $id)
     {
-        return $this->accountServices->updateAccount($id,$request->all());
+        try{
+            return response($this->accountServices->updateAccount($id,$request->all()),200);
+        }catch (ItemNotFoundException $e){
+            return response($e->getMessage(),404);
+        }
     }
     /**
      * @OA\Delete(
@@ -182,7 +194,12 @@ class AccountController extends Controller
      */
     public function delete(Request $request,int $id)
     {
-        return $this->accountServices->deleteAccount($id);
+        try{
+            return response($this->accountServices->deleteAccount($id),200);
+        }catch (ItemNotFoundException $e){
+            return esponse($e->getMessage(),404);
+        }
+
     }
 
     /**
@@ -221,7 +238,12 @@ class AccountController extends Controller
      */
     public function addUserToAccount(int $account_id, int $user_id)
     {
-        return $this->accountServices->addUserToAccount($account_id, $user_id);
+        try{
+            return response($this->accountServices->addUserToAccount($account_id, $user_id),200);
+        }catch (ItemNotFoundException|ExistsException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 
     /**
@@ -260,6 +282,11 @@ class AccountController extends Controller
      */
     public function removeUserToAccount(int $account_id, int $user_id)
     {
-        return $this->accountServices->removeUserToAccount($account_id, $user_id);
+        try{
+            return response($this->accountServices->removeUserToAccount($account_id, $user_id),200);
+        }catch (ItemNotFoundException|ExistsException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 }

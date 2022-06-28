@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BillBusiness implements BillBusinessInterface
 {
@@ -37,7 +38,7 @@ class BillBusiness implements BillBusinessInterface
             }
 
         }else{
-            throw new ItemNotFoundException('Conta não encontrada');
+            throw new NotFoundHttpException('Conta não encontrada');
         }
     }
     public function getBillList(int $accountId,array $rangeDate, bool $normalize = false):Collection
@@ -61,7 +62,7 @@ class BillBusiness implements BillBusinessInterface
     {
 
         if(!Auth::user()->userHasAccount($accountId))
-            throw new ItemNotFoundException('Conta não encontrada');
+            throw new NotFoundHttpException('Conta não encontrada');
 
         $billList = $this->getBillList($accountId,$rangeDate,$normalize);
         return Collection::make([
@@ -79,7 +80,7 @@ class BillBusiness implements BillBusinessInterface
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
     {
         if(!Auth::user()->userHasAccount($accountId))
-            throw new ItemNotFoundException('Conta não encontrada');
+            throw new NotFoundHttpException('Conta não encontrada');
 
         return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
     }
@@ -87,7 +88,7 @@ class BillBusiness implements BillBusinessInterface
     public function insertBill(int $accountId,$billData):Model|Collection
     {
         if(!Auth::user()->userIsOwnerAccount($accountId))
-            throw new ItemNotFoundException('Conta não encontrada.');
+            throw new NotFoundHttpException('Conta não encontrada.');
 
         if(isset($billData['portion']) && $billData['portion'] > 1){
             return $this->saveMultiplePortions($accountId,$billData);
@@ -157,7 +158,7 @@ class BillBusiness implements BillBusinessInterface
         if(Auth::user()->userHasAccount($bill->account_id)){
             return $bill;
         }else{
-            throw new ItemNotFoundException('Conta a pagar não encontrada');
+            throw new NotFoundHttpException('Conta a pagar não encontrada');
         }
     }
 
@@ -165,7 +166,7 @@ class BillBusiness implements BillBusinessInterface
     {
         $bill = $this->getBillById($billId);
         if(!Auth::user()->userIsOwnerAccount($bill->account_id))
-            throw new ItemNotFoundException('Lançamento não encontrado');
+            throw new NotFoundHttpException('Lançamento não encontrado');
 
         if (!isset($billData['update_childs']) || !$billData['update_childs']) {
             $this->processCreditCardBill($billData);
@@ -226,7 +227,7 @@ class BillBusiness implements BillBusinessInterface
     {
         $bill = $this->getBillById($billId);
         if(!Auth::user()->userIsOwnerAccount($bill->account_id))
-            throw new ItemNotFoundException('Lançamento não encontrado');
+            throw new NotFoundHttpException('Lançamento não encontrado');
 
         return $this->billRepository->deleteBill($billId);
 
@@ -235,7 +236,7 @@ class BillBusiness implements BillBusinessInterface
     public function getPeriodWithBill(int $accountId):Collection
     {
         if(!Auth::user()->userHasAccount($accountId))
-            throw new ItemNotFoundException('Conta a pagar não encontrada');
+            throw new NotFoundHttpException('Conta a pagar não encontrada');
 
         return $this->billRepository->getMonthWithBill($accountId);
 

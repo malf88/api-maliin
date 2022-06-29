@@ -3,7 +3,9 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix'=>'version', 'middleware' =>['json.response'], 'namespace' => 'Account\Controllers'],function () {
     Route::get('/', 'UtilController@index');
 });
-
+Route::group(['prefix'=>'auth', 'middleware' =>['json.response'], 'namespace' => '\App\Http\Controllers\Api'],function (){
+    Route::get('/token','ApiAuthController@jwtToken')->name('jwt.token');
+});
 Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Account\Controllers'],function(){
 
 
@@ -59,4 +61,6 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::get('/{invoiceId}/pdf','InvoiceController@indexPdf')->name('api.invoice.index.pdf');
         Route::get('/{invoiceId}','InvoiceController@index')->name('api.invoice.index');
     });
+
+
 });

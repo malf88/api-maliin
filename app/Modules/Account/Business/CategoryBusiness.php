@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CategoryBusiness implements CategoryBusinessInterface
 {
@@ -34,7 +35,7 @@ class CategoryBusiness implements CategoryBusinessInterface
         if(Auth::user()->userHasCateogory($id)) {
             return $this->categoryRepository->getCategoryById($id);
         }else{
-            throw new ItemNotFoundException("Registro não encontrado");
+            throw new NotFoundHttpException("Registro não encontrado");
         }
     }
     public function insertCategory(User $user,array $dataCategory): Model
@@ -47,7 +48,7 @@ class CategoryBusiness implements CategoryBusinessInterface
         if(Auth::user()->userHasCateogory($id)) {
             return $this->categoryRepository->updateCategory($id,$dataCategory);
         }else{
-            throw new ItemNotFoundException("Registro não encontrado");
+            throw new NotFoundHttpException("Registro não encontrado");
         }
     }
     public function deleteCategory(int $id): bool
@@ -55,7 +56,7 @@ class CategoryBusiness implements CategoryBusinessInterface
         if(Auth::user()->userHasCateogory($id)) {
             return $this->categoryRepository->deleteCategory($id);
         }else{
-            throw new ItemNotFoundException("Registro não encontrado");
+            throw new NotFoundHttpException("Registro não encontrado");
         }
     }
 }

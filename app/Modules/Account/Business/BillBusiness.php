@@ -6,7 +6,6 @@ use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
-use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -14,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BillBusiness implements BillBusinessInterface
 {
@@ -38,63 +38,67 @@ class BillBusiness implements BillBusinessInterface
             }
 
         }else{
-            throw new ItemNotFoundException('Conta não encontrada');
+            throw new NotFoundHttpException('Conta não encontrada');
         }
     }
-
+    public function getBillList(int $accountId,array $rangeDate, bool $normalize = false):Collection
+    {
+        if($normalize) {
+            $billList = $this->billStandarized->normalizeListBills(
+                $this->billRepository->getBillsByAccountWithRangeDate(
+                    accountId: $accountId,
+                    rangeDate: $rangeDate
+                )
+            );
+        }else{
+            $billList = $this->billRepository->getBillsByAccountWithRangeDate(
+                accountId: $accountId,
+                rangeDate: $rangeDate
+            );
+        }
+        return $billList;
+    }
     public function getBillsByAccountBetween(int $accountId,array $rangeDate, bool $normalize = false):Collection
     {
 
-        if(Auth::user()->userHasAccount($accountId)){
-            if($normalize) {
-                $billList = $this->billStandarized->normalizeListBills(
-                    $this->billRepository->getBillsByAccountWithRangeDate(
-                        accountId: $accountId,
-                        rangeDate: $rangeDate
-                    )
-                );
-            }else{
-                $billList = $this->billRepository->getBillsByAccountWithRangeDate(
-                    accountId: $accountId,
-                    rangeDate: $rangeDate
-                );
-            }
-            return Collection::make([
-                'bills' => $billList,
-                'total' => Collection::make([
-                    'total_cash_in' => $this->billRepository->getTotalCashIn($billList),
-                    'total_cash_out' => $this->billRepository->getTotalCashOut($billList),
-                    'total_estimated' =>$this->billRepository->getTotalEstimated($billList),
-                    'total_paid' =>$this->billRepository->getTotalPaid($billList)
-                ])
-            ]);
-        }else{
-            throw new ItemNotFoundException('Conta não encontrada');
-        }
+        if(!Auth::user()->userHasAccount($accountId))
+            throw new NotFoundHttpException('Conta não encontrada');
+
+        $billList = $this->getBillList($accountId,$rangeDate,$normalize);
+        return Collection::make([
+            'bills' => $billList,
+            'total' => Collection::make([
+                'total_cash_in' => $this->billRepository->getTotalCashIn($billList),
+                'total_cash_out' => $this->billRepository->getTotalCashOut($billList),
+                'total_estimated' =>$this->billRepository->getTotalEstimated($billList),
+                'total_paid' =>$this->billRepository->getTotalPaid($billList)
+            ])
+        ]);
+
     }
 
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
     {
-        if(Auth::user()->userHasAccount($accountId)){
-            return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
-        }else{
-            throw new ItemNotFoundException('Conta não encontrada');
-        }
+        if(!Auth::user()->userHasAccount($accountId))
+            throw new NotFoundHttpException('Conta não encontrada');
+
+        return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
     }
 
     public function insertBill(int $accountId,$billData):Model|Collection
     {
-        if(Auth::user()->userHasAccount($accountId)){
-            if(isset($billData['portion']) && $billData['portion'] > 1){
-                return $this->saveMultiplePortions($accountId,$billData);
-            }else{
-                $this->processCreditCardBill($billData);
-                return $this->billRepository->saveBill($accountId,$billData);
-            }
+        if(!Auth::user()->userIsOwnerAccount($accountId))
+            throw new NotFoundHttpException('Conta não encontrada.');
+
+        if(isset($billData['portion']) && $billData['portion'] > 1){
+            return $this->saveMultiplePortions($accountId,$billData);
         }else{
-            throw new ItemNotFoundException('Conta não encontrada.');
+            $this->processCreditCardBill($billData);
+            return $this->billRepository->saveBill($accountId,$billData);
         }
+
     }
+
     private function processCreditCardBill(array $billData):void
     {
         if(!isset($billData['credit_card_id']) ||  $billData['credit_card_id'] == null)
@@ -111,6 +115,7 @@ class BillBusiness implements BillBusinessInterface
     {
         if(isset($billData['credit_card_id']))
             $billData['due_date'] = null;
+
         $billsInserted = new Collection();
         $totalPortion = $billData['portion'];
         $descriptionBeforeCreateBill = $billData['description'];
@@ -153,19 +158,23 @@ class BillBusiness implements BillBusinessInterface
         if(Auth::user()->userHasAccount($bill->account_id)){
             return $bill;
         }else{
-            throw new ItemNotFoundException('Conta a pagar não encontrada');
+            throw new NotFoundHttpException('Conta a pagar não encontrada');
         }
     }
 
     public function updateBill(int $billId,array $billData):Model|Collection
     {
-        $this->getBillById($billId);
-        if(!isset($billData['update_childs']) || !$billData['update_childs']){
+        $bill = $this->getBillById($billId);
+        if(!Auth::user()->userIsOwnerAccount($bill->account_id))
+            throw new NotFoundHttpException('Lançamento não encontrado');
+
+        if (!isset($billData['update_childs']) || !$billData['update_childs']) {
             $this->processCreditCardBill($billData);
-            return $this->billRepository->updateBill($billId,$billData);
-        }else{
-            return $this->updateChildBill($billId,$billData);
+            return $this->billRepository->updateBill($billId, $billData);
+        } else {
+            return $this->updateChildBill($billId, $billData);
         }
+
     }
 
     private function updateChildBill(int $billId,array $billData):Model
@@ -203,7 +212,6 @@ class BillBusiness implements BillBusinessInterface
     {
         $description = preg_replace('/\s\[\d{1,}\/\d{1,}\]/','', $description);
         return $description . ' ['.$portionActual. '/' .$portionTotal .']';
-
     }
 
     private function addMonthDueDate(Carbon|null $date):Carbon|null
@@ -217,17 +225,21 @@ class BillBusiness implements BillBusinessInterface
     }
     public function deleteBill(int $billId):bool
     {
-        $this->getBillById($billId);
+        $bill = $this->getBillById($billId);
+        if(!Auth::user()->userIsOwnerAccount($bill->account_id))
+            throw new NotFoundHttpException('Lançamento não encontrado');
+
         return $this->billRepository->deleteBill($billId);
+
     }
 
     public function getPeriodWithBill(int $accountId):Collection
     {
-        if(Auth::user()->userHasAccount($accountId)) {
-            return $this->billRepository->getMonthWithBill($accountId);
-        }else{
-            throw new ItemNotFoundException('Conta a pagar não encontrada');
-        }
+        if(!Auth::user()->userHasAccount($accountId))
+            throw new NotFoundHttpException('Conta a pagar não encontrada');
+
+        return $this->billRepository->getMonthWithBill($accountId);
+
 
     }
     public function generatePdfByPeriod(BillPdfInterface $billPdfService, int $accountId,array $period):void

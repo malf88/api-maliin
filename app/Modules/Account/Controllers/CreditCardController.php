@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\CreditCard;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\ServicesLocal\CreditCardServiceLocal;
+use http\Env\Response;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CreditCardController extends Controller
 {
@@ -39,9 +41,14 @@ class CreditCardController extends Controller
       *     @OA\Response(response="404", description="Conta não encontrada")
       * ),
       */
-    public function index($accountId):Collection
+    public function index($accountId)
     {
-        return $this->creditCardServices->getListCreditCardByAccount($accountId);
+        try{
+            return response($this->creditCardServices->getListCreditCardByAccount($accountId),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
     /**
      * @OA\Get(
@@ -66,9 +73,14 @@ class CreditCardController extends Controller
      *     @OA\Response(response="404", description="Conta não encontrada")
      * ),
      */
-    public function show(Request $request):CreditCard
+    public function show(Request $request)
     {
-        return $this->creditCardServices->getCreditCardbyId($request->id);
+        try{
+            return response($this->creditCardServices->getCreditCardbyId($request->id),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 
     /**
@@ -115,9 +127,14 @@ class CreditCardController extends Controller
      * ),
      *
      */
-    public function insert(Request $request,int $accountId):CreditCard
+    public function insert(Request $request,int $accountId)
     {
-        return $this->creditCardServices->insertCreditCard($accountId,$request->all());
+        try{
+            return response($this->creditCardServices->insertCreditCard($accountId,$request->all()), 201);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(), 404);
+        }
+
     }
 
     /**
@@ -166,7 +183,12 @@ class CreditCardController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        return $this->creditCardServices->updateCreditCard($id,$request->all());
+        try{
+            return response($this->creditCardServices->updateCreditCard($id,$request->all()), 200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(), 404);
+        }
+
     }
     /**
      * @OA\Delete(
@@ -192,9 +214,14 @@ class CreditCardController extends Controller
      * ),
      *
      */
-    public function delete(int $id):int
+    public function delete(int $id)
     {
-        return $this->creditCardServices->removeCreditCard($id);
+        try{
+            return response($this->creditCardServices->removeCreditCard($id), 200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(), 404);
+        }
+
     }
     /**
      * @OA\Get(
@@ -219,7 +246,7 @@ class CreditCardController extends Controller
      *     @OA\Response(response="404", description="Conta não encontrada")
      * ),
      */
-    public function invoices(int $id):Collection
+    public function invoices(int $id)
     {
         return $this->creditCardServices->getInvoicesWithBillByCreditCard($id);
     }

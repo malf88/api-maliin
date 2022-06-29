@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\Account;
 
-use App\Models\Account;
+
 use App\Models\Bill;
 use App\Models\Category;
-use App\Models\User;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\BillBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
@@ -15,23 +14,21 @@ use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\ItemNotFoundException;
+
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
-use const OpenApi\COLOR_RED;
 
 class BillBusinessTest extends TestCase
 {
     private DataFactory $accountFactory;
     private BillStandarizedService $billStandarizedService;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->accountFactory = new DataFactory();
         $user = $this->accountFactory->factoryUser(1);
-        Auth::shouldReceive('user')
-            ->andReturn($user);
         $this->billStandarizedService = $this->createMock(BillStandarizedService::class);
 
         $list = Collection::make([
@@ -101,6 +98,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasAPagarDeUmaConta(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -123,6 +121,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasAPagarDeUmaContaComData(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -149,11 +148,12 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoListarContasAPagarDeUmaConta(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->getBillsByAccount($accountId);
 
     }
@@ -162,6 +162,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveListarContasAPagarDeUmaContaPaginada(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -186,11 +187,12 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoListarContasAPagarDeUmaContaPaginada(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->getBillsByAccountPaginate($accountId);
 
     }
@@ -198,6 +200,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveSalvarContasAPagarEmUmaConta(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $billData = $this->factoryBillData();
         $bill = new Bill();
@@ -222,6 +225,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveSalvarContasAPagarEmUmaContaComParcelas(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $billData = $this->factoryBillData();
         $billData['portion'] = 3;
@@ -245,13 +249,14 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoSalvarContasAPagar(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
 
         $billData = $this->factoryBillData();
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->insertBill($accountId,$billData);
     }
 
@@ -259,6 +264,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveRetornarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession();
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -286,6 +292,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoRetornarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession(true);
         $billId = 5;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -309,7 +316,7 @@ class BillBusinessTest extends TestCase
             ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bill = $billBusiness->getBillById($billId);
     }
 
@@ -317,6 +324,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession();
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -350,6 +358,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmaContaAPagarESeusIrmaos(){
+        $this->accountFactory->configureUserSession();
         $billId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -398,6 +407,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmaContaAPagarESeusFilhos(){
+        $this->accountFactory->configureUserSession();
         $billId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -433,10 +443,44 @@ class BillBusinessTest extends TestCase
         $this->assertEquals(1,$bills->id);
 
     }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoAlterarUmaContaAPagarESeusFilhosQueNaoEDono(){
+        $this->accountFactory->configureUserSession(true);
+        $billId = 2;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['update_childs'] = true;
+
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('account')
+            ->willReturn($account);
+
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+
+        $bill->id = 1;
+        $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+
+        $this->expectException(NotFoundHttpException::class);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $bills = $billBusiness->updateBill($billId,$billData);
+
+    }
     /**
      * @test
      */
     public function deveDispararExcecaoAoAlterarUmaContaAPagarESeusFilhos(){
+        $this->accountFactory->configureUserSession(true);
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -460,7 +504,7 @@ class BillBusinessTest extends TestCase
         $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bills = $billBusiness->updateBill($billId,$billData);
     }
 
@@ -468,6 +512,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDeletarContaAPagar(){
+        $this->accountFactory->configureUserSession();
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $user = $this->accountFactory->factoryUser(1);
@@ -498,7 +543,37 @@ class BillBusinessTest extends TestCase
     /**
      * @test
      */
+    public function deveDispararExcecaoDeletarContaAPagarPorNaoSerDonoDoLancamento(){
+        $this->accountFactory->configureUserSession(true);
+        $billId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
+        $bill->method('account')
+            ->willReturn($account);
+        $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+        $this->expectException(NotFoundHttpException::class);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $bill = $billBusiness->deleteBill($billId);
+
+        $this->assertEquals(true,$bill);
+    }
+
+    /**
+     * @test
+     */
     public function deveDispararExcecaoAoDeletarContaAPagar(){
+        $this->accountFactory->configureUserSession(true);
         $billId = 1;
         $accounts = $this->accountFactory->factoryAccount();
 
@@ -518,7 +593,7 @@ class BillBusinessTest extends TestCase
             ->willReturn($bill);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $bill = $billBusiness->deleteBill($billId);
     }
 
@@ -526,6 +601,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveTrazerMesesComCompras(){
+        $this->accountFactory->configureUserSession();
         $accountId = 1;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -546,6 +622,7 @@ class BillBusinessTest extends TestCase
      * @test
      */
     public function deveDispararExcecaoAoTrazerMesesComComprasDeContaInexistente(){
+        $this->accountFactory->configureUserSession(true);
         $accountId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billRepository = $this->getMockRepository();
@@ -556,7 +633,7 @@ class BillBusinessTest extends TestCase
             ->willReturn(Collection::make([['month' => '01', 'year' => '2018']]));
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $dates = $billBusiness->getPeriodWithBill($accountId);
     }
 

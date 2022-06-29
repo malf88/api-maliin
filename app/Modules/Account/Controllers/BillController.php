@@ -8,6 +8,7 @@ use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BillController extends Controller
 {
@@ -43,7 +44,7 @@ class BillController extends Controller
 
     public function index(int $accountId)
     {
-        return $this->billServices->getBillsByAccount($accountId);
+        return response($this->billServices->getBillsByAccount($accountId),200);
     }
 
     /**
@@ -92,9 +93,15 @@ class BillController extends Controller
 
     public function between(int $accountId, string $startDate, string $endDate)
     {
-        return $this->billServices->getBillsByAccountBetween(
-            accountId: $accountId,
-            rangeDate:[$startDate,$endDate]);
+        try{
+            return response($this->billServices->getBillsByAccountBetween(
+                accountId: $accountId,
+                rangeDate:[$startDate,$endDate]),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
+
     }
     /**
      * @OA\Get(
@@ -121,7 +128,11 @@ class BillController extends Controller
      */
     public function show(int $id)
     {
-        return $this->billServices->getBillById($id);
+        try{
+            return response($this->billServices->getBillById($id),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
     }
     /**
      * @OA\Post(
@@ -202,7 +213,12 @@ class BillController extends Controller
      */
     public function insert(Request $request, $accountId)
     {
-        return $this->billServices->insertBill($accountId,$request->all());
+        try{
+            return response($this->billServices->insertBill($accountId,$request->all()),201);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 
     /**
@@ -289,7 +305,12 @@ class BillController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return $this->billServices->updateBill($id,$request->all());
+        try{
+            return response($this->billServices->updateBill($id,$request->all()),200);
+        }catch(NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 
     /**
@@ -318,7 +339,12 @@ class BillController extends Controller
      */
     public function delete(int $id)
     {
-        return $this->billServices->deleteBill($id);
+        try{
+            return response($this->billServices->deleteBill($id),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
     /**
      * @OA\Put(
@@ -346,7 +372,12 @@ class BillController extends Controller
      */
     public function pay(int $id)
     {
-        return $this->billServices->updateBill($id,['pay_day' => Carbon::today()->format('Y/m/d')]);
+        try{
+            return response($this->billServices->updateBill($id,['pay_day' => Carbon::today()->format('Y/m/d')]),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
     /**
      * @OA\Get(
@@ -374,7 +405,12 @@ class BillController extends Controller
 
     public function periods(int $accountId)
     {
-        return $this->billServices->getPeriodWithBill($accountId);
+        try{
+            return response($this->billServices->getPeriodWithBill($accountId),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 
     /**

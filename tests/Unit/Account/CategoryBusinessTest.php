@@ -9,6 +9,7 @@ use App\Modules\Account\Repository\CategoryRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class CategoryBusinessTest extends TestCase
@@ -157,7 +158,7 @@ class CategoryBusinessTest extends TestCase
             ->with($id,$dataCategory)
             ->willReturn($category);
         $categoryBusiness = new CategoryBusiness($categoryRepository);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $newCategory = $categoryBusiness->updateCategory($id,$dataCategory);
 
     }
@@ -189,7 +190,7 @@ class CategoryBusinessTest extends TestCase
             ->with($id)
             ->willReturn(true);
         $categoryBusiness = new CategoryBusiness($categoryRepository);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $statusDelete = $categoryBusiness->deleteCategory($id);
 
     }
@@ -224,7 +225,7 @@ class CategoryBusinessTest extends TestCase
             ->with($id)
             ->willReturn($this->fatoryCategoryList()->get(0));
         $categoryBusiness = new CategoryBusiness($categoryRepository);
-        $this->expectException(ItemNotFoundException::class);
+        $this->expectException(NotFoundHttpException::class);
         $category = $categoryBusiness->getCategoryById($id);
 
 

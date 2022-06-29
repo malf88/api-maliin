@@ -7,6 +7,7 @@ use App\Modules\Account\Impl\Business\CategoryBusinessInterface;
 use App\Modules\Account\ServicesLocal\CategoryServiceLocal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CategoryController extends Controller
 {
@@ -31,7 +32,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->categoryServices->getCategoriesFromUserLogged();
+        return response($this->categoryServices->getCategoriesFromUserLogged(),200);
     }
     /**
      * @OA\Get(
@@ -59,7 +60,12 @@ class CategoryController extends Controller
      */
     public function show(Request $request, int $id)
     {
-        return $this->categoryServices->getCategoryById($id);
+        try{
+            return response($this->categoryServices->getCategoryById($id),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
     /**
      * @OA\Post(
@@ -92,7 +98,7 @@ class CategoryController extends Controller
      */
     public function insert(Request $request)
     {
-        return $this->categoryServices->insertCategory(Auth::user(),$request->all());
+        return response($this->categoryServices->insertCategory(Auth::user(),$request->all()),201);
     }
     /**
      * @OA\Put(
@@ -136,7 +142,12 @@ class CategoryController extends Controller
      */
     public function update(Request $request,int $id)
     {
-        return $this->categoryServices->updateCategory($id,$request->all());
+        try{
+            return response($this->categoryServices->updateCategory($id,$request->all()),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(), 404);
+        }
+
     }
     /**
      * @OA\Delete(
@@ -164,6 +175,11 @@ class CategoryController extends Controller
      */
     public function delete(Request $request,int $id)
     {
-        return $this->categoryServices->deleteCategory($id);
+        try{
+            return response($this->categoryServices->deleteCategory($id), 200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+
     }
 }

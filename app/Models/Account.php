@@ -35,7 +35,8 @@ class Account extends ApiModel
         'bank',
         'agency',
         'account',
-        'user_id'
+        'user_id',
+        'user'
     ];
     protected array $rules = [
         'name'      => 'required|max:100',
@@ -62,6 +63,11 @@ class Account extends ApiModel
 
     public function user(){
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function sharedUsers()
+    {
+        return $this->belongsToMany(User::class, 'maliin.accounts_users');
     }
 
 

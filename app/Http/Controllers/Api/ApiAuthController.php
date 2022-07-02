@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Auth\Impl\Business\AuthBusinessInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -11,35 +12,6 @@ use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 class ApiAuthController extends Controller
 {
-    public function jwtToken(Request $request){
-        try{
-            $user = Socialite::driver('google')->stateless()->userFromToken($request->header('Authorization'));
-            $finduser = User::where('google_id', $user->id)->first();
-
-            if($finduser){
-
-                Auth::login($finduser);
-
-            }else{
-                $newUser = User::create([
-                    'first_name' => $user->name,
-                    'last_name'  => '',
-                    'email' => $user->email,
-                    'google_id'=> $user->id,
-                    'password' => ''
-                ]);
-
-                Auth::login($newUser);
-            }
-            $token = Auth::user()->createToken('auth_token');
-            return [
-                'token' => $token->plainTextToken,
-                'token_type' => 'Bearer',
-            ];
-        }catch (\Exception $e){
-            return response($e->getMessage(),401);
-        }
-    }
 
     /**
      * @param Request $request
@@ -99,29 +71,6 @@ class ApiAuthController extends Controller
      */
     public function getUser(Request $request){
         return $request->user();
-    }
-    /**
-     * @OA\Put(
-     *     tags={"Login"},
-     *     summary="Retorna os dados do usuário logado",
-     *     description="Realiza o logout do usuário",
-     *     path="/logout",
-     *
-     *     @OA\Response(
-     *          response="200",
-     *          description="Usuário deslogado",
-     *          @OA\JsonContent()
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          description="Acesso não autorizado",
-     *          @OA\JsonContent()
-     *      ),
-     * ),
-     *
-     */
-    public function logout(Request $request){
-        return $request->user()->tokens()->where('token', $request->user()->currentAccessToken()->token)->delete();
     }
 
     /**

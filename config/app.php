@@ -196,6 +196,7 @@ return [
         App\Modules\Account\Providers\CreditCardServiceProvider::class,
         App\Modules\Account\Providers\BillServiceProvider::class,
         App\Modules\Account\Providers\InvoiceServiceProvider::class,
+        App\Modules\Auth\Providers\AuthServiceProvider::class,
 
     ],
 

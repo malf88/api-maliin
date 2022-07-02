@@ -5,7 +5,6 @@ namespace App\Modules\Account\Controllers;
 use App\Exceptions\ExistsException;
 use App\Http\Controllers\Controller;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
-use App\Modules\Account\ServicesLocal\AccountServiceLocal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;

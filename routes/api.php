@@ -21,7 +21,7 @@ Route::group(['middleware' =>['json.response','auth:sanctum'],'namespace' => '\A
     });
 });
 Route::group(['middleware' =>['api','json.response'],'namespace' => '\App\Http\Controllers\Api'],function() {
-    Route::post('/token', 'ApiAuthController@login');
+    Route::post('/token', 'ApiAuthController@classicalLogin');
 
 
 });

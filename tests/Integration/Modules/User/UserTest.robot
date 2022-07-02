@@ -22,7 +22,7 @@ Caso de teste 2 - Fazer logout
     
     ${header}           Resources.Generate Header Authorization     ${USER}
    
-    ${response}         Resources.Request PUT   ${URL_BASE}/logout   ${USER}
+    ${response}         Resources.Request PUT   ${URL_BASE}/auth/logout   ${USER}
     Status Should Be   200
     Should Be Equal As Strings   ${response.json()}    1
 

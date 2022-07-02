@@ -20,6 +20,9 @@ Route::group(['middleware' =>['json.response','auth:sanctum'],'namespace' => '\A
         Route::get('/');
     });
 });
+Route::get('/health', function(){
+    return response(true,200);
+});
 Route::group(['middleware' =>['api','json.response'],'namespace' => '\App\Http\Controllers\Api'],function() {
     Route::post('/token', 'ApiAuthController@classicalLogin');
 

@@ -59,4 +59,6 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::get('/{invoiceId}/pdf','InvoiceController@indexPdf')->name('api.invoice.index.pdf');
         Route::get('/{invoiceId}','InvoiceController@index')->name('api.invoice.index');
     });
+
+
 });

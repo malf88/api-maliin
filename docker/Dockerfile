@@ -1,6 +1,6 @@
 FROM php:8.1-fpm
 
-HEALTHCHECK CMD /usr/bin/curl --fail http://localhost/api/health || exit 1
+HEALTHCHECK CMD /usr/bin/curl --fail http://localhost:9000/api/health || exit 1
 WORKDIR /var/www
 ENV CURL_CA_BUNDLE /usr/lib/ssl/certs/ca-certificates.crt
 

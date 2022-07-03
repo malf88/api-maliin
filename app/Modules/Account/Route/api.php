@@ -15,6 +15,7 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
         Route::get('/{id}','AccountController@show')->name('api.account.show');
         Route::put('/{id}','AccountController@update')->name('api.account.update');
         Route::delete('/{id}','AccountController@delete')->name('api.account.delete');
+        Route::get('/{id}/user','AccountController@userSharedAccount')->name('api.account.userSharedAccount');
 
     });
 

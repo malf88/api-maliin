@@ -79,6 +79,6 @@ class AccountRepository implements AccountRepositoryInterface, AccountShareRepos
 
     public function findUsersSharedByAccount(int $accountId):ArrayCollection
     {
-        return ArrayCollection::make(Account::find($accountId)->sharedUsers()->toArray());
+        return ArrayCollection::make(Account::find($accountId)->sharedUsers()->get()->toArray());
     }
 }

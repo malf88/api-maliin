@@ -6,6 +6,7 @@ use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\AccountShareBusiness;
 use App\Modules\Account\Controllers\AccountController;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
+use App\Modules\Account\Impl\AccountShareRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\AccountShareBusinessInterface;
 use App\Modules\Account\Repository\AccountRepository;
@@ -18,6 +19,7 @@ class AccountServiceProvider extends ServiceProvider
     public $bindings = [
         AccountBusinessInterface::class => AccountBusiness::class,
         AccountRepositoryInterface::class => AccountRepository::class,
+        AccountShareRepositoryInterface::class => AccountRepository::class,
         AccountShareBusinessInterface::class => AccountShareBusiness::class
 
     ];

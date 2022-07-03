@@ -5,9 +5,11 @@ namespace App\Modules\Account\Controllers;
 use App\Exceptions\ExistsException;
 use App\Http\Controllers\Controller;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\AccountShareBusinessInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AccountController extends Controller
 {
@@ -284,6 +286,39 @@ class AccountController extends Controller
         try{
             return response($this->accountServices->removeUserToAccount($account_id, $user_id),200);
         }catch (ItemNotFoundException|ExistsException $e){
+            return response($e->getMessage(),404);
+        }
+
+    }
+    /**
+     * @OA\Get(
+     *     tags={"Accounts"},
+     *     summary="Retorna uma lista de usuários com acesso a conta.",
+     *     description="Retorna lista de usuários com acesso a conta",
+     *     path="/account/{id}/user",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Id da conta",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Um objeto de curso"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * ),
+     *
+     */
+    public function userSharedAccount(Request $request, int $id, AccountShareBusinessInterface $accountShareBusiness)
+    {
+        try{
+            return response($accountShareBusiness->findUserInSharedAccount($id),200);
+        }catch (NotFoundHttpException $e){
             return response($e->getMessage(),404);
         }
 

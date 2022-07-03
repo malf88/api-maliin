@@ -103,6 +103,12 @@ services:
       replicas: 3
     depends_on:
       - api-app
+    healthcheck:
+      test: curl --fail http://api.malf88.xyz/api/health || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
     ports:
       - ${PORT}:80
     volumes:

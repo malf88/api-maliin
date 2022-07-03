@@ -1,6 +1,6 @@
 FROM php:8.1-fpm
 
-#HEALTHCHECK CMD ["/usr/local/bin/start","health"]
+HEALTHCHECK CMD ["/usr/local/bin/start","health"]
 WORKDIR /var/www
 ENV CURL_CA_BUNDLE /usr/lib/ssl/certs/ca-certificates.crt
 

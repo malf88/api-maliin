@@ -5,7 +5,7 @@ set -e
 role=${CONTAINER_ROLE:-app}
 env=${APP_ENV:-production}
 if [ "$1" = "health" ] && [ "$role" = "app" ]; then
-    /usr/bin/curl --fail https://api.malf88.xyz/api/health || exit 1
+    /usr/bin/curl --fail http://nginx/api/health || exit 1
     exit 1
 elif [ "$1" = "health" ]; then
     exit 1

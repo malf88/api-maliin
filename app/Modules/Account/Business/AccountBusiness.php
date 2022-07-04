@@ -7,15 +7,21 @@ use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\UserBusinessInterface;
+use App\Modules\Account\Impl\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AccountBusiness implements AccountBusinessInterface
 {
     public function __construct(
-        private AccountRepositoryInterface $accountRepository
+        private readonly AccountRepositoryInterface $accountRepository,
+        private readonly UserBusinessInterface $userBusiness
     )
     {
     }
@@ -133,5 +139,18 @@ class AccountBusiness implements AccountBusinessInterface
 
         return $this->accountRepository->removeUserToAccount($accountId, $userId);
 
+    }
+
+    public function addUserToAccountByEmail(int $accountId, string $email):bool
+    {
+        if (!Auth::user()->userIsOwnerAccount($accountId))
+            throw new NotFoundHttpException("Registro não encontrado");
+
+        $user = $this->userBusiness->findUserOrGenerateByEmail($email);
+
+        if ($this->accountRepository->userHasSharedAccount($accountId,$user->id))
+            throw new ExistsException("Usuário já está associado a conta");
+
+        return $this->accountRepository->addUserToAccount($accountId, $user->id);
     }
 }

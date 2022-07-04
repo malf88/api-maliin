@@ -8,12 +8,9 @@ use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\UserBusinessInterface;
-use App\Modules\Account\Impl\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ItemNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

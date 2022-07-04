@@ -6,6 +6,7 @@ use App\Exceptions\ExistsException;
 use App\Http\Controllers\Controller;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\AccountShareBusinessInterface;
+use App\Modules\Account\Request\SharedEmailRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
@@ -320,6 +321,46 @@ class AccountController extends Controller
             return response($accountShareBusiness->findUserInSharedAccount($id),200);
         }catch (NotFoundHttpException $e){
             return response($e->getMessage(),404);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     tags={"Accounts"},
+     *     summary="Compartilha conta via e-mail",
+     *     description="Insere uma nova conta",
+     *     path="/account/{id}/share",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string"
+     *                 ),
+     *
+     *                 example={"name": "Nubank", "bank": "260", "account": "1234567-8", "agency": "0001"}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response="201", description="Objeto inserido com sucesso"),
+     * ),
+     *
+     */
+    public function shareByEmail(SharedEmailRequest $request, $accountId)
+    {
+        try{
+            return response(
+                $this->accountServices->addUserToAccountByEmail($accountId, $request->email),
+                201
+            );
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(), 404);
+        }catch (ExistsException $e){
+            return response($e->getMessage(), 409);
         }
 
     }

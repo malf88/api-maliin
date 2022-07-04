@@ -10,6 +10,7 @@ Route::group(['middleware' =>['auth:sanctum','json.response'],'namespace' => 'Ac
     Route::group(['prefix'=>'account'],function (){
         Route::get('/','AccountController@index')->name('api.account.list');
         Route::put('/{account_id}/user/{user_id}','AccountController@addUserToAccount')->name('api.account.addUserToAccount');
+        Route::post('/{account_id}/share','AccountController@shareByEmail')->name('api.account.userSharedAccount');
         Route::delete('/{account_id}/user/{user_id}','AccountController@removeUserToAccount')->name('api.account.deleteUserToAccount');
         Route::post('/','AccountController@insert')->name('api.account.insert');
         Route::get('/{id}','AccountController@show')->name('api.account.show');

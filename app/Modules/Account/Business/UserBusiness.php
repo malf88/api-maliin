@@ -17,14 +17,14 @@ class UserBusiness implements UserBusinessInterface
 
     public function generateUserByEmail($email): User
     {
-        $user = new User([
+        $user = [
             'email' => $email,
-            'first_name'=> $email,
-            'last_name' => $email,
+            'first_name'=> '',
+            'last_name' => '',
             'password' => Hash::make(uniqid())
-        ]);
+        ];
 
-        $user = $this->userRepository->saveUser($user);
+        return $this->userRepository->saveUser($user);
     }
 
     public function findUserByEmail(string $email): User|null

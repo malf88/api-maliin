@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 interface AuthBusinessInterface
 {
     public function authUserAndReturnToken(Request $request):UserTokenDTO;
-    public function addUserAndReturnToken(Request $request):UserTokenDTO;
+    public function addOrUpdateUserAndReturnToken(Request $request):UserTokenDTO;
     public function getSocialiteUserByToken(string $token):\Laravel\Socialite\Two\User;
     public function logout(User $user):bool;
 }

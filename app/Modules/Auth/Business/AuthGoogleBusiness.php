@@ -4,6 +4,7 @@ namespace App\Modules\Auth\Business;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\ItemNotFoundException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use App\Modules\Auth\DTO\UserTokenDTO;
 use App\Modules\Auth\Enum\TokenTypeEnum;
@@ -38,33 +39,44 @@ class AuthGoogleBusiness
         ]);
     }
 
-    public function updateUserGoogleIfExists(SocialiteUser $socialiteUser): User
+    public function updateUserGoogle(SocialiteUser $socialiteUser): User
     {
         $user = $this->userRepository->findUserByEmail($socialiteUser->getEmail());
-        if($user){
-            $userData = [
-                'first_name' => $socialiteUser->getName(),
-                'google_id' => $socialiteUser->getId()
-            ];
-            $this->userRepository->updateUser($user->id, $userData);
-        }
+        if(!$user)
+            throw new ItemNotFoundException('Usuário não encontrado.');
+
+        $userData = [
+            'first_name' => $socialiteUser->getName(),
+            'google_id' => $socialiteUser->getId()
+        ];
+        $this->userRepository->updateUser($user->id, $userData);
         return $user;
+
+
+
     }
 
-    public function addUserAndReturnToken(Request $request):UserTokenDTO{
-        $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
-        $user = $this->updateUserGoogleIfExists($socialiteUser);
-        if(!$user){
-            $user = [
-                'first_name' => $socialiteUser->getName(),
-                'last_name'  => '',
-                'email' => $socialiteUser->getEmail(),
-                'google_id'=> $socialiteUser->getId(),
-                'password' => Hash::make(uniqid())
-            ];
-            $user = $this->userRepository->saveUser($user);
-        }
+    public function insertUserGoogle(SocialiteUser $socialiteUser): User
+    {
+        $user = [
+            'first_name' => $socialiteUser->getName(),
+            'last_name'  => '',
+            'email' => $socialiteUser->getEmail(),
+            'google_id'=> $socialiteUser->getId(),
+            'password' => Hash::make(uniqid())
+        ];
+        return $this->userRepository->saveUser($user);
+    }
 
+    public function addOrUpdateUserAndReturnToken(Request $request):UserTokenDTO
+    {
+        $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
+        try{
+            $this->updateUserGoogle($socialiteUser);
+        }catch (ItemNotFoundException $e){
+            $this->insertUserGoogle($socialiteUser);
+        }
         return $this->authUserAndReturnToken($request);
     }
+
 }

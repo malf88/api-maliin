@@ -114,7 +114,7 @@ Caso de teste 07 - Deve deletar o compartilhamento da conta com outro usuário
     Status Should Be    200
     Length Should Be    ${response.json()}    0
 
-Caso de teste 07 - Deve listar usuário com os quais a conta é compartilhada
+Caso de teste 08 - Deve listar usuário com os quais a conta é compartilhada
     &{ACCOUNT}    Account.Dados Xpto
 
     &{USER_OWNER}       User.Dados Joao Silva

@@ -9,4 +9,5 @@ interface UserBusinessInterface
     public function generateUserByEmail($email): User;
     public function findUserByEmail(string $email): User|null;
     public function findUserOrGenerateByEmail(string $email): User;
+    public function getUserById(int $id):User;
 }

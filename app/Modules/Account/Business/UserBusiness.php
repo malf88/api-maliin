@@ -40,4 +40,8 @@ class UserBusiness implements UserBusinessInterface
             return $this->generateUserByEmail($email);
         }
     }
+    public function getUserById(int $id):User
+    {
+        return $this->userRepository->getUserById($id);
+    }
 }

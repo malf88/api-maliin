@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\UserBusinessInterface;
+use App\Modules\Account\Jobs\ShareAccountEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -123,7 +124,7 @@ class AccountBusiness implements AccountBusinessInterface
         if ($this->accountRepository->userHasSharedAccount($accountId,$userId))
             throw new ExistsException("Usuário já está associado a conta");
 
-        return $this->accountRepository->addUserToAccount($accountId, $userId);
+        return $this->saveUserToAccount($accountId, $userId);
     }
 
     public function removeUserToAccount(int $accountId,int $userId):bool
@@ -148,6 +149,20 @@ class AccountBusiness implements AccountBusinessInterface
         if ($this->accountRepository->userHasSharedAccount($accountId,$user->id))
             throw new ExistsException("Usuário já está associado a conta");
 
-        return $this->accountRepository->addUserToAccount($accountId, $user->id);
+        return $this->saveUserToAccount($accountId, $user->id);
+    }
+
+    private function saveUserToAccount(int $accountId, int $userId):bool
+    {
+        //$user = $this->userBusiness->getUserById($userId);
+        //$account = $this->getAccountById($accountId);
+//        $email = new ShareAccountEmail();
+        $insertResult = $this->accountRepository->addUserToAccount($accountId, $userId);
+        if($insertResult){
+            ShareAccountEmail::dispatch($accountId, $userId);
+
+            return $insertResult;
+        }
+        return false;
     }
 }

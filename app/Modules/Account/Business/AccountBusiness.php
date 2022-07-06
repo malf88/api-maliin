@@ -155,7 +155,7 @@ class AccountBusiness implements AccountBusinessInterface
     {
         $insertResult = $this->accountRepository->addUserToAccount($accountId, $userId);
         if($insertResult){
-            ShareAccountEmail::dispatch($accountId, $userId)->onQueue('maliin');
+            ShareAccountEmail::dispatch($accountId, $userId)->onQueue('email');
             return $insertResult;
         }
         return false;

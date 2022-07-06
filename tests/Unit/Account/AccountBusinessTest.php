@@ -264,6 +264,7 @@ class AccountBusinessTest extends TestCase
      */
     public function deveAdicionarUsuarioAUmaContaExistente(){
         $this->configureUserSession();
+        Queue::fake();
         $idAccount = 1;
         $idUser = 2;
         $userBusinessMock = $this->createMock(UserBusiness::class);
@@ -278,6 +279,7 @@ class AccountBusinessTest extends TestCase
         $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $result = $accountBusiness->addUserToAccount($idAccount,$idUser);
         $this->assertTrue($result);
+        Queue::assertPushed(ShareAccountEmail::class);
     }
 
     /**
@@ -406,8 +408,6 @@ class AccountBusinessTest extends TestCase
      */
     public function deveDispararExcecaoAdicionarUsuarioAUmaContaExistentePorEmail(){
         Queue::fake();
-
-
         $this->configureUserSession();
         $idAccount = 1;
         $idUser = 2;

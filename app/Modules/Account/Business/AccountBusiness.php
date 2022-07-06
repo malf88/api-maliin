@@ -30,7 +30,6 @@ class AccountBusiness implements AccountBusinessInterface
      */
     private function prepareAccount(Account $account):Account{
         $account->makeVisible(['total_balance','total_estimated','bills']);
-
         $account->setAttribute('total_balance',$account->bills()->whereNotNull('pay_day')->sum('amount'));
         $account->setAttribute('total_estimated',$account->bills()->sum('amount'));
         return $account;
@@ -154,13 +153,9 @@ class AccountBusiness implements AccountBusinessInterface
 
     private function saveUserToAccount(int $accountId, int $userId):bool
     {
-        //$user = $this->userBusiness->getUserById($userId);
-        //$account = $this->getAccountById($accountId);
-//        $email = new ShareAccountEmail();
         $insertResult = $this->accountRepository->addUserToAccount($accountId, $userId);
         if($insertResult){
             ShareAccountEmail::dispatch($accountId, $userId);
-
             return $insertResult;
         }
         return false;

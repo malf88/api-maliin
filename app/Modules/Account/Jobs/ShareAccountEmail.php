@@ -40,7 +40,7 @@ class ShareAccountEmail implements ShouldQueue
     public function handle()
     {
         $email = new ShareEmail($this->accountId, $this->userId);
-
-        Mail::to('malf88@gmail.com')->send($email);
+        $user = User::find($this->userId);
+        Mail::to($user->email)->send($email);
     }
 }

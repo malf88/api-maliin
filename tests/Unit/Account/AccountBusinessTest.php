@@ -8,10 +8,12 @@ use App\Models\Bill;
 use App\Models\User;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\UserBusiness;
+use App\Modules\Account\Jobs\ShareAccountEmail;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ItemNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
@@ -378,6 +380,8 @@ class AccountBusinessTest extends TestCase
      */
     public function deveAdicionarUsuarioAUmaContaExistentePorEmail(){
         $this->configureUserSession();
+        Queue::fake();
+
         $idAccount = 1;
         $idUser = 2;
         $userBusinessMock = $this->createMock(UserBusiness::class);
@@ -394,12 +398,16 @@ class AccountBusinessTest extends TestCase
 
         $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $result = $accountBusiness->addUserToAccountByEmail($idAccount,'teste@testando.com');
+        Queue::assertPushed(ShareAccountEmail::class);
         $this->assertTrue($result);
     }
     /**
      * @test
      */
     public function deveDispararExcecaoAdicionarUsuarioAUmaContaExistentePorEmail(){
+        Queue::fake();
+
+
         $this->configureUserSession();
         $idAccount = 1;
         $idUser = 2;
@@ -417,12 +425,14 @@ class AccountBusinessTest extends TestCase
         $this->expectException(ExistsException::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $result = $accountBusiness->addUserToAccountByEmail($idAccount,'teste@testando.com');
-
+        Queue::assertNothingPushed();
     }
     /**
      * @test
      */
     public function deveDispararExcecaoAdicionarUsuarioAUmaContaExistenteSemPermissaoPorEmail(){
+        Queue::fake();
+
         $this->configureUserSession(true);
         $idAccount = 1;
         $idUser = 2;
@@ -440,6 +450,6 @@ class AccountBusinessTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $result = $accountBusiness->addUserToAccountByEmail($idAccount,'teste@testando.com');
-
+        Queue::assertNothingPushed();
     }
 }

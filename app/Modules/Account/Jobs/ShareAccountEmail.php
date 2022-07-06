@@ -19,6 +19,7 @@ class ShareAccountEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     public $timeout = 120;
     public $tries = 5;
+
     /**
      * Create a new job instance.
      *

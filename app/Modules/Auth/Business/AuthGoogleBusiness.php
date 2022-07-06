@@ -3,19 +3,20 @@
 namespace App\Modules\Auth\Business;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\ItemNotFoundException;
+use Laravel\Socialite\Two\User as SocialiteUser;
 use App\Modules\Auth\DTO\UserTokenDTO;
 use App\Modules\Auth\Enum\TokenTypeEnum;
-use App\Modules\Auth\Impl\AuthRepositoryInterface;
 use App\Modules\Auth\Impl\Business\AuthBusinessInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class AuthGoogleBusiness extends AuthBusinessAbstract implements AuthBusinessInterface
+class AuthGoogleBusiness
+    extends AuthBusinessAbstract
+    implements AuthBusinessInterface
 {
     public function getSocialiteUserByToken(string $token):\Laravel\Socialite\Two\User
     {
@@ -26,6 +27,7 @@ class AuthGoogleBusiness extends AuthBusinessAbstract implements AuthBusinessInt
     {
         $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
         $user = $this->authRepository->findUserByGoogleId($socialiteUser->id);
+
         if(!$user)
             throw new AccessDeniedHttpException('Usuário não encontrado');
 
@@ -36,16 +38,45 @@ class AuthGoogleBusiness extends AuthBusinessAbstract implements AuthBusinessInt
             'token_type' => TokenTypeEnum::TOKEN_BEARER->value
         ]);
     }
-    public function addUserAndReturnToken(Request $request):UserTokenDTO{
-        $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
-        $user = new User([
-            'first_name' => $socialiteUser->name,
+
+    public function updateUserGoogle(SocialiteUser $socialiteUser): User
+    {
+        $user = $this->userRepository->findUserByEmail($socialiteUser->getEmail());
+        if(!$user)
+            throw new ItemNotFoundException('Usuário não encontrado.');
+
+        $userData = [
+            'first_name' => $socialiteUser->getName(),
+            'google_id' => $socialiteUser->getId()
+        ];
+        $this->userRepository->updateUser($user->id, $userData);
+        return $user;
+
+
+
+    }
+
+    public function insertUserGoogle(SocialiteUser $socialiteUser): User
+    {
+        $user = [
+            'first_name' => $socialiteUser->getName(),
             'last_name'  => '',
-            'email' => $socialiteUser->email,
-            'google_id'=> $socialiteUser->id,
-            'password' => Crypt::encrypt(env(Str::substr(md5(uniqid()),5,6)))
-        ]);
-        $user = $this->authRepository->insertUser($user);
+            'email' => $socialiteUser->getEmail(),
+            'google_id'=> $socialiteUser->getId(),
+            'password' => Hash::make(uniqid())
+        ];
+        return $this->userRepository->saveUser($user);
+    }
+
+    public function addOrUpdateUserAndReturnToken(Request $request):UserTokenDTO
+    {
+        $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
+        try{
+            $this->updateUserGoogle($socialiteUser);
+        }catch (ItemNotFoundException $e){
+            $this->insertUserGoogle($socialiteUser);
+        }
         return $this->authUserAndReturnToken($request);
     }
+
 }

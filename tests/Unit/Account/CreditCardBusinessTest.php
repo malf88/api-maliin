@@ -6,6 +6,7 @@ use App\Models\CreditCard;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
+use App\Modules\Account\Business\UserBusiness;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,6 +23,7 @@ class CreditCardBusinessTest extends TestCase
     private AccountBusiness $accountBusiness;
     private CreditCardBusiness $creditCardBusiness;
     private InvoiceBusiness $invoiceBusiness;
+    private UserBusiness $userBusiness;
     public function setUp(): void
     {
         parent::setUp();
@@ -30,6 +32,7 @@ class CreditCardBusinessTest extends TestCase
         $this->creditCardRepository = $this->createMock(CreditCardRepository::class);
         $this->accountRepository = $this->createMock(AccountRepository::class);
         $this->invoiceBusiness = $this->createMock(InvoiceBusiness::class);
+        $this->userBusiness = $this->createMock(UserBusiness::class);
     }
     public function prepareCreditCardRepository($creditCardId)
     {
@@ -41,14 +44,15 @@ class CreditCardBusinessTest extends TestCase
     }
     public function prepareAccountBusiness():AccountBusiness
     {
-        $this->accountBusiness = new AccountBusiness($this->accountRepository);
+        $this->accountBusiness = new AccountBusiness($this->accountRepository, $this->userBusiness);
         return $this->accountBusiness;
     }
     public function prepareCreditCardBusiness():CreditCardBusiness
     {
         $this->creditCardBusiness = new CreditCardBusiness(
             $this->creditCardRepository,
-            $this->invoiceBusiness);
+            $this->invoiceBusiness
+        );
         return $this->creditCardBusiness;
     }
     /**

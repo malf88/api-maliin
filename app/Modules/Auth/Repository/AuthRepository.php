@@ -8,7 +8,7 @@ use App\Modules\Auth\Impl\AuthRepositoryInterface;
 class AuthRepository implements AuthRepositoryInterface
 {
 
-    public function findUserByGoogleId(string $googleId): User
+    public function findUserByGoogleId(string $googleId): User|null
     {
         $user = User::where('google_id', $googleId)->first();
 

@@ -16,4 +16,5 @@ interface AccountBusinessInterface
     public function deleteAccount(int $id):bool;
     public function addUserToAccount(int $accountId,int $userId):bool;
     public function removeUserToAccount(int $accountId,int $userId):bool;
+    public function addUserToAccountByEmail(int $accountId, string $email):bool;
 }

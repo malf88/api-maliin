@@ -17,12 +17,9 @@ if [ "$role" = "app" ]; then
     php /var/www/artisan migrate --force
     exec php-fpm -F -R
 
-elif [ "$role" = "analysis" ]; then
-    php artisan analysis:start
-
 elif [ "$role" = "queue" ]; then
     echo "Queue iniciada."
-    php /var/www/artisan queue:work --queue=Analysis,default
+    php /var/www/artisan queue:work --queue=email,default
 
 
 elif [ "$role" = "scheduler" ]; then

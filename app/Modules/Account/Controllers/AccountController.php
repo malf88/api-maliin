@@ -5,9 +5,12 @@ namespace App\Modules\Account\Controllers;
 use App\Exceptions\ExistsException;
 use App\Http\Controllers\Controller;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\AccountShareBusinessInterface;
+use App\Modules\Account\Request\SharedEmailRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AccountController extends Controller
 {
@@ -285,6 +288,79 @@ class AccountController extends Controller
             return response($this->accountServices->removeUserToAccount($account_id, $user_id),200);
         }catch (ItemNotFoundException|ExistsException $e){
             return response($e->getMessage(),404);
+        }
+
+    }
+    /**
+     * @OA\Get(
+     *     tags={"Accounts"},
+     *     summary="Retorna uma lista de usuários com acesso a conta.",
+     *     description="Retorna lista de usuários com acesso a conta",
+     *     path="/account/{id}/user",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Id da conta",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="integer",
+     *         ),
+     *         style="form"
+     *     ),
+     *     @OA\Response(response="200", description="Um objeto de curso"),
+     *     @OA\Response(response="404", description="Conta não encontrada")
+     * ),
+     *
+     */
+    public function userSharedAccount(Request $request, int $id, AccountShareBusinessInterface $accountShareBusiness)
+    {
+        try{
+            return response($accountShareBusiness->findUserInSharedAccount($id),200);
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(),404);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     tags={"Accounts"},
+     *     summary="Compartilha conta via e-mail",
+     *     description="Insere uma nova conta",
+     *     path="/account/{id}/share",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string"
+     *                 ),
+     *
+     *                 example={"name": "Nubank", "bank": "260", "account": "1234567-8", "agency": "0001"}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response="201", description="Objeto inserido com sucesso"),
+     * ),
+     *
+     */
+    public function shareByEmail(SharedEmailRequest $request, $accountId)
+    {
+        try{
+            return response(
+                $this->accountServices->addUserToAccountByEmail($accountId, $request->email),
+                201
+            );
+        }catch (NotFoundHttpException $e){
+            return response($e->getMessage(), 404);
+        }catch (ExistsException $e){
+            return response($e->getMessage(), 409);
         }
 
     }

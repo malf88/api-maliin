@@ -38,3 +38,9 @@ Delete User To Account
 
     ${response}    Request DELETE    ${URL_ACCOUNT}/${ACCOUNT_ID}/user/${USER_SHARED}   ${USER_OWNER}
     [Return]       ${response}
+
+Get Users From Account
+    [Arguments]    ${USER}   ${ACCOUNT_ID}
+
+    ${response}    Request GET    ${URL_ACCOUNT}/${ACCOUNT_ID}/user/   ${USER}
+    [Return]       ${response}

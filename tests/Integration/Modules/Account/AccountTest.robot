@@ -113,3 +113,27 @@ Caso de teste 07 - Deve deletar o compartilhamento da conta com outro usuário
 
     Status Should Be    200
     Length Should Be    ${response.json()}    0
+
+Caso de teste 08 - Deve listar usuário com os quais a conta é compartilhada
+    &{ACCOUNT}    Account.Dados Xpto
+
+    &{USER_OWNER}       User.Dados Joao Silva
+    ${USER_OWNER}       Cenarios.Create User    ${USER_OWNER}
+    
+    &{USER_SHARED}       User.Dados Maria Eduarda
+    ${USER_SHARED}       Cenarios.Create User    ${USER_SHARED}
+
+    ${response}   Insert Account         ${ACCOUNT}      ${USER_OWNER}
+    ${ACCOUNT_ID}    Set Variable  ${response.json()['id']}
+
+    ${response}   Put User To Account    ${USER_OWNER}   ${USER_SHARED.id}   ${ACCOUNT_ID}
+
+    ${response}   Get Users From Account     ${USER_OWNER}     ${ACCOUNT_ID} 
+
+    Status Should Be    200
+    FOR    ${item}    IN    @{response.json()}
+        ${USER_SHARE}    Set To Dictionary    ${item}
+        Dictionary Should Contain Item    ${USER_SHARE}    first_name   ${USER_SHARED.name}
+        Dictionary Should Contain Item    ${USER_SHARE}    last_name   ${USER_SHARED.lastname} 
+        Dictionary Should Contain Item    ${USER_SHARE}    email   ${USER_SHARED.email}
+    END

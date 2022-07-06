@@ -5,10 +5,11 @@ namespace App\Modules\Account\Repository;
 use App\Models\Account;
 use App\Models\User;
 use App\Modules\Account\Impl\AccountRepositoryInterface;
+use App\Modules\Account\Impl\AccountShareRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
-
-class AccountRepository implements AccountRepositoryInterface
+use Illuminate\Support\Collection as ArrayCollection;
+class AccountRepository implements AccountRepositoryInterface, AccountShareRepositoryInterface
 {
     public function getAccountFromUser(User $user):Collection
     {
@@ -74,5 +75,10 @@ class AccountRepository implements AccountRepositoryInterface
         }catch (RelationNotFoundException $e){
             return false;
         }
+    }
+
+    public function findUsersSharedByAccount(int $accountId):ArrayCollection
+    {
+        return ArrayCollection::make(Account::find($accountId)->sharedUsers()->get()->toArray());
     }
 }

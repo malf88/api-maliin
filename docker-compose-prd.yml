@@ -16,10 +16,10 @@ services:
     environment:
       - CONTAINER_ROLE=app
     healthcheck:
-      test: curl --fail http://api.malf88.xyz/api/health || exit 1
-      interval: 10s
+      test: php -i || exit 1
+      interval: 30s
       retries: 5
-      start_period: 20s
+      start_period: 30s
       timeout: 10s
     networks:
       - traefik-public
@@ -91,10 +91,10 @@ services:
     depends_on:
       - api-app
     healthcheck:
-      test: curl --fail http://api.malf88.xyz/api/health || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 20s
+      test: nginx -t || exit 1
+      interval: 20s
+      retries: 10
+      start_period: 30s
       timeout: 10s
     ports:
       - ${PORT}:80

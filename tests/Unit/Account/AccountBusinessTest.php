@@ -13,6 +13,7 @@ use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\UserRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ItemNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -29,7 +30,7 @@ class AccountBusinessTest extends TestCase
 
     private function configureUserSession($exception = false)
     {
-        (new DataFactory())->configureUserSession($exception);
+        return (new DataFactory())->configureUserSession($exception);
     }
     private function factoryAccount(){
         $accountInfo = [
@@ -276,6 +277,10 @@ class AccountBusinessTest extends TestCase
         $accountRepositoryMock->method('addUserToAccount')
             ->with($idAccount,$idUser)
             ->willReturn(true);
+
+        $userBusinessMock->method('getUserById')
+            ->with($idUser)
+            ->willReturn(User::factory()->make());
         $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $result = $accountBusiness->addUserToAccount($idAccount,$idUser);
         $this->assertTrue($result);
@@ -387,7 +392,8 @@ class AccountBusinessTest extends TestCase
         $idAccount = 1;
         $idUser = 2;
         $userBusinessMock = $this->createMock(UserBusiness::class);
-
+        $userBusinessMock->method('getUserById')
+            ->willReturn(User::factory()->make());
         $accountRepositoryMock = $this->createMock(AccountRepository::class);
         $userBusinessMock->method('findUserOrGenerateByEmail')
             ->willReturn(User::factory()->make());
@@ -450,6 +456,54 @@ class AccountBusinessTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $result = $accountBusiness->addUserToAccountByEmail($idAccount,'teste@testando.com');
+        Queue::assertNothingPushed();
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAdicionarUsuarioAUmaContaExistenteComOMesmoEmailDoDonoDaConta(){
+        Queue::fake();
+        $user = $this->configureUserSession();
+        $idAccount = 1;
+        $userBusinessMock = $this->createMock(UserBusiness::class);
+
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $userBusinessMock->method('findUserOrGenerateByEmail')
+            ->willReturn($user);
+
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->willReturn(true);
+
+        $accountRepositoryMock->method('addUserToAccount')
+            ->willReturn(true);
+        $this->expectException(ExistsException::class);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
+        $result = $accountBusiness->addUserToAccountByEmail($idAccount,$user->email);
+        Queue::assertNothingPushed();
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAdicionarUsuarioAUmaContaExistenteComOMesmoIdDonoDaConta(){
+        Queue::fake();
+        $user = $this->configureUserSession();
+        $idAccount = 1;
+        $userBusinessMock = $this->createMock(UserBusiness::class);
+
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $userBusinessMock->method('findUserOrGenerateByEmail')
+            ->willReturn($user);
+
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->willReturn(true);
+
+        $accountRepositoryMock->method('addUserToAccount')
+            ->willReturn(true);
+        $this->expectException(ExistsException::class);
+        $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
+        $result = $accountBusiness->addUserToAccountByEmail($idAccount,$user->id);
         Queue::assertNothingPushed();
     }
 }

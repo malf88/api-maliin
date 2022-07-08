@@ -383,6 +383,46 @@
                 ]
             }
         },
+        "/account/{id}/share": {
+            "post": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Compartilha conta via e-mail",
+                "description": "Insere uma nova conta",
+                "operationId": "2f7b7f292254d7ff226b4e865af6867c",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "name": "Nubank",
+                                    "bank": "260",
+                                    "account": "1234567-8",
+                                    "agency": "0001"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Objeto inserido com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/bill/account/{accountId}": {
             "get": {
                 "tags": [

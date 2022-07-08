@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class DataFactory extends TestCase
 {
-    public function configureUserSession($exception = false)
+    public function configureUserSession($exception = false, User $user = null)
     {
 
         $user = $this->createPartialMock(User::class,['accounts', 'userHasAccount','userIsOwnerAccount']);
@@ -34,7 +34,8 @@ class DataFactory extends TestCase
         }
         Auth::shouldReceive('user')
             ->andReturn($user);
-
+        $user = User::factory()->make();
+        return $user->fill($user->toArray());
     }
     public function factoryCreditCards(){
         $user = $this->factoryUser(1);

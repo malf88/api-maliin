@@ -153,6 +153,9 @@ class AccountBusiness implements AccountBusinessInterface
 
     private function saveUserToAccount(int $accountId, int $userId):bool
     {
+        $user = $this->userBusiness->getUserById($userId);
+        if(Auth::user()->email == $user->email)
+            throw new ExistsException("Usuário é o dono da conta");
         $insertResult = $this->accountRepository->addUserToAccount($accountId, $userId);
         if($insertResult){
             ShareAccountEmail::dispatch($accountId, $userId)->onQueue('email');

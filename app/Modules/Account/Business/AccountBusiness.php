@@ -121,7 +121,7 @@ class AccountBusiness implements AccountBusinessInterface
             throw new ItemNotFoundException("Registro não encontrado");
 
         if ($this->accountRepository->userHasSharedAccount($accountId,$userId))
-            throw new ExistsException("Usuário já está associado a conta");
+            new ExistsException("Usuário já está associado a conta");
 
         return $this->saveUserToAccount($accountId, $userId);
     }
@@ -146,7 +146,7 @@ class AccountBusiness implements AccountBusinessInterface
         $user = $this->userBusiness->findUserOrGenerateByEmail($email);
 
         if ($this->accountRepository->userHasSharedAccount($accountId,$user->id))
-            throw new ExistsException("Usuário já está associado a conta");
+            new ExistsException("Usuário já está associado a conta");
 
         return $this->saveUserToAccount($accountId, $user->id);
     }

@@ -169,8 +169,8 @@ class BillBusinessTest extends TestCase
         $creditCardBusiness = $this->getMockCreditCardBusiness();
         $billsPaginados = new LengthAwarePaginator($accounts->get(0)->bills(),3,15);
         $billRepository
-            ->method('getBillsByAccount')
-            ->with($accountId,true)
+            ->method('getBillsByAccountPaginate')
+            ->with($accountId)
             ->willReturn($billsPaginados);
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);

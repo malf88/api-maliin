@@ -82,7 +82,7 @@ class BillBusiness implements BillBusinessInterface
         if(!Auth::user()->userHasAccount($accountId))
             throw new NotFoundHttpException('Conta não encontrada');
 
-        return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccount($accountId,true));
+        return $this->billStandarized->normalizeListBills($this->billRepository->getBillsByAccountPaginate($accountId));
     }
 
     public function insertBill(int $accountId,$billData):Model|Collection

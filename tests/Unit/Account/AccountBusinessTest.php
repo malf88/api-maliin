@@ -506,4 +506,32 @@ class AccountBusinessTest extends TestCase
         $result = $accountBusiness->addUserToAccountByEmail($idAccount,$user->id);
         Queue::assertNothingPushed();
     }
+
+    /**
+     * @test
+     */
+    public function deveRetornarFalseAoAdicionarUsuarioAUmaContaExistentePorEmail(){
+        $this->configureUserSession();
+        Queue::fake();
+
+        $idAccount = 1;
+        $idUser = 2;
+        $userBusinessMock = $this->createMock(UserBusiness::class);
+        $userBusinessMock->method('getUserById')
+            ->willReturn(User::factory()->make());
+        $accountRepositoryMock = $this->createMock(AccountRepository::class);
+        $userBusinessMock->method('findUserOrGenerateByEmail')
+            ->willReturn(User::factory()->make());
+
+        $accountRepositoryMock->method('userHasSharedAccount')
+            ->willReturn(false);
+
+        $accountRepositoryMock->method('addUserToAccount')
+            ->willReturn(false);
+
+        $accountBusiness = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
+        $result = $accountBusiness->addUserToAccountByEmail($idAccount,'teste@testando.com');
+        Queue::assertNothingPushed();
+        $this->assertFalse($result);
+    }
 }

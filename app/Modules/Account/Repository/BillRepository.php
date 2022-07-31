@@ -15,13 +15,14 @@ use Illuminate\Support\Facades\DB;
 
 class BillRepository implements BillRepositoryInterface
 {
-    public function getBillsByAccount(int $accountId, bool $paginate = false):Collection|LengthAwarePaginator
+    public function getBillsByAccount(int $accountId):Collection
     {
-        if($paginate){
-            return $this->getBillsQuery($accountId)->orderBy('date','ASC')->paginate(config('app.paginate'));
-        }else{
-            return $this->getBillsQuery($accountId)->orderBy('date','ASC')->get();
-        }
+        return $this->getBillsQuery($accountId)->orderBy('date','ASC')->get();
+    }
+
+    public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator
+    {
+        return $this->getBillsQuery($accountId)->orderBy('date','ASC')->paginate(config('app.paginate'));
     }
     public function getTotalEstimated(Collection $bills):float
     {
@@ -39,13 +40,15 @@ class BillRepository implements BillRepositoryInterface
     {
         return $bills->where('amount','<',0)->sum('amount');
     }
-    public function getBillsByAccountWithRangeDate(int $accountId, array $rangeDate = null,bool $paginate = false):Collection|LengthAwarePaginator
+    public function getBillsByAccountWithRangeDate(int $accountId, array $rangeDate = null):Collection
     {
-        if($paginate){
-            return $this->getBillsQueryWithRangeDate($accountId,$rangeDate)->paginate(config('app.paginate'));
-        }else{
-            return $this->getBillsQueryWithRangeDate($accountId,$rangeDate)->get();
-        }
+        return $this->getBillsQueryWithRangeDate($accountId,$rangeDate)->get();
+    }
+
+    public function getBillsByAccountWithRangeDatePaginate(int $accountId, array $rangeDate = null):LengthAwarePaginator
+    {
+        return $this->getBillsQueryWithRangeDate($accountId,$rangeDate)->paginate(config('app.paginate'));
+
     }
     private function getBillsQueryWithRangeDate(int $accountId, array $rangeDate):Builder
     {
@@ -111,7 +114,8 @@ class BillRepository implements BillRepositoryInterface
                                      WHERE
                                         credit_card_id = invoices.credit_card_id AND
                                         date between invoices.start_date AND
-                                        invoices.end_date
+                                        invoices.end_date AND
+                                        bills.deleted_at IS NULL
                                     ) as amount,
                                     invoices.start_date,
                                     invoices.due_date,

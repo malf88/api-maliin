@@ -2,9 +2,11 @@
 
 namespace App\Modules\Auth\Business;
 
+use App\Exceptions\ExistsException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ItemNotFoundException;
+use Illuminate\Support\ValidatedInput;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use App\Modules\Auth\DTO\UserTokenDTO;
 use App\Modules\Auth\Enum\TokenTypeEnum;
@@ -60,7 +62,7 @@ class AuthGoogleBusiness
         $user = [
             'first_name' => $socialiteUser->getName(),
             'last_name'  => '',
-            'email' => $socialiteUser->getEmail(),
+            'email' => '',
             'google_id'=> $socialiteUser->getId(),
             'password' => Hash::make(uniqid())
         ];
@@ -83,8 +85,26 @@ class AuthGoogleBusiness
         return $this->authUserAndReturnToken($request);
     }
 
+    /**
+     * @throws ExistsException
+     */
     public function updateEmailUser(string $email): User
     {
-        // TODO: Implement updateEmailUser() method.
+        $user = $this->authRepository->findUserByGoogleId(Auth::user()->google_id);
+        if(!empty($user->email))
+            throw new ExistsException('O usuário já está vinculado ao email: '.$user->email);
+
+        $userEmailExists = $this->userRepository->findUserByEmail($email);
+        if($userEmailExists != null){
+            $userEmailExists = $this->userRepository->updateUser(
+                $userEmailExists->id,
+                ['google_id' => $user->google_id]
+            );
+        }
+        if($userEmailExists->id != $user->id)
+            $this->userRepository->deleteUserById($user->id);
+        else
+            return $this->userRepository->updateUser($user->id, ['email' => $email]);
+        return $userEmailExists;
     }
 }

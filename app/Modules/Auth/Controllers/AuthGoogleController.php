@@ -28,7 +28,7 @@ class AuthGoogleController extends Controller
      *
      */
     public function authenticate(Request $request){
-        return response($this->authBusiness->addOrUpdateUserAndReturnToken($request)->toArray(),200);
+        return response($this->authBusiness->authUserAndReturnToken($request)->toArray(),200);
     }
 
     /**

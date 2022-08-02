@@ -29,13 +29,15 @@ class AuthGoogleBusiness
         $user = $this->authRepository->findUserByGoogleId($socialiteUser->id);
 
         if(!$user)
-            throw new AccessDeniedHttpException('Usuário não encontrado');
+            $user = $this->insertUserGoogle($socialiteUser);
+            //throw new AccessDeniedHttpException('Usuário não encontrado');
 
         Auth::login($user);
         $token = Auth::user()->createToken('auth_token');
         return new UserTokenDTO([
             'token' => $token->plainTextToken,
-            'token_type' => TokenTypeEnum::TOKEN_BEARER->value
+            'token_type' => TokenTypeEnum::TOKEN_BEARER->value,
+            'user' => Auth::user()
         ]);
     }
 
@@ -51,9 +53,6 @@ class AuthGoogleBusiness
         ];
         $this->userRepository->updateUser($user->id, $userData);
         return $user;
-
-
-
     }
 
     public function insertUserGoogle(SocialiteUser $socialiteUser): User
@@ -68,6 +67,11 @@ class AuthGoogleBusiness
         return $this->userRepository->saveUser($user);
     }
 
+    /**
+     * @param Request $request
+     * @return UserTokenDTO
+     * @deprecated
+     */
     public function addOrUpdateUserAndReturnToken(Request $request):UserTokenDTO
     {
         $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
@@ -79,4 +83,8 @@ class AuthGoogleBusiness
         return $this->authUserAndReturnToken($request);
     }
 
+    public function updateEmailUser(string $email): User
+    {
+        // TODO: Implement updateEmailUser() method.
+    }
 }

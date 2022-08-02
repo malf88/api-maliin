@@ -57,7 +57,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     private function generateStartDate(Carbon $date,int $closeDay):Carbon
     {
         $startDate = clone $date;
-        $days = $startDate->daysInMonth;
+        $days = 30;
         if($date->day <= $closeDay){
             $startDate->subDays($days);
             $startDate = $this->setDaysInCloseAndStartDate($startDate,$closeDay);
@@ -68,6 +68,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         }
         return $startDate;
     }
+
     private function generateEndDate(Carbon $date,int $closeDay):Carbon
     {
         $endDate = clone $date;

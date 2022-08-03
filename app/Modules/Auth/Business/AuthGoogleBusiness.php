@@ -98,22 +98,29 @@ class AuthGoogleBusiness
             throw new ExistsException('O usuário já está vinculado ao email: ' . $user->email);
 
         $userEmailExists = $this->userRepository->findUserByEmail($email);
-        if ($userEmailExists != null) {
-            $userEmailExists = $this->userRepository->updateUser(
-                $userEmailExists->id,
-                ['google_id' => $user->google_id]
-            );
-        }
+        
+        $this->updateExistingUser($userEmailExists, $user->google_id);
+        
         if (!$this->removeUserDuplicated($userEmailExists, $user))
             return $this->generateToken($user);
 
         return $this->generateToken($userEmailExists);
 
     }
-
-    private function removeUserDuplicated($userExistent,$newUser):bool
+    
+    private function updateExistingUser(User $userEmailExists, string $googleId):void
     {
-        if($userExistent->id != $newUser->id){
+        if ($userEmailExists != null) {
+            $userEmailExists = $this->userRepository->updateUser(
+                $userEmailExists->id,
+                ['google_id' => $googleId]
+            );
+        }
+    }
+
+    private function removeUserDuplicated(User $existingUser, User $newUser):bool
+    {
+        if($existingUser && $existingUser->id != $newUser->id){
             return $this->userRepository->deleteUserById($newUser->id);
         }
         return false;

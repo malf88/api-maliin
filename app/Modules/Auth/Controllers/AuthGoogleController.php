@@ -2,9 +2,11 @@
 
 namespace App\Modules\Auth\Controllers;
 
+use App\Exceptions\ExistsException;
 use App\Http\Controllers\Controller;
 use App\Modules\Auth\Impl\Business\AuthBusinessInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\ItemNotFoundException;
 
 class AuthGoogleController extends Controller
 {
@@ -28,7 +30,7 @@ class AuthGoogleController extends Controller
      *
      */
     public function authenticate(Request $request){
-        return response($this->authBusiness->addOrUpdateUserAndReturnToken($request)->toArray(),200);
+        return response($this->authBusiness->authUserAndReturnToken($request)->toArray(),200);
     }
 
     /**
@@ -53,5 +55,40 @@ class AuthGoogleController extends Controller
      */
     public function logout(Request $request){
         return response($this->authBusiness->logout($request->user(),200));
+    }
+
+    /**
+     * @OA\Patch (
+     *     tags={"Login"},
+     *     summary="Adiciona um e-mail para o usuário",
+     *     description="Adiciona um e-mail para o usuário",
+     *     path="/account/{id}",
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string"
+     *                 ),
+     *                 example={"email": "teste@teste.com"}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response="200", description="Objeto alterado com sucesso"),
+     *     @OA\Response(response="404", description="Objeto não encontrado"),
+     * ),
+     *
+     */
+    public function updateEmail(Request $request)
+    {
+        try{
+            return response($this->authBusiness->updateEmailUserAndReturnNewToken($request->email)->toArray(),200);
+        }catch (ExistsException $e){
+            return response($e->getMessage(),409);
+        }
     }
 }

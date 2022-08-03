@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 interface AuthBusinessInterface
 {
     public function authUserAndReturnToken(Request $request):UserTokenDTO;
-    public function updateEmailUser(string $email):User;
+    public function updateEmailUserAndReturnNewToken(string $email):UserTokenDTO;
 
     /**
      * @param Request $request

@@ -86,7 +86,7 @@ class AuthGoogleController extends Controller
     public function updateEmail(Request $request)
     {
         try{
-            return response($this->authBusiness->updateEmailUser($request->email),200);
+            return response($this->authBusiness->updateEmailUserAndReturnNewToken($request->email)->toArray(),200);
         }catch (ExistsException $e){
             return response($e->getMessage(),409);
         }

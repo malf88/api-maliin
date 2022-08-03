@@ -6,7 +6,6 @@ use App\Exceptions\ExistsException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ItemNotFoundException;
-use Illuminate\Support\ValidatedInput;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use App\Modules\Auth\DTO\UserTokenDTO;
 use App\Modules\Auth\Enum\TokenTypeEnum;
@@ -14,7 +13,6 @@ use App\Modules\Auth\Impl\Business\AuthBusinessInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AuthGoogleBusiness
     extends AuthBusinessAbstract
@@ -33,8 +31,13 @@ class AuthGoogleBusiness
         if(!$user)
             $user = $this->insertUserGoogle($socialiteUser);
             //throw new AccessDeniedHttpException('Usuário não encontrado');
+        return $this->generateToken($user);
 
-        Auth::login($user);
+    }
+
+    private function generateToken(User $user):UserTokenDTO
+    {
+        Auth::setUser($user);
         $token = Auth::user()->createToken('auth_token');
         return new UserTokenDTO([
             'token' => $token->plainTextToken,
@@ -88,23 +91,31 @@ class AuthGoogleBusiness
     /**
      * @throws ExistsException
      */
-    public function updateEmailUser(string $email): User
+    public function updateEmailUserAndReturnNewToken(string $email): UserTokenDTO
     {
         $user = $this->authRepository->findUserByGoogleId(Auth::user()->google_id);
-        if(!empty($user->email))
-            throw new ExistsException('O usuário já está vinculado ao email: '.$user->email);
+        if (!empty($user->email))
+            throw new ExistsException('O usuário já está vinculado ao email: ' . $user->email);
 
         $userEmailExists = $this->userRepository->findUserByEmail($email);
-        if($userEmailExists != null){
+        if ($userEmailExists != null) {
             $userEmailExists = $this->userRepository->updateUser(
                 $userEmailExists->id,
                 ['google_id' => $user->google_id]
             );
         }
-        if($userEmailExists->id != $user->id)
-            $this->userRepository->deleteUserById($user->id);
-        else
-            return $this->userRepository->updateUser($user->id, ['email' => $email]);
-        return $userEmailExists;
+        if (!$this->removeUserDuplicated($userEmailExists, $user))
+            return $this->generateToken($user);
+
+        return $this->generateToken($userEmailExists);
+
+    }
+
+    private function removeUserDuplicated($userExistent,$newUser):bool
+    {
+        if($userExistent->id != $newUser->id){
+            return $this->userRepository->deleteUserById($userExistent->id);
+        }
+        return false;
     }
 }

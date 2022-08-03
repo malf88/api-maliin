@@ -258,6 +258,44 @@
                         "bearerAuth": []
                     }
                 ]
+            },
+            "patch": {
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Adiciona um e-mail para o usuário",
+                "description": "Adiciona um e-mail para o usuário",
+                "operationId": "fa15c3048e9d94fa93a604aa8e74ee94",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "email": "teste@teste.com"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Objeto alterado com sucesso"
+                    },
+                    "404": {
+                        "description": "Objeto não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/account/{account_id}/user/{user_id}": {

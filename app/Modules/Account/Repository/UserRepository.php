@@ -35,4 +35,9 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::find($id);
     }
+
+    public function deleteUserById(int $id): bool
+    {
+        return User::find($id)->delete();
+    }
 }

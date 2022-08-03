@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Business;
 
+use App\Exceptions\ExistsException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ItemNotFoundException;
@@ -12,7 +13,6 @@ use App\Modules\Auth\Impl\Business\AuthBusinessInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AuthGoogleBusiness
     extends AuthBusinessAbstract
@@ -29,13 +29,20 @@ class AuthGoogleBusiness
         $user = $this->authRepository->findUserByGoogleId($socialiteUser->id);
 
         if(!$user)
-            throw new AccessDeniedHttpException('Usuário não encontrado');
+            $user = $this->insertUserGoogle($socialiteUser);
+            //throw new AccessDeniedHttpException('Usuário não encontrado');
+        return $this->generateToken($user);
 
-        Auth::login($user);
+    }
+
+    private function generateToken(User $user):UserTokenDTO
+    {
+        Auth::setUser($user);
         $token = Auth::user()->createToken('auth_token');
         return new UserTokenDTO([
             'token' => $token->plainTextToken,
-            'token_type' => TokenTypeEnum::TOKEN_BEARER->value
+            'token_type' => TokenTypeEnum::TOKEN_BEARER->value,
+            'user' => Auth::user()
         ]);
     }
 
@@ -51,9 +58,6 @@ class AuthGoogleBusiness
         ];
         $this->userRepository->updateUser($user->id, $userData);
         return $user;
-
-
-
     }
 
     public function insertUserGoogle(SocialiteUser $socialiteUser): User
@@ -61,13 +65,18 @@ class AuthGoogleBusiness
         $user = [
             'first_name' => $socialiteUser->getName(),
             'last_name'  => '',
-            'email' => $socialiteUser->getEmail(),
+            'email' => '',
             'google_id'=> $socialiteUser->getId(),
             'password' => Hash::make(uniqid())
         ];
         return $this->userRepository->saveUser($user);
     }
 
+    /**
+     * @param Request $request
+     * @return UserTokenDTO
+     * @deprecated
+     */
     public function addOrUpdateUserAndReturnToken(Request $request):UserTokenDTO
     {
         $socialiteUser = $this->getSocialiteUserByToken($request->header('Authorization'));
@@ -79,4 +88,34 @@ class AuthGoogleBusiness
         return $this->authUserAndReturnToken($request);
     }
 
+    /**
+     * @throws ExistsException
+     */
+    public function updateEmailUserAndReturnNewToken(string $email): UserTokenDTO
+    {
+        $user = $this->authRepository->findUserByGoogleId(Auth::user()->google_id);
+        if (!empty($user->email))
+            throw new ExistsException('O usuário já está vinculado ao email: ' . $user->email);
+
+        $userEmailExists = $this->userRepository->findUserByEmail($email);
+        if ($userEmailExists != null) {
+            $userEmailExists = $this->userRepository->updateUser(
+                $userEmailExists->id,
+                ['google_id' => $user->google_id]
+            );
+        }
+        if (!$this->removeUserDuplicated($userEmailExists, $user))
+            return $this->generateToken($user);
+
+        return $this->generateToken($userEmailExists);
+
+    }
+
+    private function removeUserDuplicated($userExistent,$newUser):bool
+    {
+        if($userExistent->id != $newUser->id){
+            return $this->userRepository->deleteUserById($userExistent->id);
+        }
+        return false;
+    }
 }

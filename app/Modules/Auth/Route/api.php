@@ -8,5 +8,6 @@ Route::group(['prefix'=>'auth', 'middleware' =>['json.response'], 'namespace' =>
 Route::group(['prefix'=>'auth','middleware' =>['json.response','auth:sanctum'],'namespace' => 'Auth\Controllers'],function(){
 
     Route::put('/logout', 'AuthGoogleController@logout');
+    Route::patch('/google/update', 'AuthGoogleController@updateEmail');
 
 });

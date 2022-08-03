@@ -11,4 +11,5 @@ interface UserRepositoryInterface
     public function findUserByEmail(string $email):User|null;
     public function updateUser(int $id, array $user):User;
     public function getUserById(int $id):User;
+    public function deleteUserById(int $id):Bool;
 }

@@ -114,7 +114,7 @@ class AuthGoogleBusiness
     private function removeUserDuplicated($userExistent,$newUser):bool
     {
         if($userExistent->id != $newUser->id){
-            return $this->userRepository->deleteUserById($userExistent->id);
+            return $this->userRepository->deleteUserById($newUser->id);
         }
         return false;
     }

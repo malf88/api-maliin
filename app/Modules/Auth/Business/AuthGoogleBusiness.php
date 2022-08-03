@@ -98,6 +98,8 @@ class AuthGoogleBusiness
             throw new ExistsException('O usuário já está vinculado ao email: ' . $user->email);
 
         $userEmailExists = $this->userRepository->findUserByEmail($email);
+        if(!empty($userEmailExists->google_id))
+            throw new ExistsException('O email já está cadastrado.');
 
         $this->updateExistingUser($userEmailExists, $user->google_id);
 
@@ -111,8 +113,8 @@ class AuthGoogleBusiness
 
     private function updateExistingUser(User|null $userEmailExists, string $googleId):void
     {
-        if ($userEmailExists != null) {
-            $userEmailExists = $this->userRepository->updateUser(
+        if ($userEmailExists && empty($userEmailExists->google_id)) {
+             $this->userRepository->updateUser(
                 $userEmailExists->id,
                 ['google_id' => $googleId]
             );

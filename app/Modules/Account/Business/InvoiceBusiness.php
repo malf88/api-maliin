@@ -158,7 +158,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         if($normalize){
             $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
         }else{
-            $invoice->bills = $invoice->bills;
+            $invoice->makeVisible('bills');
         }
 
         return $invoice;

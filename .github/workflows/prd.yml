@@ -122,12 +122,9 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           command_timeout: 200m
           script: |
-            cd ~/app/api-maliin
+            cd ${{secrets.APP_DIR}}
             git fetch
             git reset origin/master --hard
-            docker service rm api-maliin_api-app api-maliin_api-queue api-maliin_api-scheduler api-maliin_api-redis api-maliin_composer api-maliin_nginx  api-maliin_node
-            docker network prune
-            docker system prune -a --force
             docker-compose -f docker-compose-prd.yml build composer node
       - name: Composer & npm install
         uses: appleboy/ssh-action@v0.1.2
@@ -137,7 +134,7 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           command_timeout: 200m
           script: |
-            cd ~/app/api-maliin
+            cd ${{secrets.APP_DIR}}
             rm composer.lock
             docker-compose -f docker-compose-prd.yml run --rm composer install --ignore-platform-reqs
       - name: Build Laravel app
@@ -148,7 +145,7 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           command_timeout: 200m
           script: |
-            cd ~/app/api-maliin
+            cd ${{secrets.APP_DIR}}
             docker-compose -f docker-compose-prd.yml build
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
@@ -157,5 +154,6 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
           script: |
-            cd ~/app/api-maliin
-            docker stack deploy -c docker-compose-prd.yml api-maliin
+            cd ${{secrets.APP_DIR}}
+            docker service update api-maliin_api-app api-maliin_api-queue api-maliin_api-scheduler api-maliin_nginx --force
+            docker system prune -a --force

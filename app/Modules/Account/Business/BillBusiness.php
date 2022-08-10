@@ -205,9 +205,8 @@ class BillBusiness implements BillBusinessInterface
             $billData['description'] = $this->getNewDescriptionWithPortion($description, $bill->portion, $totalBillsSelected);
             $this->billRepository->updateBill($billId, $billData);
             $this->processCreditCardBill($billData);
-            $dayOfMonth = $due_date ? $this->isLastDayOfMonth($due_date) : $this->isLastDayOfMonth($date);
             $due_date = $this->addMonth($due_date, $dayOfMonthDueDate);
-            $date = $this->addMonth($date, $dayOfMonthDate);
+            $date = (!$due_date)? $this->addMonth($date, $dayOfMonthDate): $date;
             $bill->bill_parent->each(function ($item, $key)
                     use ($date, $due_date, $totalBillsSelected, $description, $billData, $bill, $dayOfMonthDueDate, $dayOfMonthDate) {
                 if ($item->pay_day == null && $item->portion > $bill->portion) {
@@ -220,7 +219,7 @@ class BillBusiness implements BillBusinessInterface
                     $this->billRepository->updateBill($item->id, $billData);
                     $this->processCreditCardBill($billData);
                     $due_date = $this->addMonth($due_date, $dayOfMonthDueDate);
-                    $date = $this->addMonth($date, $dayOfMonthDate);
+                    $date = (!$due_date)? $this->addMonth($date, $dayOfMonthDate): $date;
                 }
                 $item->refresh();
             });

@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
@@ -27,6 +28,9 @@ class BillBusinessTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        DB::shouldReceive('beginTransaction')->andReturn(true);
+        DB::shouldReceive('rollBack')->andReturn(true);
+        DB::shouldReceive('commit')->andReturn(true);
         $this->accountFactory = new DataFactory();
         $user = $this->accountFactory->factoryUser(1);
         $this->billStandarizedService = $this->createMock(BillStandarizedService::class);

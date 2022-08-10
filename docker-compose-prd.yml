@@ -31,6 +31,8 @@ services:
       - .env
     volumes:
       - ./:/app
+    networks:
+      - node_network
   node:
     image: node:12-alpine
     container_name: node
@@ -39,6 +41,8 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./:/usr/src/app
+    networks:
+      - node_network
   api-scheduler:
     image: api-app
     container_name: scheduler-api
@@ -106,3 +110,6 @@ services:
 networks:
   traefik-public:
     external: true
+  node_network:
+    external: true
+    attachable: true

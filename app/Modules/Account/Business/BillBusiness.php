@@ -130,7 +130,7 @@ class BillBusiness implements BillBusinessInterface
         $this->processCreditCardBill($billData);
         $billParent = $this->billRepository->saveBill($accountId,$billData);
         $billsInserted->add($billParent);
-        $date = Carbon::createFromFormat('Y-m-d',$billData['date']);
+        $date = Carbon::create($billData['date']);
         $due_date = $this->addMonthDueDate($due_date);
         $date->addMonth();
         for($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++){

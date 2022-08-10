@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\CreditCard;
 use App\Models\Invoice;
 use App\Modules\Account\Impl\BillRepositoryInterface;
+use App\Traits\RepositoryTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;

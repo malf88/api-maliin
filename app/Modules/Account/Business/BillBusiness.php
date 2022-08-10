@@ -7,17 +7,19 @@ use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Services\BillStandarizedService;
+use App\Traits\RepositoryTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ItemNotFoundException;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BillBusiness implements BillBusinessInterface
 {
-
+    use RepositoryTrait;
     public function __construct(
         private BillRepositoryInterface $billRepository,
         private CreditCardBusinessInterface $creditCardBusiness,
@@ -116,40 +118,49 @@ class BillBusiness implements BillBusinessInterface
         if(isset($billData['credit_card_id']))
             $billData['due_date'] = null;
 
-        $billsInserted = new Collection();
-        $totalPortion = $billData['portion'];
-        $descriptionBeforeCreateBill = $billData['description'];
-        $billData['description'] = $this->getNewDescriptionWithPortion(
-            $descriptionBeforeCreateBill,
-            1,
-            $totalPortion
-        );
-        $due_date = $this->getDueDate($billData);
-        $billData['portion'] = 1;
-        $billData['due_date'] = $due_date;
-        $this->processCreditCardBill($billData);
-        $billParent = $this->billRepository->saveBill($accountId,$billData);
-        $billsInserted->add($billParent);
-        $date = Carbon::create($billData['date']);
-        $due_date = $this->addMonthDueDate($due_date);
-        $date->addMonth();
-        for($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++){
+        try {
+            $this->startTransaction();
+            $billsInserted = new Collection();
+            $totalPortion = $billData['portion'];
+            $descriptionBeforeCreateBill = $billData['description'];
             $billData['description'] = $this->getNewDescriptionWithPortion(
                 $descriptionBeforeCreateBill,
-                $interatorPortion,
+                1,
                 $totalPortion
             );
-            $billData['bill_parent_id'] = $billParent->id;
-            $billData['portion'] = $interatorPortion;
+            $due_date = $this->getDueDate($billData);
+            $billData['portion'] = 1;
             $billData['due_date'] = $due_date;
-            $billData['date'] = $date;
             $this->processCreditCardBill($billData);
-            $bill = $this->billRepository->saveBill($accountId,$billData);
-            $billsInserted->add($bill);
+            $billParent = $this->billRepository->saveBill($accountId, $billData);
+            $billsInserted->add($billParent);
+            $date = Carbon::create($billData['date']);
             $due_date = $this->addMonthDueDate($due_date);
             $date->addMonth();
+            for ($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++) {
+                $billData['description'] = $this->getNewDescriptionWithPortion(
+                    $descriptionBeforeCreateBill,
+                    $interatorPortion,
+                    $totalPortion
+                );
+                $billData['bill_parent_id'] = $billParent->id;
+                $billData['portion'] = $interatorPortion;
+                $billData['due_date'] = $due_date;
+                $billData['date'] = $date;
+                $this->processCreditCardBill($billData);
+                $bill = $this->billRepository->saveBill($accountId, $billData);
+                $billsInserted->add($bill);
+                $due_date = $this->addMonthDueDate($due_date);
+                $date->addMonth();
+            }
+            $this->commitTransaction();
+            return $billsInserted;
+        }catch (ValidationException $exception){
+            $this->rollbackTransaction();
+            throw $exception;
         }
-        return $billsInserted;
+
+
     }
     public function getBillById(int $billId):Model
     {

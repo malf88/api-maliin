@@ -11,8 +11,6 @@ services:
         - "BUILD_APP_ENV=${APP_ENV}"
     env_file:
       - .env
-    volumes:
-      - ./:/var/www/
     environment:
       - CONTAINER_ROLE=app
     healthcheck:
@@ -49,8 +47,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      - ./:/var/www/
     depends_on:
       - api-app
     environment:
@@ -61,8 +57,6 @@ services:
     image: api-app
     container_name: api-queue
     restart: unless-stopped
-    volumes:
-      - ./:/var/www/
     env_file:
       - .env
     depends_on:
@@ -103,7 +97,6 @@ services:
     ports:
       - ${PORT}:80
     volumes:
-      - ./:/var/www/
       - ./docker/nginx:/etc/nginx/conf.d
     networks:
       - traefik-public

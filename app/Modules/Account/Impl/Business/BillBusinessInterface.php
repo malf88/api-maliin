@@ -3,7 +3,7 @@
 namespace App\Modules\Account\Impl\Business;
 
 use App\Abstracts\DTOAbstract;
-use App\Models\User;
+use Illuminate\Support\Collection as BaseCollection;
 use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\Services\BillPdfService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -17,7 +17,7 @@ interface BillBusinessInterface
     public function getBillsByAccountPaginate(int $accountId):LengthAwarePaginator;
     public function insertBill(int $accountId,BillDTO $billData):DTOAbstract|Collection;
     public function getBillById(int $billId):Model;
-    public function updateBill(int $billId,BillDTO $billData):DTOAbstract|Collection;
+    public function updateBill(int $billId,BillDTO $billData):DTOAbstract|BaseCollection;
     public function deleteBill(int $billId):bool;
     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
     public function getPeriodWithBill(int $accountId):Collection;

@@ -13,7 +13,7 @@ class BillDTO extends DTOAbstract
     public Carbon|string $date;
     public Carbon|string|null $due_date;
     public Carbon|string|null $pay_day;
-    public string $barcode;
+    public string|null $barcode;
     public int $category_id;
     public int|null $bill_parent_id;
     public int $portion;

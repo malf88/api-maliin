@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Business;
 
 use App\Abstracts\DTOAbstract;
+use App\Helpers\BillHelper;
 use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
@@ -13,6 +14,7 @@ use App\Traits\RepositoryTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -119,6 +121,11 @@ class BillBusiness implements BillBusinessInterface
         return ($date != null)? Carbon::create($date) : null ;
     }
 
+    private function recreateDTO(BillDTO $billData):BillDTO
+    {
+        return new BillDTO($billData->toArray());
+    }
+
     private function saveMultiplePortions(int $accountId, BillDTO $billData):Collection
     {
         if(isset($billData->credit_card_id))
@@ -127,28 +134,33 @@ class BillBusiness implements BillBusinessInterface
         try {
             $this->startTransaction();
             $billsInserted = new Collection();
+            $billData->date = Carbon::make($billData->date);
             $totalPortion = $billData->portion;
             $descriptionBeforeCreateBill = $billData->description;
+            $billData->portion = 1;
             $billData->description = $this->getNewDescriptionWithPortion(
                 $descriptionBeforeCreateBill,
-                1,
+                $billData->portion,
                 $totalPortion
             );
             $due_date = $this->getDueDate($billData->due_date);
 
-            $billData->portion = 1;
+
             $billData->due_date = $due_date;
             $this->processCreditCardBill($billData);
             $billParent = $this->billRepository->saveBill($accountId, $billData);
             $billsInserted->add($billParent);
+            $billData = $this->recreateDTO($billData);
             $date = Carbon::create($billData->date);
 
             $dayOfMonthDueDate = $due_date ? $due_date->day : null;
             $dayOfMonthDate = $date->day;
-            $due_date = $this->addMonth($due_date, $dayOfMonthDueDate);
-            $date = (!$due_date)? $this->addMonth($date, $dayOfMonthDate): $date;
+            $due_date = BillHelper::addMonth($due_date, $dayOfMonthDueDate);
+            $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
 
             for ($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++) {
+
+                $billData = $this->recreateDTO($billData);
                 $billData->description = $this->getNewDescriptionWithPortion(
                     $descriptionBeforeCreateBill,
                     $interatorPortion,
@@ -162,8 +174,8 @@ class BillBusiness implements BillBusinessInterface
                 $this->processCreditCardBill($billData);
                 $bill = $this->billRepository->saveBill($accountId, $billData);
                 $billsInserted->add($bill);
-                $due_date = $this->addMonth($due_date, $dayOfMonthDueDate);
-                $date = (!$due_date)? $this->addMonth($date, $dayOfMonthDate): $date;
+                $due_date = BillHelper::addMonth($due_date, $dayOfMonthDueDate);
+                $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
 
             }
             $this->commitTransaction();
@@ -187,7 +199,7 @@ class BillBusiness implements BillBusinessInterface
         }
     }
 
-    public function updateBill(int $billId,BillDTO $billData):DTOAbstract|Collection
+    public function updateBill(int $billId,BillDTO $billData):DTOAbstract|BaseCollection
     {
         $bill = $this->getBillById($billId);
         if(!Auth::user()->userIsOwnerAccount($bill->account_id))
@@ -201,8 +213,9 @@ class BillBusiness implements BillBusinessInterface
         }
 
     }
-    private function updateChildBill(int $billId,BillDTO $billData):DTOAbstract
+    private function updateChildBill(int $billId,BillDTO $billData):BaseCollection
     {
+        $updatedBills = new BaseCollection();
         try {
             $this->startTransaction();
             $bill = $this->getBillById($billId);
@@ -212,30 +225,37 @@ class BillBusiness implements BillBusinessInterface
             $date = Carbon::make($billData->date);
             $dayOfMonthDueDate = $due_date ? $due_date->day : null;
             $dayOfMonthDate = $date->day;
-            $billData->due_date = $due_date ? $due_date->format('Y-m-d') : null;
+            $billData->due_date = $due_date ? $due_date : null;
+            $billData->date = Carbon::create($billData->date);
             $billData->description = $this->getNewDescriptionWithPortion($description, $bill->portion, $totalBillsSelected);
-            $this->billRepository->updateBill($billId, $billData);
             $this->processCreditCardBill($billData);
-            $due_date = $this->addMonth($due_date, $dayOfMonthDueDate);
-            $date = (!$due_date)? $this->addMonth($date, $dayOfMonthDate): $date;
-            $bill->bill_parent->each(function ($item, $key)
-                    use ($date, $due_date, $totalBillsSelected, $description, $billData, $bill, $dayOfMonthDueDate, $dayOfMonthDate) {
+            $updatedBill =  $this->billRepository->updateBill($billId, $billData);
+            $updatedBills->add($updatedBill);
+            $due_date = BillHelper::addMonth($due_date, $dayOfMonthDueDate);
+            $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
+
+            foreach($bill->bill_parent as $item){
+                    //use ($date, $due_date, $totalBillsSelected, $description, $billData, $bill, $dayOfMonthDueDate, $dayOfMonthDate, $updatedBills) {
                 if ($item->pay_day == null && $item->portion > $bill->portion) {
+                    $billData = new BillDTO($item->toArray());
                     $billData->description = $this->getNewDescriptionWithPortion(
                         $description,
                         $item->portion,
                         $totalBillsSelected);
+
                     $billData->date = $date;
-                    $billData->due_date = $due_date ?? null;
-                    $this->billRepository->updateBill($item->id, $billData);
+                    $billData->due_date = $due_date;
+                    $updatedBill = $this->billRepository->updateBill($item->id, $billData);
+                    $updatedBills->add($updatedBill);
                     $this->processCreditCardBill($billData);
-                    $due_date = $this->addMonth($due_date, $dayOfMonthDueDate);
-                    $date = (!$due_date)? $this->addMonth($date, $dayOfMonthDate): $date;
+                    $due_date = BillHelper::addMonth($due_date, $dayOfMonthDueDate);
+                    $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
+
                 }
-                $item->refresh();
-            });
+
+            }
             $this->commitTransaction();
-            return new BillDTO($bill->refresh()->toArray());
+            return $updatedBills;
         } catch (ValidationException $exception) {
             $this->rollbackTransaction();
             throw $exception;
@@ -247,19 +267,7 @@ class BillBusiness implements BillBusinessInterface
         return $description . ' ['.$portionActual. '/' .$portionTotal .']';
     }
 
-    private function addMonth(Carbon|null $date, int $dayOfMonth = null):Carbon|null
-    {
-        $newDate = $date ? Carbon::make($date) : null;
-        if($newDate != null){
-            $newDate->addMonthNoOverflow();
-            if($dayOfMonth){
-                $newDate->setUnitNoOverflow('day',$dayOfMonth,'month');
-            }
-        }else{
-            return null;
-        }
-        return $date;
-    }
+
     public function deleteBill(int $billId):bool
     {
         $bill = $this->getBillById($billId);

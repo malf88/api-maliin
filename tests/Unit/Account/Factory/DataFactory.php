@@ -166,7 +166,8 @@ class DataFactory extends TestCase
         int $parentId = null,
         string $pay_day = null,
         string $due_date = null,
-        int $portion=1):Bill
+        int $portion=1,
+        int $credit_card_id=null):Bill
     {
         $bill = $this->createPartialMock(Bill::class,['load','save','getBillParentAttribute','getCategoryAttribute']);
 
@@ -195,6 +196,8 @@ class DataFactory extends TestCase
         $bill->portion = $portion;
         $bill->due_date = $due_date? Carbon::createFromDate($due_date) : null;
         $bill->account_id = 1;
+        $bill->credit_card_id = $credit_card_id;
+        $bill->category_id = 1;
         return $bill;
 
     }

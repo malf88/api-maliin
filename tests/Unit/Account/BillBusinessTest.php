@@ -3,6 +3,7 @@
 namespace Tests\Unit\Account;
 
 
+use App\Helpers\BillHelper;
 use App\Models\Bill;
 use App\Models\Category;
 use App\Modules\Account\Business\AccountBusiness;
@@ -33,9 +34,8 @@ class BillBusinessTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        DB::shouldReceive('beginTransaction')->andReturn(true);
-        DB::shouldReceive('rollBack')->andReturn(true);
-        DB::shouldReceive('commit')->andReturn(true);
+
+        DB::shouldReceive('rollback')->andReturn(true);
         $this->accountFactory = new DataFactory();
         $user = $this->accountFactory->factoryUser(1);
         $this->billStandarizedService = $this->createMock(BillStandarizedService::class);
@@ -305,6 +305,8 @@ class BillBusinessTest extends TestCase
      */
     public function deveSalvarContasAPagarEmUmaContaComParcelas(){
         $this->accountFactory->configureUserSession();
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->andReturn(true);
         $accountId = 1;
         $billData = $this->factoryBillData();
         $billData['portion'] = 3;
@@ -314,6 +316,9 @@ class BillBusinessTest extends TestCase
         $bill->id = 1;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness
+            ->expects($this->exactly(0))
+            ->method('generateInvoiceByBill');
         $billRepository
             ->shouldReceive('saveBill')
             ->andReturnArg(1);
@@ -321,10 +326,31 @@ class BillBusinessTest extends TestCase
         $billDto = new BillDTO($billData);
         $bills = $billBusiness->insertBill($accountId,$billDto);
         $this->assertIsIterable($bills);
+        $startDate = Carbon::make($billData['due_date']);
         $this->assertEquals(
-            Carbon::make($billData['due_date'])->format('Y-m-d H:i:s'),
+            $startDate->format('Y-m-d H:i:s'),
             $bills->get(0)->due_date->format('Y-m-d H:i:s')
         );
+        $secondDueDate = BillHelper::addMonth($startDate, $startDate->day);
+        $this->assertEquals(
+            $secondDueDate->format('Y-m-d H:i:s'),
+            $bills->get(1)->due_date->format('Y-m-d H:i:s')
+        );
+
+        $thirdDueDate = BillHelper::addMonth($secondDueDate, $startDate->day);
+        $this->assertEquals(
+            $thirdDueDate->format('Y-m-d H:i:s'),
+            $bills->get(2)->due_date->format('Y-m-d H:i:s')
+        );
+
+        $this->assertEquals($billDto->date, $bills->get(0)->date);
+        $this->assertEquals($billDto->date, $bills->get(1)->date);
+        $this->assertEquals($billDto->date, $bills->get(2)->date);
+
+        $this->assertEquals($billData['description'].' [1/3]', $bills->get(0)->description);
+        $this->assertEquals($billData['description'].' [2/3]', $bills->get(1)->description);
+        $this->assertEquals($billData['description'].' [3/3]', $bills->get(2)->description);
+
         $this->assertCount(3,$bills);
         $this->assertEquals(480.00,$bills->sum('amount'));
 
@@ -335,6 +361,8 @@ class BillBusinessTest extends TestCase
      */
     public function deveSalvarContasAPagarEmUmaContaComParcelasNoCartaoDeCredito(){
         $this->accountFactory->configureUserSession();
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
         $accountId = 1;
         $billData = $this->factoryBillData();
         $billData['portion'] = 3;
@@ -346,14 +374,35 @@ class BillBusinessTest extends TestCase
         $bill->id = 1;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-
+        $creditCardBusiness
+            ->expects($this->exactly(3))
+            ->method('generateInvoiceByBill');
         $repositoryMock = $this->getMockRepository();
 
         $billBusiness = new BillBusiness($repositoryMock,$creditCardBusiness, $this->billStandarizedService);
         $billDto = new BillDTO($billData);
         $bills = $billBusiness->insertBill($accountId,$billDto);
         $this->assertIsIterable($bills);
+
+        $startDate = Carbon::make($billData['date']);
+        $this->assertEquals(
+            $startDate->format('Y-m-d'),
+            $bills->get(0)->date->format('Y-m-d')
+        );
+        $secondDate = BillHelper::addMonth($startDate, $startDate->day);
+        $this->assertEquals(
+            $secondDate->format('Y-m-d'),
+            $bills->get(1)->date->format('Y-m-d')
+        );
+
+        $thirdDate = BillHelper::addMonth($secondDate, $startDate->day);
+        $this->assertEquals(
+            $thirdDate->format('Y-m-d'),
+            $bills->get(2)->date->format('Y-m-d')
+        );
         $this->assertNull($bills->get(0)->due_date);
+        $this->assertNull($bills->get(1)->due_date);
+        $this->assertNull($bills->get(2)->due_date);
         $this->assertCount(3,$bills);
         $this->assertEquals(480.00,$bills->sum('amount'));
 
@@ -369,6 +418,7 @@ class BillBusinessTest extends TestCase
         $billData = $this->factoryBillData();
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $this->expectException(NotFoundHttpException::class);
         $billDto = new BillDTO($billData);
@@ -463,10 +513,12 @@ class BillBusinessTest extends TestCase
 
         $billRepository
             ->shouldReceive('updateBill')
+            ->once()
             ->andReturnArg(1);
         $billRepository
             ->shouldReceive('getBillById')
             ->andReturn($bill);
+
         $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
@@ -476,11 +528,57 @@ class BillBusinessTest extends TestCase
         $this->assertEquals(160.00,$bill->amount);
 
     }
+
+    /**
+     * @test
+     */
+    public function deveAlterarUmaContaAPagarComCartaoDeCredito(){
+        $this->accountFactory->configureUserSession();
+        $billId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['credit_card_id'] = 1;
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
+        $bill->method('account')
+            ->willReturn($account);
+
+        $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness
+            ->expects($this->exactly(1))
+            ->method('generateInvoiceByBill');
+        $billRepository
+            ->shouldReceive('updateBill')
+            ->once()
+            ->andReturnArg(1);
+        $billRepository
+            ->shouldReceive('getBillById')
+            ->andReturn($bill);
+
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $billDto = new BillDTO($billData);
+        $bill = $billBusiness->updateBill($billId,$billDto);
+
+        $this->assertEquals(160.00,$bill->amount);
+
+    }
+
     /**
      * @test
      */
     public function deveAlterarUmaContaAPagarESeusIrmaos(){
         $this->accountFactory->configureUserSession();
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
         $billId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -509,6 +607,7 @@ class BillBusinessTest extends TestCase
 
         $billRepository
             ->shouldReceive('updateBill')
+            ->times(4)
             ->andReturnArg(1);
         $billRepository
             ->shouldReceive('getBillById')
@@ -520,8 +619,105 @@ class BillBusinessTest extends TestCase
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $bills = $billBusiness->updateBill($billId,$billDTO);
 
-        $this->assertCount(3,$bills->bill_parent);
-        $this->assertEquals(1,$bills->id);
+        $startDate = Carbon::make($billData['due_date']);
+        $this->assertEquals(
+            $startDate->format('Y-m-d H:i:s'),
+            $bills->get(0)->due_date->format('Y-m-d H:i:s')
+        );
+        $secondDueDate = BillHelper::addMonth($startDate, $startDate->day);
+        $this->assertEquals(
+            $secondDueDate->format('Y-m-d H:i:s'),
+            $bills->get(1)->due_date->format('Y-m-d H:i:s')
+        );
+
+        $thirdDueDate = BillHelper::addMonth($secondDueDate, $startDate->day);
+        $this->assertEquals(
+            $thirdDueDate->format('Y-m-d H:i:s'),
+            $bills->get(2)->due_date->format('Y-m-d H:i:s')
+        );
+
+        $this->assertEquals($billDTO->date, $bills->get(0)->date);
+        $this->assertEquals($billDTO->date, $bills->get(1)->date);
+        $this->assertEquals($billDTO->date, $bills->get(2)->date);
+
+        $this->assertEquals($billData['description'].' [1/4]', $bills->get(0)->description);
+        $this->assertEquals($billData['description'].' [2/4]', $bills->get(1)->description);
+        $this->assertEquals($billData['description'].' [3/4]', $bills->get(2)->description);
+        $this->assertCount(4,$bills);
+
+    }
+
+    /**
+     * @test
+     */
+    public function deveAlterarUmaContaAPagarESeusIrmaosComCartaoDeCredito(){
+        $this->accountFactory->configureUserSession();
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
+        $billId = 2;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['update_childs'] = true;
+        $billData['credit_card_id'] = 1;
+        $billData['due_date'] = null;
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill->method('account')
+            ->willReturn($account);
+        $bill->bill_parent_id = 1;
+        $bill->id = 1;
+        $bill->account = $account;
+        $bill->bill_parent =
+            Collection::make([
+                $this->accountFactory->factoryBill(2,300,1,portion:2, credit_card_id: 1),
+                $this->accountFactory->factoryBill(3,200,1,portion:3, credit_card_id: 1),
+                $this->accountFactory->factoryBill(4,-100,1,portion:4, credit_card_id: 1)
+            ]);
+
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness
+            ->expects($this->exactly(4))
+            ->method('generateInvoiceByBill');
+        $billRepository
+            ->shouldReceive('updateBill')
+            ->times(4)
+            ->andReturnArg(1);
+        $billRepository
+            ->shouldReceive('getBillById')
+            ->andReturn($bill);
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+
+        $billDTO = new BillDTO($billData);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $bills = $billBusiness->updateBill($billId,$billDTO);
+
+        $startDate = Carbon::make($billData['date']);
+        $this->assertEquals(
+            $startDate->format('Y-m-d'),
+            $bills->get(0)->date->format('Y-m-d')
+        );
+        $secondDate = BillHelper::addMonth($startDate, $startDate->day);
+        $this->assertEquals(
+            $secondDate->format('Y-m-d'),
+            $bills->get(1)->date->format('Y-m-d')
+        );
+
+        $thirdDate = BillHelper::addMonth($secondDate, $startDate->day);
+        $this->assertEquals(
+            $thirdDate->format('Y-m-d'),
+            $bills->get(2)->date->format('Y-m-d')
+        );
+        $this->assertNull($bills->get(0)->due_date);
+        $this->assertNull($bills->get(1)->due_date);
+        $this->assertNull($bills->get(2)->due_date);
+
+        $this->assertCount(4,$bills);
 
     }
 
@@ -530,6 +726,8 @@ class BillBusinessTest extends TestCase
      */
     public function deveAlterarUmaContaAPagarESeusFilhos(){
         $this->accountFactory->configureUserSession();
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
         $billId = 2;
         $accounts = $this->accountFactory->factoryAccount();
         $billData = $this->factoryBillData();
@@ -564,8 +762,7 @@ class BillBusinessTest extends TestCase
         $billDto = new BillDTO($billData);
         $bills = $billBusiness->updateBill($billId,$billDto);
 
-        $this->assertCount(3,$bills->bill_parent);
-        $this->assertEquals(1,$bills->id);
+        $this->assertCount(4,$bills);
 
     }
 
@@ -779,6 +976,55 @@ class BillBusinessTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $dates = $billBusiness->getPeriodWithBill($accountId);
     }
+    /**
+     * @test
+     */
+    public function naoDeveAlterarUmaContaAPagarESeusIrmaos(){
+        $this->accountFactory->configureUserSession();
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
+        $billId = 2;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['update_childs'] = true;
 
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account']);
+        $bill->method('account')
+            ->willReturn($account);
+        $bill->bill_parent_id = 1;
+        $bill->id = 1;
+        $bill->account = $account;
+        $bill->portion = 1;
+        $bill->bill_parent =
+            Collection::make([
+                $this->accountFactory->factoryBill(2,300,1,portion:1),
+                $this->accountFactory->factoryBill(3,200,1,portion:2, pay_day: '01/01/2018'),
+                $this->accountFactory->factoryBill(4,-100,1,portion:3, pay_day: '01/01/2018')
+            ]);
+
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+
+        $billRepository
+            ->shouldReceive('updateBill')
+            ->times(1)
+            ->andReturnArg(1);
+        $billRepository
+            ->shouldReceive('getBillById')
+            ->andReturn($bill);
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+
+        $billDTO = new BillDTO($billData);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $bills = $billBusiness->updateBill($billId,$billDTO);
+        $this->assertCount(1,$bills);
+
+    }
 
 }

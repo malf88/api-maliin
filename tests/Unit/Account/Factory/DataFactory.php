@@ -50,13 +50,14 @@ class DataFactory extends TestCase
         $invoice1->start_date = Carbon::createFromFormat('d/m/Y','01/08/2021');
         $invoice1->due_date = Carbon::createFromFormat('d/m/Y','15/09/2021');
         $invoice1->month_reference = 8;
+        $invoice1->credit_card_id = 1;
 
         $invoice2 = new Invoice();
         $invoice2->end_date = Carbon::createFromFormat('d/m/Y','30/07/2021');
         $invoice2->start_date = Carbon::createFromFormat('d/m/Y','01/07/2021');
         $invoice2->due_date = Carbon::createFromFormat('d/m/Y','06/08/2021');
         $invoice2->month_reference = 7;
-
+        $invoice2->credit_card_id = 1;
 
         $creditCard1 = $this->createPartialMock(CreditCard::class,['account','invoices']);
         $creditCard1

@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
@@ -24,19 +25,20 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     {
 
     }
-    public function getInvoiceByCreditCardAndDate(int $creditCardId,Carbon $date):Model|null
+    public function getInvoiceByCreditCardAndDate(int $creditCardId,Carbon $date):InvoiceDTO|null
     {
         return $this->invoiceRepository->getInvoiceByCreditCardAndDate($creditCardId,$date);
     }
 
-    public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):Model
+    public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):InvoiceDTO
     {
         $invoice = $this->getInvoiceByCreditCardAndDate($creditCard->id,$date);
         if($invoice) {
             return $invoice;
         }
+
         return $this->invoiceRepository->insertInvoice(
-            $this->getInvoiceData($creditCard,$date)
+            new InvoiceDTO($this->getInvoiceData($creditCard,$date))
         );
     }
 

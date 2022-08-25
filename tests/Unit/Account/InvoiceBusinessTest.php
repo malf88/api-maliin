@@ -56,8 +56,7 @@ class InvoiceBusinessTest extends TestCase
             ->first();
         $this->invoiceRepository->shouldReceive('getInvoiceByCreditCardAndDate')
             ->andReturn($invoice != null ? new InvoiceDTO($invoice->toArray()) : null);
-        $this->invoiceRepository->shouldReceive('insertInvoice')
-            ->andReturnArg(0);
+
     }
 
     private function configureCreditCardBusiness(){
@@ -113,29 +112,19 @@ class InvoiceBusinessTest extends TestCase
         $this->creditCardId = 1;
         $date = '2021-09-15';
         $creditCards = $this->factory->factoryCreditCards();
-        $invoiceData =  [
-            'start_date'        =>  '2021-08-31',
-            'end_date'          =>  '2021-09-30',
-            'due_date'          =>  '2021-10-07',
-            'month_reference'   =>  10,
-            'credit_card_id'    => $this->creditCardId
-        ];
 
-        $invoice = new Invoice();
-        $invoice->fill($invoiceData);
         $this->configureMockRepository($date);
-
-        $this->invoiceRepository
-            ->shouldReceive('insertInvoice')
-            ->andReturn($invoice);
+        $this->invoiceRepository->shouldReceive('insertInvoice')
+            ->once()
+            ->andReturnArg(0);
         $this->configureCreditCardBusiness();
         $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
 
         $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCards->get(0),Carbon::make($date));
 
-        $this->assertEquals('2021-08-31',$invoice->start_date->format('Y-m-d'));
+        $this->assertEquals('2021-09-01',$invoice->start_date->format('Y-m-d'));
         $this->assertEquals('2021-09-30',$invoice->end_date->format('Y-m-d'));
-        $this->assertEquals('2021-10-07',$invoice->due_date->format('Y-m-d'));
+        $this->assertEquals('2021-10-03',$invoice->due_date->format('Y-m-d'));
         $this->assertEquals(10,$invoice->month_reference);
         $this->assertEquals($this->creditCardId, $invoice->credit_card_id);
     }
@@ -145,6 +134,45 @@ class InvoiceBusinessTest extends TestCase
      */
     public function deveRetornarFaturaComListaDeContasAPagarOuReceber()
     {
+        $invoice = Mockery::mock('App\Models\Invoice[makeVisible]');
+        $invoice->shouldReceive('makeVisible')
+            ->once()
+            ->andReturnSelf();
+        $bill = Mockery::mock('App\Models\Bill[load,getBillParentAttribute,getCategoryAttribute]');
+        $bill->shouldReceive('getBillParentAttribute')
+            ->andReturn(Collection::empty());
+        $bill->shouldReceive('getCategoryAttribute')
+            ->andReturn(new Category([
+                'id' => 1,
+                'name' => 'Alimentação'
+            ]));
+        $bill->description = "Mercado";
+        $bill->id = 1;
+        $bill->date = Carbon::now();
+        $bill->bill_parent_id = null;
+        $bill->pay_day = null;
+        $bill->amount = 3.50;
+        $bill->portion = 3;
+        $bill->due_date = Carbon::make('2023-01-15');
+        $bill->account_id = 1;
+        $bill->credit_card_id = null;
+        $bill->category_id = 1;
+        $invoice->bills = Collection::make([$bill, $bill, $bill]);
+        $invoiceId = 1;
+        $this->invoiceRepository
+            ->shouldReceive('getInvoiceWithBills')
+            ->andReturn($invoice);
+        $this->configureMockRepository('2021-09-01');
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
+        $invoice = $invoiceBusiness->getInvoiceWithBills($invoiceId);
+
+        $this->assertCount(3,$invoice->bills);
+    }
+    /**
+     * @test
+     */
+    public function deveRetornarFaturaComListaDeContasAPagarOuReceberNormalizado()
+    {
 
         $invoiceId = 1;
         $this->invoiceRepository
@@ -152,7 +180,7 @@ class InvoiceBusinessTest extends TestCase
             ->andReturn($this->factory->factoryInvoiceList()->get(0));
         $this->configureMockRepository('2021-09-01');
         $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
-        $invoice = $invoiceBusiness->getInvoiceWithBills($invoiceId);
+        $invoice = $invoiceBusiness->getInvoiceWithBillsNormalized($invoiceId);
 
         $this->assertCount(3,$invoice->bills);
     }

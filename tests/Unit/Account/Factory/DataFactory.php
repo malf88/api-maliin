@@ -45,6 +45,7 @@ class DataFactory extends TestCase
             ->willReturn($user);
         $account->user = $user;
         $account->id = 1;
+
         $invoice1 = new Invoice();
         $invoice1->end_date = Carbon::createFromFormat('d/m/Y','30/08/2021');
         $invoice1->start_date = Carbon::createFromFormat('d/m/Y','01/08/2021');
@@ -69,8 +70,8 @@ class DataFactory extends TestCase
 
         $creditCard1->id = 1;
         $creditCard1->name = 'Nubank';
-        $creditCard1->due_day = 07;
-        $creditCard1->close_day = 30;
+        $creditCard1->due_day = 3;
+        $creditCard1->close_day = 31;
         $creditCard1->account = $account;
         $creditCard1->account_id = $account->id;
 

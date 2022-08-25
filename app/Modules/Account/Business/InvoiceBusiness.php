@@ -151,17 +151,24 @@ class InvoiceBusiness implements InvoiceBusinessInterface
                 ->invoiceRepository
                 ->getInvoicesWithBills($creditCardId);
     }
-
-    public function getInvoiceWithBills(int $invoiceId, bool $normalize = false):Model
+    public function getInvoiceWithBillsNormalized(int $invoiceId):Model
     {
         $invoice =  $this
             ->invoiceRepository
             ->getInvoiceWithBills($invoiceId);
-        if($normalize){
-            $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
-        }else{
-            $invoice->makeVisible('bills');
-        }
+        $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
+
+        return $invoice;
+    }
+
+    public function getInvoiceWithBills(int $invoiceId):Model
+    {
+        $invoice =  $this
+            ->invoiceRepository
+            ->getInvoiceWithBills($invoiceId);
+
+        $invoice->makeVisible('bills');
+
 
         return $invoice;
     }

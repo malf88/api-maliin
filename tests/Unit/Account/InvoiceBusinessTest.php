@@ -132,6 +132,93 @@ class InvoiceBusinessTest extends TestCase
     /**
      * @test
      */
+    public function deveCriarInvoiceParaOCartaoDeCreditoParaADataDeVencimento()
+    {
+        $this->creditCardId = 1;
+        $date = '2021-09-30';
+        $creditCards = $this->factory->factoryCreditCards();
+
+        $this->configureMockRepository($date);
+        $this->invoiceRepository->shouldReceive('insertInvoice')
+            ->once()
+            ->andReturnArg(0);
+        $creditCard1 = $creditCards->get(0);
+        $creditCard1->due_day = 30;
+
+        $this->configureCreditCardBusiness();
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
+
+        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCard1,Carbon::make($date));
+
+        $this->assertEquals('2021-09-01',$invoice->start_date->format('Y-m-d'));
+        $this->assertEquals('2021-09-30',$invoice->end_date->format('Y-m-d'));
+        $this->assertEquals('2021-10-30',$invoice->due_date->format('Y-m-d'));
+        $this->assertEquals(10,$invoice->month_reference);
+        $this->assertEquals($this->creditCardId, $invoice->credit_card_id);
+    }
+
+    /**
+     * @test
+     */
+    public function deveCriarInvoiceParaOCartaoDeCreditoComDataDeCompraEmJaneiro()
+    {
+        $this->creditCardId = 1;
+        $date = '2021-01-02';
+        $creditCards = $this->factory->factoryCreditCards();
+
+        $this->configureMockRepository($date);
+        $this->invoiceRepository->shouldReceive('insertInvoice')
+            ->once()
+            ->andReturnArg(0);
+        $creditCard1 = $creditCards->get(0);
+        $creditCard1->due_day = 06;
+
+        $this->configureCreditCardBusiness();
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
+
+        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCard1,Carbon::make($date));
+
+        $this->assertEquals('2021-01-01',$invoice->start_date->format('Y-m-d'));
+        $this->assertEquals('2021-01-31',$invoice->end_date->format('Y-m-d'));
+        $this->assertEquals('2021-02-06',$invoice->due_date->format('Y-m-d'));
+        $this->assertEquals(2,$invoice->month_reference);
+        $this->assertEquals($this->creditCardId, $invoice->credit_card_id);
+    }
+
+    /**
+     * @test
+     */
+    public function deveCriarInvoiceParaOCartaoDeCreditoComDataDaCompraIgualADataDeFechamento()
+    {
+        $this->creditCardId = 1;
+        $date = '2021-01-15';
+        $creditCards = $this->factory->factoryCreditCards();
+
+        $this->configureMockRepository($date);
+
+        $this->invoiceRepository->shouldReceive('insertInvoice')
+            ->once()
+            ->andReturnArg(0);
+
+        $creditCard1 = $creditCards->get(0);
+        $creditCard1->due_day = 31;
+        $creditCard1->close_day = 15;
+
+        $this->configureCreditCardBusiness();
+        $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
+
+        $invoice = $invoiceBusiness->createInvoiceForCreditCardByDate($creditCard1,Carbon::make($date));
+
+        $this->assertEquals('2020-12-16',$invoice->start_date->format('Y-m-d'));
+        $this->assertEquals('2021-01-15',$invoice->end_date->format('Y-m-d'));
+        $this->assertEquals('2021-01-31',$invoice->due_date->format('Y-m-d'));
+        $this->assertEquals(1,$invoice->month_reference);
+        $this->assertEquals($this->creditCardId, $invoice->credit_card_id);
+    }
+
+    /**
+     * @test
+     */
     public function deveRetornarFaturaComListaDeContasAPagarOuReceber()
     {
         $invoice = Mockery::mock('App\Models\Invoice[makeVisible]');

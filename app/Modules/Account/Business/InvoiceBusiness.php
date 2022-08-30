@@ -17,7 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvoiceBusiness implements InvoiceBusinessInterface
 {
-
+    const START_DAY_IN_MONTH = 2;
+    const DAYS_IN_MONTH_DEFAULT = 30;
     public function __construct(
         private InvoiceRepositoryInterface $invoiceRepository,
         private BillStandarizedInterface  $billStandarized
@@ -58,10 +59,10 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     }
     private function generateStartDate(Carbon $date,int $closeDay):Carbon
     {
-        $startDate = clone $date;
-        $days = 30;
+        $startDate = Carbon::make($date);
+
         if($date->day <= $closeDay){
-            $startDate->subDays($days);
+            $startDate->subDays(self::DAYS_IN_MONTH_DEFAULT);
             $startDate = $this->setDaysInCloseAndStartDate($startDate,$closeDay);
             $startDate->addDay();
         }else{
@@ -73,7 +74,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
     private function generateEndDate(Carbon $date,int $closeDay):Carbon
     {
-        $endDate = clone $date;
+        $endDate = Carbon::make($date);
         $days = $date->daysInMonth;
         if($date->day <= $closeDay){
             $endDate = $this->setDaysInCloseAndStartDate($endDate,$closeDay);
@@ -86,7 +87,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     private function setDaysInCloseAndStartDate(Carbon $date,int $closeDay):Carbon
     {
         $days = $date->daysInMonth;
-        if($closeDay > $days){
+        if($this->dayGreaterThanNumberOfDaysInTheMonth($closeDay,$days)){
             $date->setDay($days);
         }else{
             $date->setDay($closeDay);
@@ -99,22 +100,19 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
         $days = $dueDate->daysInMonth;
         if($dueDay <= $endDate->day){
-            $dueDate->setDay(2);
+            $dueDate->setDay(self::START_DAY_IN_MONTH);
             $dueDate->addDays($days);
-            if($dueDay > $days) {
-                $dueDate->setDay($days);
-            }else{
-                $dueDate->setDay($dueDay);
-            }
-
+        }
+        if($this->dayGreaterThanNumberOfDaysInTheMonth($dueDay,$days)) {
+            $dueDate->setDay($days);
         }else{
-            if($dueDay > $days) {
-                $dueDate->setDay($days);
-            }else{
-                $dueDate->setDay($dueDay);
-            }
+            $dueDate->setDay($dueDay);
         }
         return $dueDate;
+    }
+    private function dayGreaterThanNumberOfDaysInTheMonth($day1,$daysInMonth):bool
+    {
+        return $day1 > $daysInMonth;
     }
 
     private function generateMonthReference(Carbon $dueDate):int

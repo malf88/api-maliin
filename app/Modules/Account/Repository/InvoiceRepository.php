@@ -5,6 +5,7 @@ namespace App\Modules\Account\Repository;
 use App\Models\Bill;
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
@@ -20,21 +21,24 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     {
     }
 
-    public function getInvoiceByCreditCardAndDate(int $creditCardId, Carbon $date): Invoice|null
+    public function getInvoiceByCreditCardAndDate(int $creditCardId, Carbon $date): InvoiceDTO|null
     {
-        return CreditCard::find($creditCardId)
+        $invoice = CreditCard::find($creditCardId)
             ->invoices()
             ->where('start_date','<=',$date)
             ->where('end_date','>=',$date)
             ->first();
+        if($invoice != null)
+            return new InvoiceDTO($invoice->toArray());
+        return null;
     }
 
-    public function insertInvoice(array $invoiceData): Invoice
+    public function insertInvoice(InvoiceDTO $invoiceData): InvoiceDTO
     {
         $invoice = new Invoice();
-        $invoice->fill($invoiceData);
+        $invoice->fill($invoiceData->toArray());
         $invoice->save();
-        return $invoice;
+        return new InvoiceDTO($invoice->toArray());
     }
 
     public function getInvoicesWithBills(int $creditCardId):Collection

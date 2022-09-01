@@ -328,6 +328,10 @@ class CreditCardBusinessTest extends TestCase
             ->method('getInvoicesWithBill')
             ->willReturn($this->factory->factoryInvoiceList());
         $this->prepareCreditCardRepository($creditCardId);
+        $this->creditCardRepository
+            ->expects($this->once())
+            ->method('getCreditCardById');
+
         $this->prepareAccountBusiness();
         $this->prepareCreditCardBusiness();
         $invoices = $this->creditCardBusiness->getInvoicesWithBillByCreditCard($creditCardId);

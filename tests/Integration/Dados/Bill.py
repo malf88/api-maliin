@@ -1,3 +1,5 @@
+
+
 def create_bill_with_creditcard(creditcardId,categoryId):
     return {
         'description': 'Loren Ipsum',
@@ -5,6 +7,7 @@ def create_bill_with_creditcard(creditcardId,categoryId):
         'date': '2021-10-21',
         'due_date': '2021-10-21',
         'credit_card_id': creditcardId,
+        'pay_day': None,
         'category_id': categoryId,
         'portion': 1
     }
@@ -16,7 +19,8 @@ def create_bill_without_creditcard(categoryId):
         'due_date': '2021-10-22',
         'category_id': categoryId,
         'barcode':'Teste',
-        'portion': 1
+        'portion': 1,
+        'pay_day': None
     }
 
 def create_bill_without_creditcard_with_portion(categoryId):
@@ -26,7 +30,8 @@ def create_bill_without_creditcard_with_portion(categoryId):
         'date': '2021-10-21',
         'due_date': '2021-10-21',
         'category_id': categoryId,
-        'portion': 4
+        'portion': 4,
+        'pay_day': None
     }
 
 def create_bill_with_creditcard_with_portion(creditcardId,categoryId):
@@ -37,5 +42,6 @@ def create_bill_with_creditcard_with_portion(creditcardId,categoryId):
         'due_date': '2021-10-21',
         'credit_card_id': creditcardId,
         'category_id': categoryId,
-        'portion': 5
+        'portion': 5,
+        'pay_day': None
     }

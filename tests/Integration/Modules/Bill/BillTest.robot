@@ -11,7 +11,7 @@ Library     ../../Dados/Bill.py
 Library     ../../Dados/Creditcard.py
 Library    Collections
 Resource    Templates/BillTemplates.robot
-
+Default Tags     bill
 *** Test Case ***                                                              Cartão de crédito         Portion
 Caso de teste 01 - Deve inserir um lançamento                                  False                      1
     [Template]     Proccess Test Insert Bill

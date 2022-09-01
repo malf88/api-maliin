@@ -17,6 +17,7 @@ interface BillRepositoryInterface
     public function getBillsByAccountWithRangeDatePaginate(int $accountId, array $rangeDate = null):LengthAwarePaginator;
     public function saveBill(int $accountId,BillDTO $billDTO):BillDTO;
     public function updateBill(int $accountId,BillDTO $billData):BillDTO;
+    public function updatePayDayBill(int $accountId, BillDTO $billData): BillDTO;
     public function getBillById(int $billId):Bill;
     public function getChildBill(int $billId, int $billParentId):Collection;
     public function deleteBill(int $billId):bool;

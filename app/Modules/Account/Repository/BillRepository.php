@@ -193,6 +193,13 @@ class BillRepository implements BillRepositoryInterface
         return Bill::with(['category','credit_card'])->find($billId);
     }
 
+    public function updatePayDayBill(int $accountId, BillDTO $billData): BillDTO
+    {
+        $bill = Bill::find($accountId);
+        $bill->pay_day = $billData->pay_day;
+        $bill->update();
+        return new BillDTO($bill->toArray());
+    }
     public function updateBill(int $accountId, BillDTO $billData): BillDTO
     {
         $bill = Bill::find($accountId);

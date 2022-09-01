@@ -1027,4 +1027,46 @@ class BillBusinessTest extends TestCase
 
     }
 
+    /**
+     * @test
+     */
+    public function devePagarUmaContaAPagar(){
+        $this->accountFactory->configureUserSession();
+        $billId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['pay_day'] = '2021-05-23';
+        $user = $this->accountFactory->factoryUser(1);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
+        $bill->method('account')
+            ->willReturn($account);
+
+        $bill->account = $account;
+        $bill->fill($this->factoryBillData());
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+
+        $billRepository
+            ->shouldReceive('updatePayDayBill')
+            ->once()
+            ->andReturnArg(1);
+        $billRepository
+            ->shouldReceive('getBillById')
+            ->andReturn($bill);
+
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $billDto = new BillDTO($billData);
+        $bill = $billBusiness->payBill($billId,$billDto);
+
+        $this->assertEquals(160.00,$bill->amount);
+        $this->assertEquals($billData['pay_day'],$bill->pay_day);
+
+    }
+
 }

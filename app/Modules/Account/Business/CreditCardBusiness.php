@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Business;
 
 use App\Models\User;
+use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
@@ -71,7 +72,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         return $this->creditCardRepository->getInvoicesByCreditCard($creditCardId);
     }
 
-    public function generateInvoiceByBill(int $creditCardId,string $billDate):Model
+    public function generateInvoiceByBill(int $creditCardId,string $billDate):InvoiceDTO
     {
         $creditCard = $this->getCreditCardById($creditCardId);
         return $this->invoiceBusiness->createInvoiceForCreditCardByDate($creditCard,Carbon::make($billDate));

@@ -199,6 +199,16 @@ class BillBusiness implements BillBusinessInterface
         }
     }
 
+    public function payBill(int $billId,BillDTO $billData):DTOAbstract
+    {
+        $bill = $this->getBillById($billId);
+        if(!Auth::user()->userIsOwnerAccount($bill->account_id))
+            throw new NotFoundHttpException('Lançamento não encontrado');
+
+        return $this->billRepository->updatePayDayBill($billId, $billData);
+
+    }
+
     public function updateBill(int $billId,BillDTO $billData):DTOAbstract|BaseCollection
     {
         $bill = $this->getBillById($billId);

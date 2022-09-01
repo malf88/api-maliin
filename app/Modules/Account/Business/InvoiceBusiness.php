@@ -37,7 +37,6 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         if($invoice) {
             return $invoice;
         }
-
         return $this->invoiceRepository->insertInvoice(
             new InvoiceDTO($this->getInvoiceData($creditCard,$date))
         );

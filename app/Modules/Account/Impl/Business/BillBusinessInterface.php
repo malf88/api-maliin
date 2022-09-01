@@ -18,6 +18,7 @@ interface BillBusinessInterface
     public function insertBill(int $accountId,BillDTO $billData):DTOAbstract|Collection;
     public function getBillById(int $billId):Model;
     public function updateBill(int $billId,BillDTO $billData):DTOAbstract|BaseCollection;
+    public function payBill(int $billId,BillDTO $billData):DTOAbstract;
     public function deleteBill(int $billId):bool;
     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
     public function getPeriodWithBill(int $accountId):Collection;

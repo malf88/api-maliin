@@ -86,6 +86,9 @@ class AccountBusinessTest extends TestCase
         $account = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $listAccount = $account->getListAllAccounts($user);
         $this->assertIsIterable($listAccount);
+        $this->assertContains('total_balance',$listAccount->get(0)->getVisible());
+        $this->assertContains('total_estimated',$listAccount->get(0)->getVisible());
+        $this->assertContains('bills',$listAccount->get(0)->getVisible());
         $this->assertEquals(200.00,$listAccount->get(0)->total_balance);
         $this->assertEquals(100.00,$listAccount->get(0)->total_estimated);
         $this->assertCount(3,$listAccount->get(0)->bills());
@@ -103,6 +106,11 @@ class AccountBusinessTest extends TestCase
         $account = new AccountBusiness($accountRepositoryMock, $userBusinessMock);
         $listAccount = $account->getListAllAccountFromLoggedUser();
         $this->assertIsIterable($listAccount);
+
+        $this->assertContains('total_balance',$listAccount->get(0)->getVisible());
+        $this->assertContains('total_estimated',$listAccount->get(0)->getVisible());
+        $this->assertContains('bills',$listAccount->get(0)->getVisible());
+
         $this->assertEquals(200.00,$listAccount->get(0)->total_balance);
         $this->assertEquals(100.00,$listAccount->get(0)->total_estimated);
         $this->assertCount(3,$listAccount->get(0)->bills());

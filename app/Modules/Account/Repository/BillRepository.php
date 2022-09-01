@@ -6,6 +6,7 @@ use App\Models\Bill;
 use App\Models\Category;
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Traits\RepositoryTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -133,13 +134,13 @@ class BillRepository implements BillRepositoryInterface
             ->orderBy('start_date','ASC');
     }
 
-    public function saveBill(int $accountId,array $billData):Bill
+    public function saveBill(int $accountId,BillDTO $billDTO):BillDTO
     {
-        $bill = new Bill();
-        $bill->fill($billData);
+        $bill = new Bill($billDTO->toArray());
+
         $bill->account_id = $accountId;
         $bill->save();
-        return $bill;
+        return new BillDTO($bill->toArray());
 
     }
     public function getCategory(Bill $bill):Category|null
@@ -192,12 +193,19 @@ class BillRepository implements BillRepositoryInterface
         return Bill::with(['category','credit_card'])->find($billId);
     }
 
-    public function updateBill(int $accountId, array $billData): Bill
+    public function updatePayDayBill(int $accountId, BillDTO $billData): BillDTO
     {
         $bill = Bill::find($accountId);
-        $bill->fill($billData);
+        $bill->pay_day = $billData->pay_day;
         $bill->update();
-        return $bill;
+        return new BillDTO($bill->toArray());
+    }
+    public function updateBill(int $accountId, BillDTO $billData): BillDTO
+    {
+        $bill = Bill::find($accountId);
+        $bill->fill($billData->toArray());
+        $bill->update();
+        return new BillDTO($bill->toArray());
     }
 
     public function deleteBill(int $billId):bool

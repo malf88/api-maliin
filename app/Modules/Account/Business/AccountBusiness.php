@@ -28,7 +28,9 @@ class AccountBusiness implements AccountBusinessInterface
      * @param Account $account
      * @return Account
      */
-    private function prepareAccount(Account $account):Account{
+    private function prepareAccount(Account $account):Account
+    {
+
         $account->makeVisible(['total_balance','total_estimated','bills']);
         $account->setAttribute('total_balance',$account->bills()->whereNotNull('pay_day')->sum('amount'));
         $account->setAttribute('total_estimated',$account->bills()->sum('amount'));
@@ -42,9 +44,7 @@ class AccountBusiness implements AccountBusinessInterface
     private function prepareListAccount(Collection $accountList):Collection{
 
         $accountList->each(function($item,$index){
-            $item->makeVisible(['total_balance','total_estimated','bills']);
-            $item->setAttribute('total_balance',$item->bills()->whereNotNull('pay_day')->sum('amount'));
-            $item->setAttribute('total_estimated',$item->bills()->sum('amount'));
+            $item = $this->prepareAccount($item);
         });
         return $accountList;
     }

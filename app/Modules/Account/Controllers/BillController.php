@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Services\BillPdfService;
 use App\Modules\Account\ServicesLocal\BillServiceLocal;
@@ -214,7 +215,7 @@ class BillController extends Controller
     public function insert(Request $request, $accountId)
     {
         try{
-            return response($this->billServices->insertBill($accountId,$request->all()),201);
+            return response($this->billServices->insertBill($accountId,new BillDTO($request->all()))->toArray(),201);
         }catch (NotFoundHttpException $e){
             return response($e->getMessage(),404);
         }
@@ -306,7 +307,7 @@ class BillController extends Controller
     public function update(Request $request, $id)
     {
         try{
-            return response($this->billServices->updateBill($id,$request->all()),200);
+            return response($this->billServices->updateBill($id,new BillDTO($request->all()))->toArray(),200);
         }catch(NotFoundHttpException $e){
             return response($e->getMessage(),404);
         }
@@ -373,7 +374,7 @@ class BillController extends Controller
     public function pay(int $id)
     {
         try{
-            return response($this->billServices->updateBill($id,['pay_day' => Carbon::today()->format('Y/m/d')]),200);
+            return response($this->billServices->payBill($id,new BillDTO(['pay_day' => Carbon::today()->format('Y/m/d')]))->toArray(),200);
         }catch (NotFoundHttpException $e){
             return response($e->getMessage(),404);
         }

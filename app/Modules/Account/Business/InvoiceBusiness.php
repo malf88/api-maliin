@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
@@ -16,7 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvoiceBusiness implements InvoiceBusinessInterface
 {
-
+    const START_DAY_IN_MONTH = 2;
+    const DAYS_IN_MONTH_DEFAULT = 30;
     public function __construct(
         private InvoiceRepositoryInterface $invoiceRepository,
         private BillStandarizedInterface  $billStandarized
@@ -24,19 +26,19 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     {
 
     }
-    public function getInvoiceByCreditCardAndDate(int $creditCardId,Carbon $date):Model|null
+    public function getInvoiceByCreditCardAndDate(int $creditCardId,Carbon $date):InvoiceDTO|null
     {
         return $this->invoiceRepository->getInvoiceByCreditCardAndDate($creditCardId,$date);
     }
 
-    public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):Model
+    public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):InvoiceDTO
     {
         $invoice = $this->getInvoiceByCreditCardAndDate($creditCard->id,$date);
         if($invoice) {
             return $invoice;
         }
         return $this->invoiceRepository->insertInvoice(
-            $this->getInvoiceData($creditCard,$date)
+            new InvoiceDTO($this->getInvoiceData($creditCard,$date))
         );
     }
 
@@ -56,10 +58,10 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     }
     private function generateStartDate(Carbon $date,int $closeDay):Carbon
     {
-        $startDate = clone $date;
-        $days = 30;
+        $startDate = Carbon::make($date);
+
         if($date->day <= $closeDay){
-            $startDate->subDays($days);
+            $startDate->subDays(self::DAYS_IN_MONTH_DEFAULT);
             $startDate = $this->setDaysInCloseAndStartDate($startDate,$closeDay);
             $startDate->addDay();
         }else{
@@ -71,7 +73,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
     private function generateEndDate(Carbon $date,int $closeDay):Carbon
     {
-        $endDate = clone $date;
+        $endDate = Carbon::make($date);
         $days = $date->daysInMonth;
         if($date->day <= $closeDay){
             $endDate = $this->setDaysInCloseAndStartDate($endDate,$closeDay);
@@ -84,7 +86,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
     private function setDaysInCloseAndStartDate(Carbon $date,int $closeDay):Carbon
     {
         $days = $date->daysInMonth;
-        if($closeDay > $days){
+        if($this->dayGreaterThanNumberOfDaysInTheMonth($closeDay,$days)){
             $date->setDay($days);
         }else{
             $date->setDay($closeDay);
@@ -97,22 +99,19 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
         $days = $dueDate->daysInMonth;
         if($dueDay <= $endDate->day){
-            $dueDate->setDay(2);
+            $dueDate->setDay(self::START_DAY_IN_MONTH);
             $dueDate->addDays($days);
-            if($dueDay > $days) {
-                $dueDate->setDay($days);
-            }else{
-                $dueDate->setDay($dueDay);
-            }
-
+        }
+        if($this->dayGreaterThanNumberOfDaysInTheMonth($dueDay,$days)) {
+            $dueDate->setDay($days);
         }else{
-            if($dueDay > $days) {
-                $dueDate->setDay($days);
-            }else{
-                $dueDate->setDay($dueDay);
-            }
+            $dueDate->setDay($dueDay);
         }
         return $dueDate;
+    }
+    private function dayGreaterThanNumberOfDaysInTheMonth($day1,$daysInMonth):bool
+    {
+        return $day1 > $daysInMonth;
     }
 
     private function generateMonthReference(Carbon $dueDate):int
@@ -149,17 +148,24 @@ class InvoiceBusiness implements InvoiceBusinessInterface
                 ->invoiceRepository
                 ->getInvoicesWithBills($creditCardId);
     }
-
-    public function getInvoiceWithBills(int $invoiceId, bool $normalize = false):Model
+    public function getInvoiceWithBillsNormalized(int $invoiceId):Model
     {
         $invoice =  $this
             ->invoiceRepository
             ->getInvoiceWithBills($invoiceId);
-        if($normalize){
-            $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
-        }else{
-            $invoice->makeVisible('bills');
-        }
+        $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
+
+        return $invoice;
+    }
+
+    public function getInvoiceWithBills(int $invoiceId):Model
+    {
+        $invoice =  $this
+            ->invoiceRepository
+            ->getInvoiceWithBills($invoiceId);
+
+        $invoice->makeVisible('bills');
+
 
         return $invoice;
     }

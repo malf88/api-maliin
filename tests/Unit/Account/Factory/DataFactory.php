@@ -45,18 +45,20 @@ class DataFactory extends TestCase
             ->willReturn($user);
         $account->user = $user;
         $account->id = 1;
+
         $invoice1 = new Invoice();
         $invoice1->end_date = Carbon::createFromFormat('d/m/Y','30/08/2021');
         $invoice1->start_date = Carbon::createFromFormat('d/m/Y','01/08/2021');
         $invoice1->due_date = Carbon::createFromFormat('d/m/Y','15/09/2021');
         $invoice1->month_reference = 8;
+        $invoice1->credit_card_id = 1;
 
         $invoice2 = new Invoice();
         $invoice2->end_date = Carbon::createFromFormat('d/m/Y','30/07/2021');
         $invoice2->start_date = Carbon::createFromFormat('d/m/Y','01/07/2021');
         $invoice2->due_date = Carbon::createFromFormat('d/m/Y','06/08/2021');
         $invoice2->month_reference = 7;
-
+        $invoice2->credit_card_id = 1;
 
         $creditCard1 = $this->createPartialMock(CreditCard::class,['account','invoices']);
         $creditCard1
@@ -68,8 +70,8 @@ class DataFactory extends TestCase
 
         $creditCard1->id = 1;
         $creditCard1->name = 'Nubank';
-        $creditCard1->due_day = 07;
-        $creditCard1->close_day = 30;
+        $creditCard1->due_day = 3;
+        $creditCard1->close_day = 31;
         $creditCard1->account = $account;
         $creditCard1->account_id = $account->id;
 
@@ -166,7 +168,8 @@ class DataFactory extends TestCase
         int $parentId = null,
         string $pay_day = null,
         string $due_date = null,
-        int $portion=1):Bill
+        int $portion=1,
+        int $credit_card_id=null):Bill
     {
         $bill = $this->createPartialMock(Bill::class,['load','save','getBillParentAttribute','getCategoryAttribute']);
 
@@ -195,6 +198,8 @@ class DataFactory extends TestCase
         $bill->portion = $portion;
         $bill->due_date = $due_date? Carbon::createFromDate($due_date) : null;
         $bill->account_id = 1;
+        $bill->credit_card_id = $credit_card_id;
+        $bill->category_id = 1;
         return $bill;
 
     }

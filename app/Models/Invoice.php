@@ -15,7 +15,7 @@ class Invoice extends ApiModel
         'end_date'          => 'required|date|after:start_date',
         'due_date'          => 'required|date|after:end_date',
         'month_reference'   => 'required|integer',
-        'pay_day'           => 'date',
+        'pay_day'           => 'nullable|date',
         'credit_card_id'    => 'exists:credit_cards,id'
     ];
     protected $dates = [

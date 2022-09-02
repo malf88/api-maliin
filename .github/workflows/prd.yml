@@ -153,7 +153,7 @@ jobs:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
-          timeout-minutes: 60
+          command_timeout: 200m
           script: |
             cd ${{secrets.APP_DIR}}
             docker service update api-maliin_api-app --force

@@ -155,5 +155,8 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
           script: |
             cd ${{secrets.APP_DIR}}
-            docker service update api-maliin_api-app api-maliin_api-queue api-maliin_api-scheduler api-maliin_nginx --force
+            docker service update api-maliin_api-app --force
+            docker service update api-maliin_api-queue --force
+            docker service update api-maliin_api-scheduler --force
+            docker service update api-maliin_nginx --force
             docker system prune -a --force

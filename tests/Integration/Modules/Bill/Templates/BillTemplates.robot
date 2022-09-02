@@ -61,19 +61,19 @@ Proccess Teste Update Bill
     ${IDS}        Insert Scenario    ${USER}
     &{BILL}       Bill.Create Bill Without Creditcard    ${IDS.category_id} 
 
-    ${BILL.account_id}    Set Variable    ${IDS.account_id}       
-
+    ${BILL.account_id}    Set Variable    ${IDS.account_id}      
     ${response}    Insert Bill    ${BILL}    ${IDS.account_id}    ${USER}  ${PORTION}  ${CREDITCARD}
     IF    ${PORTION} > 1
         &{INSERTED_BILL}     Set To Dictionary     ${response.json()[0]}
     ELSE
         &{INSERTED_BILL}     Set To Dictionary   ${response.json()}
     END
-
+    ${BILL.account_id}    Set Variable    Null 
     ${BILL_ID}     Set Variable  ${INSERTED_BILL.id} 
     ${BILL.amount}  Set Variable  12.32
     ${response}    Update Bill    ${BILL}    ${BILL_ID}    ${USER}
     
+    ${BILL.account_id}    Set Variable    ${IDS.account_id} 
     &{billItem}     Set To Dictionary     ${response.json()}  
     Should Be Validate Fields    ${billItem}    ${BILL}
 

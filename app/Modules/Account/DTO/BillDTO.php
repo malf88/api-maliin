@@ -14,12 +14,12 @@ class BillDTO extends DTOAbstract
     public Carbon|string|null $due_date;
     public Carbon|string|null $pay_day;
     public string|null $barcode;
-    public int|null $category_id;
-    public int|null $bill_parent_id;
-    public int|null $portion;
-    public int|null $account_id;
-    public int|null $credit_card_id;
-    public int|null $id;
+    public int|string|null $category_id;
+    public int|string|null $bill_parent_id;
+    public int|string|null $portion;
+    public int|string|null $account_id;
+    public int|string|null $credit_card_id;
+    public int|string|null $id;
     public bool $update_childs = false;
     public Collection|null $bill_parent;
 }

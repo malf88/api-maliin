@@ -200,9 +200,10 @@ class BillRepository implements BillRepositoryInterface
         $bill->update();
         return new BillDTO($bill->toArray());
     }
-    public function updateBill(int $accountId, BillDTO $billData): BillDTO
+    public function updateBill(int $billId, BillDTO $billData): BillDTO
     {
-        $bill = Bill::find($accountId);
+        $bill = Bill::find($billId);
+        $billData->account_id = $bill->account_id;
         $bill->fill($billData->toArray());
         $bill->update();
         return new BillDTO($bill->toArray());

@@ -8,8 +8,10 @@ use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Business\UserBusiness;
 use App\Modules\Account\Repository\AccountRepository;
+use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
@@ -24,6 +26,7 @@ class CreditCardBusinessTest extends TestCase
     private CreditCardBusiness $creditCardBusiness;
     private InvoiceBusiness $invoiceBusiness;
     private UserBusiness $userBusiness;
+    private BillRepository $billRepository;
     public function setUp(): void
     {
         parent::setUp();
@@ -33,6 +36,7 @@ class CreditCardBusinessTest extends TestCase
         $this->accountRepository = $this->createMock(AccountRepository::class);
         $this->invoiceBusiness = $this->createMock(InvoiceBusiness::class);
         $this->userBusiness = $this->createMock(UserBusiness::class);
+        $this->billRepository = $this->createMock(BillRepository::class);
     }
     public function prepareCreditCardRepository($creditCardId)
     {
@@ -51,7 +55,8 @@ class CreditCardBusinessTest extends TestCase
     {
         $this->creditCardBusiness = new CreditCardBusiness(
             $this->creditCardRepository,
-            $this->invoiceBusiness
+            $this->invoiceBusiness,
+            $this->billRepository
         );
         return $this->creditCardBusiness;
     }
@@ -173,6 +178,12 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmCartaoDeCredito(){
+        DB::shouldReceive('beginTransaction')
+            ->once();
+
+        DB::shouldReceive('commit')
+            ->once();
+
         $this->factory->configureUserSession();
         $creditCardId = 1;
         $accountId = 1;
@@ -197,6 +208,10 @@ class CreditCardBusinessTest extends TestCase
             ->method('updateCreditCard')
             ->with($creditCardId,$creditCardData)
             ->willReturn($creditCard);
+        $this->billRepository
+            ->expects($this->once())
+            ->method('getBillsByCreditCardId')
+            ->willReturn($this->factory->factoryBills());
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
 

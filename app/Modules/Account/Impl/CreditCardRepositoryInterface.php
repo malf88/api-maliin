@@ -16,4 +16,5 @@ interface CreditCardRepositoryInterface
     public function saveCreditCard(int $accountId, array $creditCardData):CreditCard;
     public function deleteCreditCard(int $creditCardId):bool;
     public function getInvoicesByCreditCard(int $creditCardId):Collection;
+    public function deleteInvoiceFromCreditCardId(int $creditCardId):void;
 }

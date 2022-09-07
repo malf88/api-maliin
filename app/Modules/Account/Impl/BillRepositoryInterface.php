@@ -28,4 +28,6 @@ interface BillRepositoryInterface
     public function getTotalCashOut(Collection $bills):float;
     public function getCategory(Bill $bill):Category|null;
     public function getCreditCard(Bill $bill):CreditCard|null;
+    public function getBillsByCreditCardId(int $creditCardId):Collection;
+
 }

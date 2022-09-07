@@ -5,6 +5,7 @@ namespace App\Modules\Account\Repository;
 
 use App\Models\Account;
 use App\Models\CreditCard;
+use App\Models\Invoice;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -35,6 +36,12 @@ class CreditCardRepository implements CreditCardRepositoryInterface
         $creditCard->fill($creditCardData);
         $creditCard->update();
         return $creditCard;
+    }
+
+    public function deleteInvoiceFromCreditCardId(int $creditCardId):void
+    {
+        Invoice::where('credit_card_id', $creditCardId)
+            ->whereNull('pay_day')->delete();
     }
 
     public function deleteCreditCard(int $creditCardId):bool

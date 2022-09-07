@@ -4,10 +4,13 @@ namespace App\Modules\Account\Business;
 
 use App\Models\User;
 use App\Modules\Account\DTO\InvoiceDTO;
+use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
+use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
+use App\Traits\RepositoryTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -17,10 +20,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CreditCardBusiness implements CreditCardBusinessInterface
 {
+    use RepositoryTrait;
 
     public function __construct(
         private CreditCardRepositoryInterface $creditCardRepository,
-        private InvoiceBusinessInterface $invoiceBusiness
+        private InvoiceBusinessInterface $invoiceBusiness,
+        private BillRepositoryInterface $billRepository
     )
     {
 
@@ -57,7 +62,21 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     public function updateCreditCard(int $creditCardId, array $creditCardData):Model
     {
         $this->getCreditCardById($creditCardId);
-        return $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
+        $creditCard = $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
+        $this->creditCardRepository->deleteInvoiceFromCreditCardId($creditCard->id);
+        $bills = $this->billRepository->getBillsByCreditCardId($creditCard->id);
+        try{
+            $this->startTransaction();
+            $bills->each(function($item) use($creditCard){
+                $this->generateInvoiceByBill($creditCard->id, $item->date);
+            });
+            $this->commitTransaction();
+        }catch (\Exception $e){
+            $this->rollbackTransaction();
+            throw $e;
+        }
+        return $creditCard;
+
     }
 
     public function removeCreditCard(int $creditCardId):bool

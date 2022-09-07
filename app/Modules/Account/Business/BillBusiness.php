@@ -297,6 +297,12 @@ class BillBusiness implements BillBusinessInterface
 
 
     }
+
+    public function getBillsByCreditCardId(int $creditCardId):Collection
+    {
+        return $this->billRepository->getBillsByCreditCardId($creditCardId);
+    }
+
     public function generatePdfByPeriod(BillPdfInterface $billPdfService, int $accountId,array $period):void
     {
         $bills = $this->getBillsByAccountBetween($accountId,$period);

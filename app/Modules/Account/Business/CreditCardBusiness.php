@@ -10,6 +10,7 @@ use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
 use App\Modules\Account\Impl\CreditCardRepositoryInterface;
+use App\Modules\Account\Jobs\CreateInvoice;
 use App\Traits\RepositoryTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -61,21 +62,38 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function updateCreditCard(int $creditCardId, array $creditCardData):Model
     {
-        $this->getCreditCardById($creditCardId);
-        $creditCard = $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
-        $this->creditCardRepository->deleteInvoiceFromCreditCardId($creditCard->id);
-        $bills = $this->billRepository->getBillsByCreditCardId($creditCard->id);
         try{
             $this->startTransaction();
-            $bills->each(function($item) use($creditCard){
-                $this->generateInvoiceByBill($creditCard->id, $item->date);
-            });
+            $this->getCreditCardById($creditCardId);
+            $creditCardData['invoices_created'] = null;
+            $creditCard = $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
+            $this->creditCardRepository->deleteInvoiceFromCreditCardId($creditCard->id);
+            CreateInvoice::dispatch($creditCard, $this)->onQueue('default');
+            //$this->regenerateInvoicesByCreditCard($creditCardId);
             $this->commitTransaction();
         }catch (\Exception $e){
             $this->rollbackTransaction();
             throw $e;
         }
         return $creditCard;
+
+    }
+
+    public function regenerateInvoicesByCreditCard(int $creditCardId):void
+    {
+        $bills = $this->getBillByCreditCardId($creditCardId);
+
+        $bills->each(function($item) use($creditCardId){
+            $this->generateInvoiceByBill($creditCardId, $item->date);
+        });
+        $creditCard = $this->getCreditCardById($creditCardId);
+        $creditCard->invoices_created = Carbon::now();
+        $this->creditCardRepository->updateCreditCard($creditCardId, $creditCard->toArray());
+    }
+
+    public function getBillByCreditCardId(int $creditCardId):Collection
+    {
+        return $this->billRepository->getBillWithPayDayNullByCreditCardId($creditCardId);
 
     }
 

@@ -18,4 +18,6 @@ interface CreditCardBusinessInterface
     public function getInvoicesByCreditCard(int $creditCardId):Collection;
     public function generateInvoiceByBill(int $creditCardId,string $billDate):InvoiceDTO    ;
     public function getInvoicesWithBillByCreditCard(int $creditCardId):Collection;
+    public function getBillByCreditCardId(int $creditCardId):Collection;
+    public function regenerateInvoicesByCreditCard(int $creditCardId):void;
 }

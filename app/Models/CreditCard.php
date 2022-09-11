@@ -15,7 +15,8 @@ class CreditCard extends ApiModel
         'close_day'     => 'required|integer'
     ];
     protected $dates = [
-        'deleted_at'
+        'deleted_at',
+        'invoices_created'
     ];
     /**
      * The attributes that are mass assignable.
@@ -25,7 +26,8 @@ class CreditCard extends ApiModel
     protected $fillable = [
         'name',
         'due_day',
-        'close_day'
+        'close_day',
+        'invoices_created'
 
     ];
     /**

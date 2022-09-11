@@ -213,6 +213,12 @@ class BillRepository implements BillRepositoryInterface
     {
         return Bill::where('credit_card_id', $creditCardId)->get();
     }
+    public function getBillWithPayDayNullByCreditCardId(int $creditCardId):Collection
+    {
+        return Bill::where('credit_card_id', $creditCardId)
+                ->whereNull('pay_day')
+                ->get();
+    }
     public function deleteBill(int $billId):bool
     {
         $bill = Bill::find($billId);

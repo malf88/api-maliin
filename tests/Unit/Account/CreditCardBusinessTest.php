@@ -7,11 +7,13 @@ use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Business\UserBusiness;
+use App\Modules\Account\Jobs\CreateInvoice;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Unit\Account\Factory\DataFactory;
@@ -178,6 +180,7 @@ class CreditCardBusinessTest extends TestCase
      * @test
      */
     public function deveAlterarUmCartaoDeCredito(){
+        Queue::fake();
         DB::shouldReceive('beginTransaction')
             ->once();
 
@@ -208,6 +211,7 @@ class CreditCardBusinessTest extends TestCase
             ->method('updateCreditCard')
             ->with($creditCardId,$creditCardData)
             ->willReturn($creditCard);
+
         $this->billRepository
             ->expects($this->once())
             ->method('getBillsByCreditCardId')
@@ -218,11 +222,13 @@ class CreditCardBusinessTest extends TestCase
         $this->assertEquals('Bradesco',$creditCard->name);
         $this->assertEquals(26,$creditCard->close_day);
         $this->assertEquals(01,$creditCard->due_day);
+        Queue::assertPushed(CreateInvoice::class);
     }
     /**
      * @test
      */
     public function deveDispararUmaExecaoAoAlterarUmCartaoDeCredito(){
+        Queue::fake();
         $this->factory->configureUserSession(true);
         $creditCardId = 5;
         $creditCardData = [
@@ -236,6 +242,7 @@ class CreditCardBusinessTest extends TestCase
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(NotFoundHttpException::class);
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
+        Queue::assertNothingPushed();
 
     }
 

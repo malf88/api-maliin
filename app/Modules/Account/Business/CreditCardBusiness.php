@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Business;
 
 use App\Models\User;
+use App\Modules\Account\DTO\CreditCardDTO;
 use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\AccountBusinessInterface;
@@ -40,7 +41,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         }
 
     }
-    public function getCreditCardById(int $creditCardId):Model
+    public function getCreditCardById(int $creditCardId):CreditCardDTO
     {
          $creditCard = $this->creditCardRepository->getCreditCardById($creditCardId);
 
@@ -51,9 +52,9 @@ class CreditCardBusiness implements CreditCardBusinessInterface
          }
     }
 
-    public function insertCreditCard(int $accountId, array $creditCardData):Model
+    public function insertCreditCard(int $accountId, CreditCardDTO $creditCardData):CreditCardDTO
     {
-        $creditCardData['invoices_created'] = Carbon::now();
+        $creditCardData->invoices_created = Carbon::now();
         if(Auth::user()->userHasAccount($accountId)){
             return $this->creditCardRepository->saveCreditCard($accountId,$creditCardData);
         }else{
@@ -61,12 +62,12 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         }
     }
 
-    public function updateCreditCard(int $creditCardId, array $creditCardData):Model
+    public function updateCreditCard(int $creditCardId, CreditCardDTO $creditCardData): CreditCardDTO
     {
         try{
             $this->startTransaction();
             $this->getCreditCardById($creditCardId);
-            $creditCardData['invoices_created'] = null;
+            $creditCardData->invoices_created = null;
             $creditCard = $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
             $this->creditCardRepository->deleteInvoiceFromCreditCardId($creditCard->id);
             CreateInvoice::dispatch($creditCard, $this)->onQueue('default');
@@ -88,7 +89,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
         });
         $creditCard = $this->getCreditCardById($creditCardId);
         $creditCard->invoices_created = Carbon::now();
-        $this->creditCardRepository->updateCreditCard($creditCardId, $creditCard->toArray());
+        $this->creditCardRepository->updateCreditCard($creditCardId, $creditCard);
     }
 
     public function getBillByCreditCardId(int $creditCardId):Collection

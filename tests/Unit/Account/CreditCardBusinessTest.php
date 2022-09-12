@@ -7,6 +7,7 @@ use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
 use App\Modules\Account\Business\UserBusiness;
+use App\Modules\Account\DTO\CreditCardDTO;
 use App\Modules\Account\Jobs\CreateInvoice;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\BillRepository;
@@ -110,7 +111,7 @@ class CreditCardBusinessTest extends TestCase
         $this->creditCardRepository
             ->method('getCreditCardById')
             ->with($creditCardId)
-            ->willReturn($creditCards->find($creditCardId));
+            ->willReturn($creditCards->get(0));
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->getCreditCardById($creditCardId);
 
@@ -138,15 +139,18 @@ class CreditCardBusinessTest extends TestCase
         $accountId = 1;
         $creditCardId = 1;
 
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' => 26
-        ];
+        ]);
         $this->prepareAccountBusiness();
 
-        $creditCard = new CreditCard();
-        $creditCard->fill($creditCardData);
+        $creditCard = new CreditCardDTO([
+            'name'      => 'Bradesco',
+            'due_day'  => 01,
+            'close_day' => 26
+        ]);
         $creditCard->id = $creditCardId;
 
         $this->creditCardRepository
@@ -166,11 +170,11 @@ class CreditCardBusinessTest extends TestCase
     public function deveDispararExcecaoAoInserirUmCartaoDeCredito(){
         $this->factory->configureUserSession(true);
         $accountId = 2;
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' =>26
-        ];
+        ]);
         $this->prepareAccountBusiness();
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(NotFoundHttpException::class);
@@ -191,15 +195,18 @@ class CreditCardBusinessTest extends TestCase
         $this->factory->configureUserSession();
         $creditCardId = 1;
         $accountId = 1;
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' => 26
-        ];
+        ]);
 
         $this->prepareAccountBusiness();
-        $creditCard = new CreditCard();
-        $creditCard->fill($creditCardData);
+        $creditCard = new CreditCardDTO([
+            'name'      => 'Bradesco',
+            'due_day'  => 01,
+            'close_day' => 26
+        ]);
         $creditCard->id = $creditCardId;
 
         $creditCards = $this->factory->factoryCreditCards();
@@ -239,15 +246,18 @@ class CreditCardBusinessTest extends TestCase
         $this->factory->configureUserSession();
         $creditCardId = 1;
         $accountId = 1;
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' => 26
-        ];
+        ]);
 
         $this->prepareAccountBusiness();
-        $creditCard = new CreditCard();
-        $creditCard->fill($creditCardData);
+        $creditCard = new CreditCardDTO([
+            'name'      => 'Bradesco',
+            'due_day'  => 01,
+            'close_day' => 26
+        ]);
         $creditCard->id = $creditCardId;
 
         $creditCards = $this->factory->factoryCreditCards();
@@ -276,11 +286,11 @@ class CreditCardBusinessTest extends TestCase
         Queue::fake();
         $this->factory->configureUserSession(true);
         $creditCardId = 5;
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' => 26
-        ];
+        ]);
 
         $this->prepareAccountBusiness();
 
@@ -298,15 +308,18 @@ class CreditCardBusinessTest extends TestCase
         $this->factory->configureUserSession();
         $creditCardId = 1;
         $accountId = 1;
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' => 26
-        ];
+        ]);
         $this->prepareAccountBusiness();
 
-        $creditCard = new CreditCard();
-        $creditCard->fill($creditCardData);
+        $creditCard = new CreditCardDTO([
+            'name'      => 'Bradesco',
+            'due_day'  => 01,
+            'close_day' => 26
+        ]);
         $creditCard->id = $creditCardId;
 
         $creditCards = $this->factory->factoryCreditCards();
@@ -330,17 +343,13 @@ class CreditCardBusinessTest extends TestCase
     public function deveDispararExcecaoAoExcluirUmCartaoDeCredito(){
         $this->factory->configureUserSession(true);
         $creditCardId = 5;
-        $creditCardData = [
+        $creditCardData = new CreditCardDTO([
             'name'      => 'Bradesco',
             'due_day'  => 01,
             'close_day' => 26
-        ];
+        ]);
 
         $this->prepareAccountBusiness();
-
-        $creditCard = new CreditCard();
-        $creditCard->fill($creditCardData);
-        $creditCard->id = $creditCardId;
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $this->expectException(NotFoundHttpException::class);
@@ -364,7 +373,7 @@ class CreditCardBusinessTest extends TestCase
         $this->creditCardRepository
             ->method('getInvoicesByCreditCard')
             ->with($creditCardId)
-            ->willReturn($creditCards->get(0)->invoices());
+            ->willReturn($creditCards->get(0)->invoices);
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $invoices = $creditCardBusiness->getInvoicesByCreditCard($creditCardId);
         $this->assertCount(2,$invoices);

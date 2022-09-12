@@ -4,6 +4,7 @@ namespace App\Modules\Account\Jobs;
 
 use App\Models\CreditCard;
 use App\Models\User;
+use App\Modules\Account\DTO\CreditCardDTO;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Mail\ShareEmail;
 use App\Traits\RepositoryTrait;
@@ -28,7 +29,7 @@ class CreateInvoice implements ShouldQueue
      * @return void
      */
     public function __construct(
-        private readonly CreditCard $creditCard,
+        private readonly CreditCardDTO $creditCard,
         private readonly CreditCardBusinessInterface $creditCardBusiness
     )
     {

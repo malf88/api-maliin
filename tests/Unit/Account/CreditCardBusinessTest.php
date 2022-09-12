@@ -11,6 +11,7 @@ use App\Modules\Account\Jobs\CreateInvoice;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -140,7 +141,7 @@ class CreditCardBusinessTest extends TestCase
         $creditCardData = [
             'name'      => 'Bradesco',
             'due_day'  => 01,
-            'close_day' =>26
+            'close_day' => 26
         ];
         $this->prepareAccountBusiness();
 
@@ -150,8 +151,8 @@ class CreditCardBusinessTest extends TestCase
 
         $this->creditCardRepository
             ->method('saveCreditCard')
-            ->with($accountId,$creditCardData)
             ->willReturn($creditCard);
+
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->insertCreditCard($accountId,$creditCardData);
 
@@ -209,13 +210,9 @@ class CreditCardBusinessTest extends TestCase
 
         $this->creditCardRepository
             ->method('updateCreditCard')
-            ->with($creditCardId,$creditCardData)
             ->willReturn($creditCard);
 
-        $this->billRepository
-            ->expects($this->once())
-            ->method('getBillsByCreditCardId')
-            ->willReturn($this->factory->factoryBills());
+
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
 

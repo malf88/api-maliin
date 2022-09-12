@@ -53,6 +53,7 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function insertCreditCard(int $accountId, array $creditCardData):Model
     {
+        $creditCardData['invoices_created'] = Carbon::now();
         if(Auth::user()->userHasAccount($accountId)){
             return $this->creditCardRepository->saveCreditCard($accountId,$creditCardData);
         }else{
@@ -119,6 +120,12 @@ class CreditCardBusiness implements CreditCardBusinessInterface
     {
         $this->getCreditCardById($creditCardId);
         return $this->invoiceBusiness->getInvoicesWithBill($creditCardId);
+    }
+
+    public function isCreditCardValid(int $creditCardId):bool
+    {
+        $creditCard = $this->getCreditCardById($creditCardId);
+        return $creditCard->invoices_created != null;
     }
 
 }

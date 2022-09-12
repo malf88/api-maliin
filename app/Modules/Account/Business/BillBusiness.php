@@ -3,6 +3,7 @@
 namespace App\Modules\Account\Business;
 
 use App\Abstracts\DTOAbstract;
+use App\Exceptions\InvalidValueException;
 use App\Helpers\BillHelper;
 use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
@@ -99,6 +100,8 @@ class BillBusiness implements BillBusinessInterface
     {
         if(!Auth::user()->userIsOwnerAccount($accountId))
             throw new NotFoundHttpException('Conta não encontrada.');
+        if($billData->credit_card_id != null && !$this->creditCardBusiness->isCreditCardValid($billData->credit_card_id))
+            throw new InvalidValueException('Cartão de crédito não é válido');
 
         if($billData->portion > 1){
             return $this->saveMultiplePortions($accountId,$billData);
@@ -214,6 +217,9 @@ class BillBusiness implements BillBusinessInterface
         $bill = $this->getBillById($billId);
         if(!Auth::user()->userIsOwnerAccount($bill->account_id))
             throw new NotFoundHttpException('Lançamento não encontrado');
+
+        if($billData->credit_card_id != null && !$this->creditCardBusiness->isCreditCardValid($billData->credit_card_id))
+            throw new InvalidValueException('Cartão de crédito não é válido');
 
         if (!$billData->update_childs) {
             $this->processCreditCardBill($billData);

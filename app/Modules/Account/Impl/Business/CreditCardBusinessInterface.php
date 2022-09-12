@@ -20,4 +20,5 @@ interface CreditCardBusinessInterface
     public function getInvoicesWithBillByCreditCard(int $creditCardId):Collection;
     public function getBillByCreditCardId(int $creditCardId):Collection;
     public function regenerateInvoicesByCreditCard(int $creditCardId):void;
+    public function isCreditCardValid(int $creditCardId):bool;
 }

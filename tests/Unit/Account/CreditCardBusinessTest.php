@@ -212,6 +212,9 @@ class CreditCardBusinessTest extends TestCase
             ->method('updateCreditCard')
             ->willReturn($creditCard);
 
+        $this->creditCardRepository
+            ->expects($this->once())
+            ->method('deleteInvoiceFromCreditCardId');
 
         $creditCardBusiness = $this->prepareCreditCardBusiness();
         $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
@@ -220,6 +223,51 @@ class CreditCardBusinessTest extends TestCase
         $this->assertEquals(26,$creditCard->close_day);
         $this->assertEquals(01,$creditCard->due_day);
         Queue::assertPushed(CreateInvoice::class);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoAlterarUmCartaoDeCredito(){
+        Queue::fake();
+        DB::shouldReceive('beginTransaction')
+            ->once();
+
+        DB::shouldReceive('rollBack')
+            ->once();
+
+        $this->factory->configureUserSession();
+        $creditCardId = 1;
+        $accountId = 1;
+        $creditCardData = [
+            'name'      => 'Bradesco',
+            'due_day'  => 01,
+            'close_day' => 26
+        ];
+
+        $this->prepareAccountBusiness();
+        $creditCard = new CreditCard();
+        $creditCard->fill($creditCardData);
+        $creditCard->id = $creditCardId;
+
+        $creditCards = $this->factory->factoryCreditCards();
+        $this->creditCardRepository
+            ->method('getCreditCardById')
+            ->with($creditCardId)
+            ->willReturn($creditCards->get(0));
+
+        $this->creditCardRepository
+            ->method('updateCreditCard')
+            ->willReturn($creditCard);
+
+        $this->creditCardRepository
+            ->expects($this->once())
+            ->method('deleteInvoiceFromCreditCardId')
+            ->willThrowException(new \Exception());
+        $this->expectException(\Exception::class);
+        $creditCardBusiness = $this->prepareCreditCardBusiness();
+        $creditCard = $creditCardBusiness->updateCreditCard($creditCardId,$creditCardData);
+        Queue::assertNothingPushed();
     }
     /**
      * @test

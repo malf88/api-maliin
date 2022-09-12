@@ -70,7 +70,6 @@ class CreditCardBusiness implements CreditCardBusinessInterface
             $creditCard = $this->creditCardRepository->updateCreditCard($creditCardId,$creditCardData);
             $this->creditCardRepository->deleteInvoiceFromCreditCardId($creditCard->id);
             CreateInvoice::dispatch($creditCard, $this)->onQueue('default');
-            //$this->regenerateInvoicesByCreditCard($creditCardId);
             $this->commitTransaction();
         }catch (\Exception $e){
             $this->rollbackTransaction();

@@ -12,6 +12,13 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CreditCardRepository implements CreditCardRepositoryInterface
 {
+    private function makeDTO(CreditCard $creditCard):CreditCardDTO
+    {
+        $creditCardDTO = new CreditCardDTO($creditCard->toArray());
+        $creditCardDTO->account = $creditCard->account;
+        return $creditCardDTO;
+    }
+
     public function getCreditCardsByAccountId(int $accountId):Collection
     {
         return Account::find($accountId)->creditCards()->orderBy('name', 'ASC')->get();
@@ -19,7 +26,7 @@ class CreditCardRepository implements CreditCardRepositoryInterface
 
     public function getCreditCardById(int $creditCardId):?CreditCardDTO
     {
-        return new CreditCardDTO(CreditCard::find($creditCardId)->toArray());
+        return $this->makeDTO(CreditCard::find($creditCardId));
     }
 
     public function saveCreditCard(int $accountId, CreditCardDTO $creditCardData):CreditCardDTO
@@ -28,7 +35,7 @@ class CreditCardRepository implements CreditCardRepositoryInterface
         $creditCard->fill($creditCardData->toArray());
         $creditCard->account_id = $accountId;
         $creditCard->save();
-        return new CreditCardDTO($creditCard->toArray());
+        return $this->makeDTO($creditCard);
     }
 
     public function updateCreditCard(int $creditCardId, CreditCardDTO $creditCardData):CreditCardDTO
@@ -36,7 +43,8 @@ class CreditCardRepository implements CreditCardRepositoryInterface
         $creditCard = CreditCard::find($creditCardId);
         $creditCard->fill($creditCardData->toArray());
         $creditCard->update();
-        return new CreditCardDTO($creditCard->toArray());
+
+        return $this->makeDTO($creditCard);
     }
 
     public function deleteInvoiceFromCreditCardId(int $creditCardId):void

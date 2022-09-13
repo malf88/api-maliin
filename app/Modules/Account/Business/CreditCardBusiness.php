@@ -82,14 +82,22 @@ class CreditCardBusiness implements CreditCardBusinessInterface
 
     public function regenerateInvoicesByCreditCard(int $creditCardId):void
     {
-        $bills = $this->getBillByCreditCardId($creditCardId);
+        try{
+            $this->startTransaction();
+            $bills = $this->getBillByCreditCardId($creditCardId);
 
-        $bills->each(function($item) use($creditCardId){
-            $this->generateInvoiceByBill($creditCardId, $item->date);
-        });
-        $creditCard = $this->getCreditCardById($creditCardId);
-        $creditCard->invoices_created = Carbon::now();
-        $this->creditCardRepository->updateCreditCard($creditCardId, $creditCard);
+            $bills->each(function($item) use($creditCardId){
+                $this->generateInvoiceByBill($creditCardId, $item->date);
+            });
+            $creditCard = $this->getCreditCardById($creditCardId);
+            $creditCard->invoices_created = Carbon::now();
+            $this->creditCardRepository->updateCreditCard($creditCardId, $creditCard);
+            $this->commitTransaction();
+        }catch (\Exception $e){
+            $this->rollbackTransaction();
+            throw $e;
+        }
+
     }
 
     public function getBillByCreditCardId(int $creditCardId):Collection

@@ -21,7 +21,7 @@ class CreateInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, RepositoryTrait;
     public $timeout = (60*60)*24;
-    public $tries = 1;
+    public $tries = 10;
 
     /**
      * Create a new job instance.
@@ -45,9 +45,7 @@ class CreateInvoice implements ShouldQueue
     {
         try{
             Auth::setUser($this->creditCard->account->user);
-            $this->startTransaction();
             $this->creditCardBusiness->regenerateInvoicesByCreditCard($this->creditCard->id);
-            $this->commitTransaction();
             Log::debug('Invoices created');
         }catch (\Exception $e){
             $this->rollbackTransaction();

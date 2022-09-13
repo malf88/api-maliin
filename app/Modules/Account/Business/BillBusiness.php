@@ -100,6 +100,7 @@ class BillBusiness implements BillBusinessInterface
     {
         if(!Auth::user()->userIsOwnerAccount($accountId))
             throw new NotFoundHttpException('Conta não encontrada.');
+
         if($billData->credit_card_id != null && !$this->creditCardBusiness->isCreditCardValid($billData->credit_card_id))
             throw new InvalidValueException('Cartão de crédito não é válido');
 

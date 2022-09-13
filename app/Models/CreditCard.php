@@ -18,6 +18,16 @@ class CreditCard extends ApiModel
         'deleted_at',
         'invoices_created'
     ];
+
+    protected $visible = [
+        'name',
+        'due_day',
+        'close_day',
+        'invoices_created',
+        'account',
+        'account_id',
+        'id'
+    ];
     /**
      * The attributes that are mass assignable.
      *

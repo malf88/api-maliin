@@ -6,6 +6,7 @@ use App\Abstracts\DTOAbstract;
 use App\Models\Account;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Spatie\DataTransferObject\Attributes\CastWith;
 
 class CreditCardDTO extends DTOAbstract
 {
@@ -17,5 +18,5 @@ class CreditCardDTO extends DTOAbstract
     public Collection|null $bills;
     public Collection|null $invoices;
     public int|null $account_id;
-    public Account|null $account;
+    public $account;
 }

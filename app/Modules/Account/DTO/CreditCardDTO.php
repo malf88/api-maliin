@@ -13,7 +13,7 @@ class CreditCardDTO extends DTOAbstract
     public string|null $name;
     public int|null $due_day;
     public int|null $close_day;
-    public Carbon|null $invoices_created;
+    public Carbon|string|null $invoices_created;
     public Collection|null $bills;
     public Collection|null $invoices;
     public int|null $account_id;

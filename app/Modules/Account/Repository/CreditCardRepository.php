@@ -19,24 +19,24 @@ class CreditCardRepository implements CreditCardRepositoryInterface
 
     public function getCreditCardById(int $creditCardId):?CreditCardDTO
     {
-        return CreditCard::find($creditCardId);
+        return new CreditCardDTO(CreditCard::find($creditCardId)->toArray());
     }
 
     public function saveCreditCard(int $accountId, CreditCardDTO $creditCardData):CreditCardDTO
     {
         $creditCard = new CreditCard();
-        $creditCard->fill($creditCardData);
+        $creditCard->fill($creditCardData->toArray());
         $creditCard->account_id = $accountId;
         $creditCard->save();
-        return $creditCard;
+        return new CreditCardDTO($creditCard->toArray());
     }
 
     public function updateCreditCard(int $creditCardId, CreditCardDTO $creditCardData):CreditCardDTO
     {
         $creditCard = CreditCard::find($creditCardId);
-        $creditCard->fill($creditCardData);
+        $creditCard->fill($creditCardData->toArray());
         $creditCard->update();
-        return $creditCard;
+        return new CreditCardDTO($creditCard->toArray());
     }
 
     public function deleteInvoiceFromCreditCardId(int $creditCardId):void

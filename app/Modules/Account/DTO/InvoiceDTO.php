@@ -15,6 +15,7 @@ class InvoiceDTO extends DTOAbstract
     public int|null $credit_card_id;
     public int|null $month_reference;
     public Collection|null $bills;
+    public float|null $total_balance;
 
 
 }

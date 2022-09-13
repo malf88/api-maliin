@@ -47,10 +47,10 @@ class InvoiceBusinessTest extends TestCase
         $creditCards = $this->factory->factoryCreditCards();
         $this->creditCardRepository
             ->method('getCreditCardById')
-            ->willReturn($creditCards->find($this->creditCardId));
+            ->willReturn($creditCards->get(0));
         $invoice = $creditCards
             ->get(0)
-            ->invoices()
+            ->invoices
             ->where('start_date','<=',$date)
             ->where('end_date','>=',$date)
             ->first();
@@ -61,7 +61,8 @@ class InvoiceBusinessTest extends TestCase
 
     private function configureCreditCardBusiness(){
         $invoiceBusiness = $this->createMock(InvoiceBusiness::class);
-        $this->creditCardBusiness = new CreditCardBusiness($this->creditCardRepository,$invoiceBusiness);
+        $billRepository = $this->createMock(BillRepository::class);
+        $this->creditCardBusiness = new CreditCardBusiness($this->creditCardRepository,$invoiceBusiness, $billRepository);
     }
     /**
      * @test

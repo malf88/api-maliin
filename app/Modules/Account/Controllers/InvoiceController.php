@@ -40,7 +40,7 @@ class InvoiceController extends Controller
 
     public function index(int $invoiceId)
     {
-        return response($this->invoiceServices->getInvoiceWithBills($invoiceId), 200);
+        return response($this->invoiceServices->getInvoiceWithBills($invoiceId)->toArray(), 200);
     }
 
     /**
@@ -99,6 +99,6 @@ class InvoiceController extends Controller
      */
     public function pay(Request $request, int $invoiceId)
     {
-        return response($this->invoiceServices->payInvoice($invoiceId), 200);
+        return response($this->invoiceServices->payInvoice($invoiceId)->toArray(), 200);
     }
 }

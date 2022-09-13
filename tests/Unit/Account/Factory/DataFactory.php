@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\CreditCard;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Modules\Account\DTO\CreditCardDTO;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -60,14 +61,9 @@ class DataFactory extends TestCase
         $invoice2->month_reference = 7;
         $invoice2->credit_card_id = 1;
 
-        $creditCard1 = $this->createPartialMock(CreditCard::class,['account','invoices']);
-        $creditCard1
-            ->method('account')
-            ->willReturn($account);
-        $creditCard1
-            ->method('invoices')
-            ->willReturn(Collection::make([$invoice1,$invoice2]));
+        $creditCard1 = new CreditCardDTO();
 
+        $creditCard1->invoices = Collection::make([$invoice1,$invoice2]);
         $creditCard1->id = 1;
         $creditCard1->name = 'Nubank';
         $creditCard1->due_day = 3;
@@ -75,21 +71,21 @@ class DataFactory extends TestCase
         $creditCard1->account = $account;
         $creditCard1->account_id = $account->id;
 
-        $creditCard2 = new CreditCard();
+        $creditCard2 = new CreditCardDTO();
         $creditCard2->id = 2;
         $creditCard2->name = 'Itaú';
         $creditCard2->due_day = 27;
         $creditCard2->close_day = 15;
         $creditCard2->account_id = $account->id;
 
-        $creditCard3 = new CreditCard();
+        $creditCard3 = new CreditCardDTO();
         $creditCard3->id = 3;
         $creditCard3->name = 'Caixa';
         $creditCard3->due_day = 13;
         $creditCard3->close_day = 06;
         $creditCard3->account_id = $account->id;
 
-        $creditCard4 = new CreditCard();
+        $creditCard4 = new CreditCardDTO();
         $creditCard4->id = 4;
         $creditCard4->name = 'Santander';
         $creditCard4->due_day = 13;

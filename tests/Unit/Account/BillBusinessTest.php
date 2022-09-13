@@ -3,6 +3,7 @@
 namespace Tests\Unit\Account;
 
 
+use App\Exceptions\InvalidValueException;
 use App\Helpers\BillHelper;
 use App\Models\Bill;
 use App\Models\Category;
@@ -10,14 +11,11 @@ use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\BillBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\DTO\BillDTO;
-use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Repository\AccountRepository;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Services\BillStandarizedService;
 use Carbon\Carbon;
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 use Illuminate\Support\Facades\DB;
@@ -251,6 +249,9 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
+
         $billDto = new BillDTO($billData);
         $billRepository
             ->shouldReceive('saveBill')
@@ -285,10 +286,14 @@ class BillBusinessTest extends TestCase
         $creditCardBusiness
             ->expects($this->once())
             ->method('generateInvoiceByBill');
+
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $billRepository
             ->shouldReceive('saveBill')
             ->with($accountId,$billData)
             ->andReturnArg(1);
+
 
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $billDto = new BillDTO($billData);
@@ -316,6 +321,8 @@ class BillBusinessTest extends TestCase
         $bill->id = 1;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $creditCardBusiness
             ->expects($this->exactly(0))
             ->method('generateInvoiceByBill');
@@ -374,6 +381,8 @@ class BillBusinessTest extends TestCase
         $bill->id = 1;
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $creditCardBusiness
             ->expects($this->exactly(3))
             ->method('generateInvoiceByBill');
@@ -424,6 +433,8 @@ class BillBusinessTest extends TestCase
         $billDto = new BillDTO($billData);
         $bills = $billBusiness->insertBill($accountId,$billDto);
     }
+
+
 
     /**
      * @test
@@ -510,6 +521,8 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
 
         $billRepository
             ->shouldReceive('updateBill')
@@ -551,6 +564,8 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $creditCardBusiness
             ->expects($this->exactly(1))
             ->method('generateInvoiceByBill');
@@ -604,7 +619,8 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $billRepository
             ->shouldReceive('updateBill')
             ->times(4)
@@ -680,6 +696,8 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $creditCardBusiness
             ->expects($this->exactly(4))
             ->method('generateInvoiceByBill');
@@ -750,6 +768,8 @@ class BillBusinessTest extends TestCase
 
         $billRepository = $this->getMockRepository();
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $this->billStandarizedService->method('normalizeBill')
             ->willReturn($bill);
 
@@ -794,7 +814,8 @@ class BillBusinessTest extends TestCase
         $billRepository->shouldReceive('getBillById')
             ->andReturn($bill);
         $creditCardBusiness = $this->getMockCreditCardBusiness();
-
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
         $this->expectException(NotFoundHttpException::class);
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $billDto = new BillDTO($billData);
@@ -822,6 +843,7 @@ class BillBusinessTest extends TestCase
         $bill->account = $account;
 
         $billRepository = $this->getMockRepository();
+
         $billRepository->shouldReceive('getBillById')
             ->andReturn($bill);
 
@@ -831,6 +853,9 @@ class BillBusinessTest extends TestCase
         $bill->fill($billData);
         $bill->account_id = 15;
         $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(true);
+
         $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
         $this->expectException(NotFoundHttpException::class);
         $billDTO = new BillDTO($billData);
@@ -1067,6 +1092,67 @@ class BillBusinessTest extends TestCase
         $this->assertEquals(160.00,$bill->amount);
         $this->assertEquals($billData['pay_day'],$bill->pay_day);
 
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoSalvarContasAPagarComCartaoInvalido(){
+        $this->accountFactory->configureUserSession();
+        $accountId = 1;
+
+        $billData = $this->factoryBillData();
+        $billData['credit_card_id'] = 1;
+
+        $billRepository = $this->getMockRepository();
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(false);
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $this->expectException(InvalidValueException::class);
+
+        $billDto = new BillDTO($billData);
+        $bills = $billBusiness->insertBill($accountId,$billDto);
+    }
+
+    /**
+     * @test
+     */
+    public function deveDispararExcecaoAoAlterarUmaContaAPagarComCartaoInvalido(){
+        $this->accountFactory->configureUserSession(true);
+        $billId = 1;
+        $accounts = $this->accountFactory->factoryAccount();
+        $billData = $this->factoryBillData();
+        $billData['credit_card_id'] = 1;
+
+        $user = $this->accountFactory->factoryUser(2);
+        $account = $accounts->get(0);
+        $account->user = $user;
+        $bill = $this->createPartialMock(Bill::class,['account','load']);
+        $bill->method('load');
+        $bill->method('account')
+            ->willReturn($account);
+
+        $bill->account = $account;
+
+        $billRepository = $this->getMockRepository();
+
+        $billRepository->shouldReceive('getBillById')
+            ->andReturn($bill);
+
+        $this->billStandarizedService->method('normalizeBill')
+            ->willReturn($bill);
+
+        $bill->fill($billData);
+        $bill->account_id = 15;
+        $creditCardBusiness = $this->getMockCreditCardBusiness();
+        $creditCardBusiness->method('isCreditCardValid')
+            ->willReturn(false);
+
+        $billBusiness = new BillBusiness($billRepository,$creditCardBusiness, $this->billStandarizedService);
+        $this->expectException(NotFoundHttpException::class);
+        $billDTO = new BillDTO($billData);
+        $bills = $billBusiness->updateBill($billId,$billDTO);
     }
 
 }

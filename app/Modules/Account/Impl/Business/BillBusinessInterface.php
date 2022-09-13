@@ -23,5 +23,6 @@ interface BillBusinessInterface
     public function getBillsByAccountBetween(int $accountId,array $rangeDate):Collection;
     public function getPeriodWithBill(int $accountId):Collection;
     public function generatePdfByPeriod(BillPdfService $billPdfService,int $accountId,array $period):void;
+    public function getBillsByCreditCardId(int $creditCardId):Collection;
 
 }

@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 
 use App\Models\CreditCard;
 use App\Models\Invoice;
+use App\Modules\Account\DTO\CreditCardDTO;
 use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\Business\BillPdfInterface;
 use App\Modules\Account\Impl\Business\BillStandarizedInterface;
@@ -31,7 +32,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         return $this->invoiceRepository->getInvoiceByCreditCardAndDate($creditCardId,$date);
     }
 
-    public function createInvoiceForCreditCardByDate(CreditCard $creditCard, Carbon $date):InvoiceDTO
+    public function createInvoiceForCreditCardByDate(CreditCardDTO $creditCard, Carbon $date):InvoiceDTO
     {
         $invoice = $this->getInvoiceByCreditCardAndDate($creditCard->id,$date);
         if($invoice) {
@@ -42,7 +43,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         );
     }
 
-    private function getInvoiceData(CreditCard $creditCard, Carbon $date):array
+    private function getInvoiceData(CreditCardDTO $creditCard, Carbon $date):array
     {
 
         $startDate  = $this->generateStartDate($date,$creditCard->close_day);
@@ -119,7 +120,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         return $dueDate->month;
     }
 
-    public function payInvoice(int $invoiceId):Model
+    public function payInvoice(int $invoiceId):InvoiceDTO
     {
         $invoiceWithBills = $this
                     ->invoiceRepository
@@ -139,7 +140,7 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         $invoice->pay_day = Carbon::now();
         $invoice->save();
 
-        return $invoiceWithBills->refresh();
+        return new InvoiceDTO($invoiceWithBills->refresh()->toArray());
     }
 
     public function getInvoicesWithBill(int $creditCardId):Collection
@@ -148,17 +149,17 @@ class InvoiceBusiness implements InvoiceBusinessInterface
                 ->invoiceRepository
                 ->getInvoicesWithBills($creditCardId);
     }
-    public function getInvoiceWithBillsNormalized(int $invoiceId):Model
+    public function getInvoiceWithBillsNormalized(int $invoiceId):InvoiceDTO
     {
         $invoice =  $this
             ->invoiceRepository
             ->getInvoiceWithBills($invoiceId);
         $invoice->bills = $this->billStandarized->normalizeListBills($invoice->bills);
 
-        return $invoice;
+        return new InvoiceDTO($invoice->toArray());
     }
 
-    public function getInvoiceWithBills(int $invoiceId):Model
+    public function getInvoiceWithBills(int $invoiceId):InvoiceDTO
     {
         $invoice =  $this
             ->invoiceRepository
@@ -167,13 +168,13 @@ class InvoiceBusiness implements InvoiceBusinessInterface
         $invoice->makeVisible('bills');
 
 
-        return $invoice;
+        return new InvoiceDTO($invoice->toArray());
     }
 
-    public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService,int $invoiceId, bool $normalize = false):void
+    public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService,int $invoiceId):void
     {
         $invoice =  $this
-            ->getInvoiceWithBills($invoiceId,$normalize);
+            ->getInvoiceWithBills($invoiceId);
         $pdf = $billPdfService->generate(Collection::make($invoice->toArray()));
 
         $pdf->stream($invoiceId.'-'.$invoice->start_date.'-'.$invoice->end_date.'.pdf');

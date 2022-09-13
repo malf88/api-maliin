@@ -4,6 +4,7 @@ namespace App\Modules\Account\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\CreditCard;
+use App\Modules\Account\DTO\CreditCardDTO;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\ServicesLocal\CreditCardServiceLocal;
 use http\Env\Response;
@@ -76,7 +77,7 @@ class CreditCardController extends Controller
     public function show(Request $request)
     {
         try{
-            return response($this->creditCardServices->getCreditCardbyId($request->id),200);
+            return response($this->creditCardServices->getCreditCardbyId($request->id)->toArray(),200);
         }catch (NotFoundHttpException $e){
             return response($e->getMessage(),404);
         }
@@ -130,7 +131,7 @@ class CreditCardController extends Controller
     public function insert(Request $request,int $accountId)
     {
         try{
-            return response($this->creditCardServices->insertCreditCard($accountId,$request->all()), 201);
+            return response($this->creditCardServices->insertCreditCard($accountId,new CreditCardDTO($request->all()))->toArray(), 201);
         }catch (NotFoundHttpException $e){
             return response($e->getMessage(), 404);
         }
@@ -184,7 +185,7 @@ class CreditCardController extends Controller
     public function update(Request $request, int $id)
     {
         try{
-            return response($this->creditCardServices->updateCreditCard($id,$request->all()), 200);
+            return response($this->creditCardServices->updateCreditCard($id,new CreditCardDTO($request->all()))->toArray(), 200);
         }catch (NotFoundHttpException $e){
             return response($e->getMessage(), 404);
         }

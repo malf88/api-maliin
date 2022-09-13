@@ -284,6 +284,11 @@ class CreditCardBusinessTest extends TestCase
      */
     public function deveDispararUmaExecaoAoAlterarUmCartaoDeCredito(){
         Queue::fake();
+        DB::shouldReceive('beginTransaction')
+            ->once();
+
+        DB::shouldReceive('rollBack')
+            ->once();
         $this->factory->configureUserSession(true);
         $creditCardId = 5;
         $creditCardData = new CreditCardDTO([

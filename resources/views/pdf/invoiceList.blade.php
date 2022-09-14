@@ -1,4 +1,4 @@
-<h3>Cartão {{ $billList['credit_card']->name }}</h3>
+<h3>Cartão {{ $billList['credit_card']['name'] }}</h3>
 <div style="clear: both; height: 30px;">
     <div style="float: left; margin: 5px;"><strong>Início da fatura:</strong> {{ \Carbon\Carbon::create($billList['start_date'])->format('d/m/Y') }}</div>
     <div style="float: left; margin: 5px;"><strong>Fim da fatura:</strong> {{ \Carbon\Carbon::create($billList['end_date'])->format('d/m/Y')  }}</div>

@@ -22,7 +22,7 @@ class CreateInvoice implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, RepositoryTrait;
     public $timeout = (60*60)*24;
     public $tries = 10;
-
+    const QUEUE_NAME = 'invoice';
     /**
      * Create a new job instance.
      *

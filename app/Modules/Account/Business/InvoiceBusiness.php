@@ -136,9 +136,9 @@ class InvoiceBusiness implements InvoiceBusinessInterface
                         ->invoiceRepository
                         ->getInvoice($invoiceId);
             $invoice->pay_day = Carbon::now();
-            $this->invoiceRepository->saveInvoice($invoice);
+            $invoice = $this->invoiceRepository->saveInvoice($invoice);
             $this->commitTransaction();
-            return new InvoiceDTO($invoiceWithBills->toArray());
+            return $invoice;
 
         }catch (\Exception $e){
             $this->rollbackTransaction();

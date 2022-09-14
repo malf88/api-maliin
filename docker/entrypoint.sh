@@ -19,7 +19,7 @@ if [ "$role" = "app" ]; then
 
 elif [ "$role" = "queue" ]; then
     echo "Queue iniciada."
-    php /var/www/artisan queue:work --queue=email,invoice
+    php artisan horizon
 
 
 elif [ "$role" = "scheduler" ]; then

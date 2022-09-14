@@ -21,6 +21,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         libpng-dev \
         git \
         libzip-dev \
+        supervisor \
         openssl \
         libpq-dev && \
     docker-php-ext-install \
@@ -29,8 +30,10 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
         gd \
         pgsql \
         pdo_pgsql \
+        pcntl \
         zip && \
-    sed -i "s/CipherString = .*$/#CipherString/" /etc/ssl/openssl.cnf && \
+    pecl install redis && \
+    docker-php-ext-enable redis &&\sed -i "s/CipherString = .*$/#CipherString/" /etc/ssl/openssl.cnf && \
     chmod +x /usr/local/bin/start && \
     chown -R www-data:www-data /var/www && \
     php artisan config:clear && \
@@ -38,6 +41,9 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     php artisan storage:link
 
 COPY ./docker/www.conf /usr/local/etc/php-fpm.d/www.conf
+COPY ./docker/supervisor/conf.d /etc/supervisor/conf.d
+
+RUN if [ "${CONTAINER_ROLE}" = "scheduler" ]; then service supervisor stop && service supervisor start  && supervisorctl reread && supervisorctl update && service supervisor restart horizon; fi
 
 USER www-data
 CMD ["/usr/local/bin/start"]

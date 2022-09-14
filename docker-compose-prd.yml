@@ -53,6 +53,17 @@ services:
       CONTAINER_ROLE: scheduler
     networks:
       - traefik-public
+  api-redis:
+    container_name: api-redis
+    image: redis
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - traefik-public
+    volumes:
+      - ./redis-volume:/data
   api-queue:
     image: api-app
     container_name: api-queue

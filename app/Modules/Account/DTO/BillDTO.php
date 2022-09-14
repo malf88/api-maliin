@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class BillDTO extends DTOAbstract
 {
+    public int|string|null $id;
     public string|null $description;
     public float|null $amount;
     public Carbon|string|null $date;
@@ -19,7 +20,6 @@ class BillDTO extends DTOAbstract
     public int|string|null $portion;
     public int|string|null $account_id;
     public int|string|null $credit_card_id;
-    public int|string|null $id;
     public bool $update_childs = false;
     public Collection|null $bill_parent;
 }

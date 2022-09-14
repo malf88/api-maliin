@@ -12,6 +12,8 @@ interface InvoiceRepositoryInterface
     public function getInvoiceByCreditCardAndDate(int $creditCardId, Carbon $date): InvoiceDTO|null;
     public function insertInvoice(InvoiceDTO $invoiceData):InvoiceDTO;
     public function getInvoicesWithBills(int $creditCardId):Collection;
-    public function getInvoice(int $invoiceId):Invoice;
-    public function getInvoiceWithBills(int $invoiceId): Invoice;
+    public function getInvoice(int $invoiceId):InvoiceDTO;
+    public function getInvoiceWithBills(int $invoiceId): InvoiceDTO;
+    public function saveInvoice(InvoiceDTO $invoiceDTO):InvoiceDTO;
+    public function payBillForInvoice(InvoiceDTO $invoice):InvoiceDTO;
 }

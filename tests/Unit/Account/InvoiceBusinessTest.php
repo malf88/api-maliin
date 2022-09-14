@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Modules\Account\Business\AccountBusiness;
 use App\Modules\Account\Business\CreditCardBusiness;
 use App\Modules\Account\Business\InvoiceBusiness;
+use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Repository\BillRepository;
 use App\Modules\Account\Repository\CreditCardRepository;
@@ -222,10 +223,7 @@ class InvoiceBusinessTest extends TestCase
      */
     public function deveRetornarFaturaComListaDeContasAPagarOuReceber()
     {
-        $invoice = Mockery::mock('App\Models\Invoice[makeVisible]');
-        $invoice->shouldReceive('makeVisible')
-            ->once()
-            ->andReturnSelf();
+        $invoice = new InvoiceDTO();
         $bill = Mockery::mock('App\Models\Bill[load,getBillParentAttribute,getCategoryAttribute]');
         $bill->shouldReceive('getBillParentAttribute')
             ->andReturn(Collection::empty());
@@ -276,24 +274,15 @@ class InvoiceBusinessTest extends TestCase
      * @test
      */
     public function devePagarFaturaCartaoDeCredito(){
-        $invoice = Mockery::mock('App\Models\Invoice[save,with]');
-        $invoice->shouldReceive('save')
-            ->once()
-            ->andReturnSelf();
+        DB::shouldReceive('beginTransaction')
+            ->once();
+        DB::shouldReceive('commit')
+            ->once();
 
+        $invoice = new InvoiceDTO();
 
-        $bill = Mockery::mock('App\Models\Bill[refresh,load,save,getBillParentAttribute,getCategoryAttribute]');
-        $bill->shouldReceive('getBillParentAttribute')
-            ->andReturn(Collection::empty());
-        $bill->shouldReceive('save')
-            ->times(3);
-        $bill->shouldReceive('refresh')
-            ->times(3);
-        $bill->shouldReceive('getCategoryAttribute')
-            ->andReturn(new Category([
-                'id' => 1,
-                'name' => 'Alimentação'
-            ]));
+        $bill = new BillDTO();
+
         $bill->description = "Mercado";
         $bill->id = 1;
         $bill->date = Carbon::now();
@@ -308,6 +297,14 @@ class InvoiceBusinessTest extends TestCase
         $invoice->bills = Collection::make([$bill, $bill, $bill]);
         $invoiceId = 1;
         $this->invoiceRepository
+            ->shouldReceive('payBillForInvoice')
+            ->andReturn($invoice);
+
+        $this->invoiceRepository
+            ->shouldReceive('saveInvoice')
+            ->andReturn($invoice);
+
+        $this->invoiceRepository
             ->shouldReceive('getInvoiceWithBills')
             ->andReturn($invoice);
         $this->invoiceRepository
@@ -316,12 +313,8 @@ class InvoiceBusinessTest extends TestCase
 
         $invoiceBusiness = new InvoiceBusiness($this->invoiceRepository, $this->billStandarizedService);
         $invoice = $invoiceBusiness->payInvoice($invoiceId);
-        $invoice
-            ->bills
-            ->each(function($item,$key){
-                $this->assertEquals(Carbon::now()->format('Y-m-d'),$item->pay_day->format('Y-m-d'));
-            });
 
+        $this->assertEquals(Carbon::now()->format('Y-m-d'),$invoice->pay_day->format('Y-m-d'));
     }
 
 }

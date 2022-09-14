@@ -9,6 +9,7 @@ use App\Models\CreditCard;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Modules\Account\DTO\CreditCardDTO;
+use App\Modules\Account\DTO\InvoiceDTO;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -201,8 +202,7 @@ class DataFactory extends TestCase
     }
     public function factoryInvoiceList()
     {
-        $invoice1 = $this->createPartialMock(Invoice::class,['save','with']);
-        $invoice1->method('save')->willReturn(1);
+        $invoice1 = new InvoiceDTO();
         $invoice1->start_date = Carbon::createFromDate('2020-01-01');
         $invoice1->end_date = Carbon::createFromDate('2020-01-31');
         $invoice1->due_date = Carbon::createFromDate('2020-02-06');
@@ -214,8 +214,7 @@ class DataFactory extends TestCase
         $invoice1->credit_card = $this->factoryCreditCards()->first();
         $invoice1->total_balance = -100.00;
 
-        $invoice2 = $this->createPartialMock(Invoice::class,['save']);
-        $invoice2->method('save')->willReturn(1);
+        $invoice2 = new InvoiceDTO();
         $invoice2->bills = Collection::make([
             $this->factoryBill(4,3.50),
             $this->factoryBill(5,300.30),

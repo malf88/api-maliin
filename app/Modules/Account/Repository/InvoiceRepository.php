@@ -9,13 +9,16 @@ use App\Modules\Account\DTO\InvoiceDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
+use App\Traits\RepositoryTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\Types\True_;
 
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
+    use RepositoryTrait;
     public function __construct(
     )
     {
@@ -72,7 +75,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
 
-    public function getInvoiceWithBills(int $invoiceId): Invoice
+    public function getInvoiceWithBills(int $invoiceId): InvoiceDTO
     {
         $invoice = Invoice::with('credit_card')->find($invoiceId);
         $invoice->bills = Bill::select(
@@ -94,13 +97,37 @@ class InvoiceRepository implements InvoiceRepositoryInterface
             ->orderBy('date','ASC')
             ->get();
         $invoice->total_balance = $invoice->bills->sum('amount');
-        $invoice->makeVisible(['total_balance']);
-        return $invoice;
+        $invoice->makeVisible(['total_balance','bills']);
+        return new InvoiceDTO($invoice->toArray());
     }
 
-
-    public function getInvoice(int $invoiceId): Invoice
+    public function payBillForInvoice(InvoiceDTO $invoice):InvoiceDTO
     {
-        return Invoice::find($invoiceId);
+        try{
+            $invoice
+                ->bills
+                ->each(function($item,$key){
+                    unset($item->bill_parent);
+                    $item->pay_day = Carbon::now();
+                    $item->save();
+                    $item->refresh();
+                });
+            return $invoice;
+        }catch (\Exception $e){
+            throw $e;
+        }
+    }
+
+    public function saveInvoice(InvoiceDTO $invoiceDTO):InvoiceDTO
+    {
+        $invoice = Invoice::find($invoiceDTO->id);
+        $invoice->fill($invoiceDTO->toArray());
+        $invoice->save();
+        $invoice->refresh();
+        return new InvoiceDTO($invoice->toArray());
+    }
+    public function getInvoice(int $invoiceId): InvoiceDTO
+    {
+        return new InvoiceDTO(Invoice::find($invoiceId)->toArray());
     }
 }

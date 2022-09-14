@@ -12,14 +12,17 @@ use App\Modules\Account\Impl\Business\BillStandarizedInterface;
 use App\Modules\Account\Impl\Business\CreditCardBusinessInterface;
 use App\Modules\Account\Impl\InvoiceRepositoryInterface;
 use App\Modules\Account\Impl\Business\InvoiceBusinessInterface;
+use App\Traits\RepositoryTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class InvoiceBusiness implements InvoiceBusinessInterface
 {
+    use RepositoryTrait;
     const START_DAY_IN_MONTH = 2;
     const DAYS_IN_MONTH_DEFAULT = 30;
+
     public function __construct(
         private InvoiceRepositoryInterface $invoiceRepository,
         private BillStandarizedInterface  $billStandarized
@@ -122,25 +125,25 @@ class InvoiceBusiness implements InvoiceBusinessInterface
 
     public function payInvoice(int $invoiceId):InvoiceDTO
     {
-        $invoiceWithBills = $this
-                    ->invoiceRepository
-                    ->getInvoiceWithBills($invoiceId);
+        try{
+            $this->startTransaction();
+            $invoiceWithBills = $this
+                        ->invoiceRepository
+                        ->getInvoiceWithBills($invoiceId);
 
-        $invoiceWithBills
-            ->bills
-            ->each(function($item,$key){
-                unset($item->bill_parent);
-                $item->pay_day = Carbon::now();
-                $item->save();
-                $item->refresh();
-            });
-        $invoice = $this
-                    ->invoiceRepository
-                    ->getInvoice($invoiceId);
-        $invoice->pay_day = Carbon::now();
-        $invoice->save();
+            $invoiceWithBills = $this->invoiceRepository->payBillForInvoice($invoiceWithBills);
+            $invoice = $this
+                        ->invoiceRepository
+                        ->getInvoice($invoiceId);
+            $invoice->pay_day = Carbon::now();
+            $this->invoiceRepository->saveInvoice($invoice);
+            $this->commitTransaction();
+            return new InvoiceDTO($invoiceWithBills->toArray());
 
-        return new InvoiceDTO($invoiceWithBills->refresh()->toArray());
+        }catch (\Exception $e){
+            $this->rollbackTransaction();
+            throw $e;
+        }
     }
 
     public function getInvoicesWithBill(int $creditCardId):Collection
@@ -165,10 +168,10 @@ class InvoiceBusiness implements InvoiceBusinessInterface
             ->invoiceRepository
             ->getInvoiceWithBills($invoiceId);
 
-        $invoice->makeVisible('bills');
-
-
-        return new InvoiceDTO($invoice->toArray());
+        //$invoice->makeVisible('bills');
+        $invoiceDTO = new InvoiceDTO(...$invoice->toArray());
+        //$invoiceDTO->credit_card = $invoice->credit_card;
+        return $invoiceDTO;
     }
 
     public function getInvoiceWithBillsInPDF(BillPdfInterface $billPdfService,int $invoiceId):void

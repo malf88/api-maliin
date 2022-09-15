@@ -108,6 +108,7 @@ services:
     ports:
       - ${PORT}:80
     volumes:
+      - ./:/var/www/
       - ./docker/nginx:/etc/nginx/conf.d
     networks:
       - traefik-public

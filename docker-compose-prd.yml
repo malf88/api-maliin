@@ -44,7 +44,7 @@ services:
     networks:
       - traefik-public
     volumes:
-      - ./redis-volume:/data
+      - redisdata:/data
   api-queue:
     image: api-app
     container_name: api-queue
@@ -99,3 +99,7 @@ networks:
   node_network:
     external: true
     attachable: true
+volumes:
+  redisdata:
+    driver: local
+

@@ -31,6 +31,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'horizon_mail' => env('APP_HORIZON_MAIL', ''),
     'paginate' => 15,
     /*
     |--------------------------------------------------------------------------

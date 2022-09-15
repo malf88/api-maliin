@@ -125,7 +125,7 @@ jobs:
             cd ${{secrets.APP_DIR}}
             git fetch
             git reset origin/master --hard
-            docker-compose -f docker-compose-prd.yml build composer node
+            docker-compose -f docker-compose-dev.yml build composer
       - name: Composer & npm install
         uses: appleboy/ssh-action@v0.1.2
         with:
@@ -136,7 +136,7 @@ jobs:
           script: |
             cd ${{secrets.APP_DIR}}
             rm composer.lock
-            docker-compose -f docker-compose-prd.yml run --rm composer install --ignore-platform-reqs
+            docker-compose -f docker-compose-dev.yml run --rm composer install --ignore-platform-reqs
       - name: Build Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:
@@ -156,6 +156,7 @@ jobs:
           command_timeout: 200m
           script: |
             cd ${{secrets.APP_DIR}}
+            docker service update api-maliin_api-redis --force
             docker service update api-maliin_api-app --force
             docker service update api-maliin_api-queue --force
             docker service update api-maliin_api-scheduler --force

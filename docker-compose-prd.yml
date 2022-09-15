@@ -21,26 +21,6 @@ services:
       timeout: 10s
     networks:
       - traefik-public
-  composer:
-    image: composer:2.3.2
-    container_name: composer
-    restart: unless-stopped
-    env_file:
-      - .env
-    volumes:
-      - ./:/app
-    networks:
-      - node_network
-  node:
-    image: node:12-alpine
-    container_name: node
-    env_file:
-      - .env
-    working_dir: /usr/src/app
-    volumes:
-      - ./:/usr/src/app
-    networks:
-      - node_network
   api-scheduler:
     image: api-app
     container_name: scheduler-api

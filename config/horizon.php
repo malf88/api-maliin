@@ -3,6 +3,10 @@
 use Illuminate\Support\Str;
 
 return [
+    'basic_auth' => [
+        'username' => env('HORIZON_BASIC_AUTH_USERNAME'),
+        'password' => env('HORIZON_BASIC_AUTH_PASSWORD'),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +74,7 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    'middleware' => ['web','horizonBasicAuth'],
 
     /*
     |--------------------------------------------------------------------------

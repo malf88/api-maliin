@@ -40,6 +40,7 @@ services:
     env_file:
       - .env
     command: redis-server --requirepass ${REDIS_PASSWORD}
+    user: root
     networks:
       - traefik-public
     volumes:

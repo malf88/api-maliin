@@ -2,13 +2,12 @@
 
 namespace App\Providers;
 
-use App\Modules\Account\Controllers\AccountController;
 use App\Modules\Account\Services\AccountService;
 use App\Modules\Account\Services\AccountServiceLocal;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -30,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
         if (App::environment(['local'])) {
             DB::listen(function ($query) {
                 Log::info(

@@ -136,6 +136,6 @@ Caso de teste 06 - Listar faturas
         Dictionary Should Contain Item     ${INVOICE_ITEM}   start_date    2021-10-01T00:00:00.000000Z
         Dictionary Should Contain Item     ${INVOICE_ITEM}   end_date    2021-10-30T00:00:00.000000Z
         Dictionary Should Contain Item     ${INVOICE_ITEM}   due_date    2021-11-06T00:00:00.000000Z
-        Dictionary Should Contain Item     ${INVOICE_ITEM}   month_reference    11
+        Dictionary Should Contain Item     ${INVOICE_ITEM}   month_reference    ${11}
         Dictionary Should Contain Item     ${INVOICE_ITEM}   credit_card_id    ${CREDITCARD_ID}
     END

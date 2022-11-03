@@ -163,7 +163,6 @@ class BillBusiness implements BillBusinessInterface
             $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
 
             for ($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++) {
-
                 $billData = $this->recreateDTO($billData);
                 $billData->description = $this->getNewDescriptionWithPortion(
                     $descriptionBeforeCreateBill,

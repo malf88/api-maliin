@@ -164,7 +164,8 @@ class BillRepository implements BillRepositoryInterface
                             FROM maliin.invoices
                             WHERE
                                 filho.date BETWEEN start_date AND end_date AND
-                                invoices.credit_card_id = filho.credit_card_id)
+                                invoices.credit_card_id = filho.credit_card_id AND
+                                invoices.deleted_at IS NULL)
                         ) as due_date,
                         filho.pay_day,
                         filho.barcode,

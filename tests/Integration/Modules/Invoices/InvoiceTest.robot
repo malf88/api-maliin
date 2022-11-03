@@ -44,7 +44,7 @@ Caso de teste 01 - Buscar uma fatura
     Dictionary Should Contain Item     ${response.json()}   start_date    2021-10-01T00:00:00.000000Z
     Dictionary Should Contain Item     ${response.json()}   end_date    2021-10-30T00:00:00.000000Z
     Dictionary Should Contain Item     ${response.json()}   due_date    2021-11-06T00:00:00.000000Z
-    Dictionary Should Contain Item     ${response.json()}   month_reference    11
+    Dictionary Should Contain Item     ${response.json()}   month_reference    ${11}
     Dictionary Should Contain Item     ${response.json()}   credit_card_id    ${CREDITCARD_ID}
     
 Caso de teste 02 - Pagar uma fatura
@@ -78,7 +78,7 @@ Caso de teste 02 - Pagar uma fatura
     Dictionary Should Contain Item     ${response.json()}   start_date    2021-10-01T00:00:00.000000Z
     Dictionary Should Contain Item     ${response.json()}   end_date      2021-10-30T00:00:00.000000Z
     Dictionary Should Contain Item     ${response.json()}   due_date      2021-11-06T00:00:00.000000Z
-    Dictionary Should Contain Item     ${response.json()}   month_reference    11
+    Dictionary Should Contain Item     ${response.json()}   month_reference    ${11}
     Should Be Equal                    ${PAY_DAY}    ${ATUAL_DATE}
     Dictionary Should Contain Item     ${response.json()}   credit_card_id    ${CREDITCARD_ID}
     

@@ -22,6 +22,7 @@ Caso de teste 01 - Inserir uma categoria
     Dictionary Should Contain Item    ${response.json()}    is_investiment    ${CATEGORY.is_investiment}
 
 Caso de teste 02 - Alterar uma categoria
+
     &{ACCOUNT}    Account.Dados Xpto
     &{USER}       User.Dados Joao Silva
     ${USER}       Cenarios.Create User    ${USER}
@@ -29,7 +30,7 @@ Caso de teste 02 - Alterar uma categoria
 
     ${response}    Insert Category    ${CATEGORY}    ${USER}
     
-    ${CATEGORY.is_investiment}    Set Variable  True
+    ${CATEGORY.is_investiment}    Set Variable  ${True}
 
     ${response}    Update Category    ${CATEGORY}    ${USER}    ${response.json()['id']}
 

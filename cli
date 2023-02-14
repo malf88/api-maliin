@@ -1,0 +1,73 @@
+#!/bin/bash
+
+docker_compose="docker-compose -f $(pwd)/docker-compose-dev.yml"
+composer="docker-compose -f $(pwd)/docker-compose-dev.yml"
+
+# if [ "$1" = "teste" ]; then
+#     echo "teste";
+# else
+#     echo "t";
+# fi;
+
+php_cmd(){
+    artisan_cmd "$@"
+}
+
+artisan_cmd(){
+    $docker_compose run --rm api-app php "$@"
+}
+
+test_cmd(){
+    $docker_compose run --rm api-app php artisan "$@"
+}
+
+docker_compose_up(){
+
+    docker_compose_down
+    sleep 5
+    $docker_compose up $1
+}
+
+docker_compose_build(){
+    docker_compose_down
+    $docker_compose build $1
+}
+
+docker_compose_down(){
+    $docker_compose down $1
+}
+
+composer_build(){
+    $composer build composer
+}
+
+composer_cmd(){
+    composer_build
+    $composer run --rm composer "$@"
+}
+
+infection_cmd(){
+    php_cmd ./vendor/bin/infection
+}
+
+pint_cmd(){
+    php_cmd  ./vendor/bin/pint -v
+}
+
+check_cmd(){
+    test_cmd test
+    infection_cmd
+    pint_cmd
+}
+case "$1" in
+    "up") docker_compose_up $2;;
+    "down") docker_compose_down $2 ;;
+    "build") docker_compose_build $2 ;;
+    "composer") composer_cmd "$@" --ignore-platform-reqs ;;
+    "artisan") artisan_cmd "$@" ;;
+    "test") test_cmd "$@" ;;
+    "pint") pint_cmd;;
+    "infection") infection_cmd ;;
+    "check") check_cmd ;;
+    *) php_cmd "$@"
+esac

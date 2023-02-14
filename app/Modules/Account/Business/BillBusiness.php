@@ -251,13 +251,13 @@ class BillBusiness implements BillBusinessInterface
             $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
 
             foreach($bill->bill_parent as $item){
-                    //use ($date, $due_date, $totalBillsSelected, $description, $billData, $bill, $dayOfMonthDueDate, $dayOfMonthDate, $updatedBills) {
                 if ($item->pay_day == null && $item->portion > $bill->portion) {
                     $billData = new BillDTO($item->toArray());
                     $billData->description = $this->getNewDescriptionWithPortion(
                         $description,
                         $item->portion,
-                        $totalBillsSelected);
+                        $totalBillsSelected
+                    );
 
                     $billData->date = $date;
                     $billData->due_date = $due_date;

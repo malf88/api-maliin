@@ -239,10 +239,12 @@ class BillBusiness implements BillBusinessInterface
             $totalBillsSelected = $bill->bill_parent->count() + 1;
             $description = $billData->description;
             $date = Carbon::make($billData->date);
+            $creditCardId = $billData->credit_card_id;
             $dayOfMonthDueDate = $due_date ? $due_date->day : null;
             $dayOfMonthDate = $date->day;
             $billData->due_date = $due_date ? $due_date : null;
             $billData->date = Carbon::create($billData->date);
+            $billData->credit_card_id = $creditCardId;
             $billData->description = $this->getNewDescriptionWithPortion($description, $bill->portion, $totalBillsSelected);
             $this->processCreditCardBill($billData);
             $updatedBill =  $this->billRepository->updateBill($billId, $billData);
@@ -258,13 +260,15 @@ class BillBusiness implements BillBusinessInterface
                         $item->portion,
                         $totalBillsSelected
                     );
-
+                    $billData->credit_card_id = $creditCardId;
                     $billData->date = $date;
                     $billData->due_date = $due_date;
+
                     $updatedBill = $this->billRepository->updateBill($item->id, $billData);
                     $updatedBills->add($updatedBill);
                     $this->processCreditCardBill($billData);
                     $due_date = BillHelper::addMonth($due_date, $dayOfMonthDueDate);
+
                     $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
 
                 }

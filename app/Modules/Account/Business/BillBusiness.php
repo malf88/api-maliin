@@ -239,6 +239,7 @@ class BillBusiness implements BillBusinessInterface
     private function loadDataForSave(BillDTO $billData,array $dados):BillDTO
     {
         $billData->due_date = $dados['due_date'] ?: null;
+        $billData->portion = $dados['portion'];
         $billData->date =  Carbon::make($dados['date']);
         $billData->credit_card_id = $dados['credit_card_id'];
         $billData->description = $this->getNewDescriptionWithPortion($dados['description'], $dados['portion'], $dados['totalBillsSelected']);

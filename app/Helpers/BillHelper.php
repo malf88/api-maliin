@@ -10,13 +10,11 @@ final class BillHelper
     {
 
         $newDate = $date ? Carbon::make($date) : null;
-
         if($newDate != null){
             $newDate->addMonthNoOverflow();
             if($dayOfMonth){
                 $newDate->setUnitNoOverflow('day',$dayOfMonth,'month');
             }
-
         }else{
             return null;
         }

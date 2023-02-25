@@ -180,7 +180,7 @@ class BillBusiness implements BillBusinessInterface
                     'category_id' => $categoryId,
                     'totalBillsSelected' => $totalPortion
                 ]);
-                
+
                 $this->processCreditCardBill($billData);
                 $bill = $this->billRepository->saveBill($accountId, $billData);
                 $billsInserted->add($bill);
@@ -239,7 +239,7 @@ class BillBusiness implements BillBusinessInterface
     private function loadDataForSave(BillDTO $billData,array $dados):BillDTO
     {
         $billData->due_date = $dados['due_date'] ?: null;
-        $billData->date = $dados['date'];
+        $billData->date =  Carbon::make($dados['date']);
         $billData->credit_card_id = $dados['credit_card_id'];
         $billData->description = $this->getNewDescriptionWithPortion($dados['description'], $dados['portion'], $dados['totalBillsSelected']);
         $billData->category_id = $dados['category_id'];

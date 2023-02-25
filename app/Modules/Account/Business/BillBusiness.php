@@ -5,6 +5,7 @@ namespace App\Modules\Account\Business;
 use App\Abstracts\DTOAbstract;
 use App\Exceptions\InvalidValueException;
 use App\Helpers\BillHelper;
+use App\Models\Bill;
 use App\Modules\Account\DTO\BillDTO;
 use App\Modules\Account\Impl\BillRepositoryInterface;
 use App\Modules\Account\Impl\Business\BillBusinessInterface;
@@ -229,6 +230,16 @@ class BillBusiness implements BillBusinessInterface
         }
 
     }
+    private function loadDataForSave(BillDTO $billData,array $dados):BillDTO
+    {
+        $billData->due_date = $dados['due_date'] ?: null;
+        $billData->date = $dados['date'];
+        $billData->credit_card_id = $dados['credit_card_id'];
+        $billData->description = $this->getNewDescriptionWithPortion($dados['description'], $dados['portion'], $dados['totalBillsSelected']);
+        $billData->category_id = $dados['category_id'];
+        return $billData;
+
+    }
     private function updateChildBill(int $billId,BillDTO $billData):BaseCollection
     {
         $updatedBills = new BaseCollection();
@@ -239,13 +250,19 @@ class BillBusiness implements BillBusinessInterface
             $totalBillsSelected = $bill->bill_parent->count() + 1;
             $description = $billData->description;
             $date = Carbon::make($billData->date);
+            $categoryId = $billData->category_id;
             $creditCardId = $billData->credit_card_id;
             $dayOfMonthDueDate = $due_date ? $due_date->day : null;
             $dayOfMonthDate = $date->day;
-            $billData->due_date = $due_date ? $due_date : null;
-            $billData->date = Carbon::create($billData->date);
-            $billData->credit_card_id = $creditCardId;
-            $billData->description = $this->getNewDescriptionWithPortion($description, $bill->portion, $totalBillsSelected);
+            $billData = $this->loadDataForSave($billData,[
+                'due_date' => $due_date,
+                'date' => $date,
+                'credit_card_id' => $creditCardId,
+                'description' => $description,
+                'portion' => $bill->portion,
+                'category_id' => $categoryId,
+                'totalBillsSelected' => $totalBillsSelected
+            ]);
             $this->processCreditCardBill($billData);
             $updatedBill =  $this->billRepository->updateBill($billId, $billData);
             $updatedBills->add($updatedBill);
@@ -255,14 +272,16 @@ class BillBusiness implements BillBusinessInterface
             foreach($bill->bill_parent as $item){
                 if ($item->pay_day == null && $item->portion > $bill->portion) {
                     $billData = new BillDTO($item->toArray());
-                    $billData->description = $this->getNewDescriptionWithPortion(
-                        $description,
-                        $item->portion,
-                        $totalBillsSelected
-                    );
-                    $billData->credit_card_id = $creditCardId;
-                    $billData->date = $date;
-                    $billData->due_date = $due_date;
+
+                    $billData = $this->loadDataForSave($billData,[
+                        'due_date' => $due_date,
+                        'date' => $date,
+                        'credit_card_id' => $creditCardId,
+                        'description' => $description,
+                        'portion' => $item->portion,
+                        'category_id' => $categoryId,
+                        'totalBillsSelected' => $totalBillsSelected
+                    ]);
 
                     $updatedBill = $this->billRepository->updateBill($item->id, $billData);
                     $updatedBills->add($updatedBill);

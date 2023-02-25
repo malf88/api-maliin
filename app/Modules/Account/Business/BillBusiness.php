@@ -139,19 +139,23 @@ class BillBusiness implements BillBusinessInterface
         try {
             $this->startTransaction();
             $billsInserted = new Collection();
-            $billData->date = Carbon::make($billData->date);
             $totalPortion = $billData->portion;
             $descriptionBeforeCreateBill = $billData->description;
-            $billData->portion = 1;
-            $billData->description = $this->getNewDescriptionWithPortion(
-                $descriptionBeforeCreateBill,
-                $billData->portion,
-                $totalPortion
-            );
+            $creditCardId = $billData->credit_card_id;
+            $categoryId = $billData->category_id;
             $due_date = $this->getDueDate($billData->due_date);
 
 
-            $billData->due_date = $due_date;
+            $billData = $this->loadDataForSave($billData,[
+                'due_date' => $due_date,
+                'date' => $billData->date,
+                'credit_card_id' => $creditCardId,
+                'description' => $descriptionBeforeCreateBill,
+                'portion' => 1,
+                'category_id' => $categoryId,
+                'totalBillsSelected' => $totalPortion
+            ]);
+
             $this->processCreditCardBill($billData);
             $billParent = $this->billRepository->saveBill($accountId, $billData);
             $billsInserted->add($billParent);
@@ -165,16 +169,18 @@ class BillBusiness implements BillBusinessInterface
 
             for ($interatorPortion = 2; $interatorPortion <= $totalPortion; $interatorPortion++) {
                 $billData = $this->recreateDTO($billData);
-                $billData->description = $this->getNewDescriptionWithPortion(
-                    $descriptionBeforeCreateBill,
-                    $interatorPortion,
-                    $totalPortion
-                );
-                $billData->bill_parent_id = $billParent->id;
-                $billData->portion = $interatorPortion;
-                $billData->due_date = $due_date;
 
-                $billData->date = $date;
+                $billData->bill_parent_id = $billParent->id;
+                $billData = $this->loadDataForSave($billData,[
+                    'due_date' => $due_date,
+                    'date' => $date,
+                    'credit_card_id' => $creditCardId,
+                    'description' => $descriptionBeforeCreateBill,
+                    'portion' => $interatorPortion,
+                    'category_id' => $categoryId,
+                    'totalBillsSelected' => $totalPortion
+                ]);
+                
                 $this->processCreditCardBill($billData);
                 $bill = $this->billRepository->saveBill($accountId, $billData);
                 $billsInserted->add($bill);
@@ -291,7 +297,6 @@ class BillBusiness implements BillBusinessInterface
                     $date = (!$due_date)? BillHelper::addMonth($date, $dayOfMonthDate): $date;
 
                 }
-
             }
             $this->commitTransaction();
             return $updatedBills;

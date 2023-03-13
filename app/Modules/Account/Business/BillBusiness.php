@@ -171,6 +171,7 @@ class BillBusiness implements BillBusinessInterface
                 $billData = $this->recreateDTO($billData);
 
                 $billData->bill_parent_id = $billParent->id;
+                
                 $billData = $this->loadDataForSave($billData,[
                     'due_date' => $due_date,
                     'date' => $date,
@@ -261,6 +262,7 @@ class BillBusiness implements BillBusinessInterface
             $creditCardId = $billData->credit_card_id;
             $dayOfMonthDueDate = $due_date ? $due_date->day : null;
             $dayOfMonthDate = $date->day;
+            $amount = $billData->amount;
             $billData = $this->loadDataForSave($billData,[
                 'due_date' => $due_date,
                 'date' => $date,
@@ -279,7 +281,7 @@ class BillBusiness implements BillBusinessInterface
             foreach($bill->bill_parent as $item){
                 if ($item->pay_day == null && $item->portion > $bill->portion) {
                     $billData = new BillDTO($item->toArray());
-
+                    $billData->amount = $amount;
                     $billData = $this->loadDataForSave($billData,[
                         'due_date' => $due_date,
                         'date' => $date,

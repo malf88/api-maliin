@@ -19,6 +19,6 @@ this_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ### build and run ##############################################################
 
-docker-compose -f ${this_path}/../../docker-compose-robot.yml build robot
+docker-compose -f ${this_path}/../../docker-compose-util.yml build robot
 
-docker-compose -f ${this_path}/../../docker-compose-robot.yml run --rm robot
+docker-compose -f ${this_path}/../../docker-compose-util.yml run --rm robot

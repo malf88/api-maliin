@@ -125,7 +125,6 @@ jobs:
             cd ${{secrets.APP_DIR}}
             git fetch
             git reset origin/master --hard
-            docker-compose -f docker-compose-dev.yml build composer
       - name: Composer & npm install
         uses: appleboy/ssh-action@v0.1.2
         with:
@@ -136,7 +135,7 @@ jobs:
           script: |
             cd ${{secrets.APP_DIR}}
             rm composer.lock
-            docker-compose -f docker-compose-dev.yml run --rm composer install --ignore-platform-reqs
+            ./cli composer install --ignore-platform-reqs
       - name: Build Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:

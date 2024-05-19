@@ -25,8 +25,7 @@ RUN apt-get update && apt-get -y upgrade && \
         openssl \
         zlib1g-dev \
         libpq-dev && \
-        wget  https://github.com/elastic/apm-agent-php/releases/download/v1.10.0/apm-agent-php_1.10.0_all.deb && \
-     docker-php-ext-install \
+    docker-php-ext-install \
         bcmath \
         calendar \
         gd \

@@ -33,7 +33,6 @@ services:
   queue:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     restart: unless-stopped
-    pull_policy: always
     env_file:
       - .env
     depends_on:

@@ -147,8 +147,10 @@ jobs:
             cd ${{secrets.APP_DIR}}
             docker-compose -f docker-compose-prd.yml pull
             docker-compose -f docker-compose-prd.yml build
-            docker-compose -f docker-compose-prd.yml push
-
+            docker tag api-maliin_nginx:latest registry.malf88.com.br:5000/api-maliin_nginx:latest
+            docker tag api-maliin_app:latest registry.malf88.com.br:5000/api-maliin_app:latest
+            docker push registry.malf88.com.br:5000/api-maliin_app
+            docker push registry.malf88.com.br:5000/api-maliin_nginx
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
         with:
@@ -158,8 +160,5 @@ jobs:
           command_timeout: 200m
           script: |
             cd ${{secrets.APP_DIR}}
-            docker service update api-maliin_app --force
-            docker service update api-maliin_queue --force
-            docker service update api-maliin_scheduler --force
-            docker service update api-maliin_nginx --force
+            export $(cat .env) > /dev/null 2>&1; docker stack deploy --prune --resolve-image always --with-registry-auth -c docker-compose-swarm.yml api-maliin
             docker system prune -a --force

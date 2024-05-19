@@ -1,9 +1,10 @@
-version: '3.5'
+version: '3.9'
 services:
   app:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     container_name: ${APP_NAME}_app
     restart: unless-stopped
+    pull_policy: always
     build:
       context: ./
       dockerfile: docker/Dockerfile
@@ -28,6 +29,7 @@ services:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     container_name: ${APP_NAME}_scheduler
     restart: unless-stopped
+    pull_policy: always
     env_file:
       - .env
     depends_on:
@@ -41,6 +43,7 @@ services:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     container_name: ${APP_NAME}_queue
     restart: unless-stopped
+    pull_policy: always
     env_file:
       - .env
     depends_on:
@@ -55,6 +58,7 @@ services:
       context: ./
       dockerfile: docker/nginx/Dockerfile
     image: registry.malf88.com.br:5000/api-maliin_nginx:latest
+    pull_policy: always
     container_name: ${APP_NAME}_nginx
     restart: unless-stopped
     environment:

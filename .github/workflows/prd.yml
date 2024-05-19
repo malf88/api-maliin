@@ -147,6 +147,7 @@ jobs:
             cd ${{secrets.APP_DIR}}
             docker-compose -f docker-compose-prd.yml pull
             docker-compose -f docker-compose-prd.yml build
+            docker-compose -f docker-compose-prd.yml push
 
       - name: Deploy Laravel app
         uses: appleboy/ssh-action@v0.1.2
@@ -157,7 +158,6 @@ jobs:
           command_timeout: 200m
           script: |
             cd ${{secrets.APP_DIR}}
-            docker-compose -f docker-compose-prd.yml push
             docker service update api-maliin_app --force
             docker service update api-maliin_queue --force
             docker service update api-maliin_scheduler --force

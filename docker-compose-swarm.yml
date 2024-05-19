@@ -1,0 +1,86 @@
+version: '3.9'
+services:
+  app:
+    image: registry.malf88.com.br:5000/api-maliin_app:latest
+    restart: unless-stopped
+    pull_policy: always
+    env_file:
+      - .env
+    environment:
+      - CONTAINER_ROLE=app
+      - USERID=${USERID:-1001}
+    healthcheck:
+      test: php -i || exit 1
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    #volumes:
+    #    - ./:/var/www/
+    networks:
+      - traefik-public
+  scheduler:
+    image: registry.malf88.com.br:5000/api-maliin_app:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - app
+    environment:
+      - CONTAINER_ROLE=scheduler
+      - USERID=${USERID:-1001}
+    networks:
+      - traefik-public
+  queue:
+    image: registry.malf88.com.br:5000/api-maliin_app:latest
+    restart: unless-stopped
+    pull_policy: always
+    env_file:
+      - .env
+    depends_on:
+      - app
+    environment:
+      - CONTAINER_ROLE=queue
+      - USERID=${USERID:-1001}
+    networks:
+      - traefik-public
+  nginx:
+    image: registry.malf88.com.br:5000/api-maliin_nginx:latest
+    restart: unless-stopped
+    environment:
+      - APP_NAME=${APP_NAME}
+    env_file:
+      - .env
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.port=80
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.${APP_NAME}-http.rule=Host(`${APP_URL:-localhost}`)
+        - traefik.http.routers.${APP_NAME}-http.entrypoints=http
+        - traefik.http.routers.${APP_NAME}-http.middlewares=https-redirect
+        - traefik.http.routers.${APP_NAME}-https.rule=Host(`${APP_URL:-localhost}`)
+        - traefik.http.routers.${APP_NAME}-https.entrypoints=https
+        - traefik.http.routers.${APP_NAME}-https.tls=true
+        - traefik.http.routers.${APP_NAME}-https.tls.certresolver=le
+        - traefik.http.services.${APP_NAME}.loadbalancer.server.port=80
+      replicas: ${NGINX_REPLICAS:-1}
+    depends_on:
+      - app
+    healthcheck:
+      test: nginx -t || exit 1
+      interval: 20s
+      retries: 10
+      start_period: 30s
+      timeout: 10s
+    ports:
+      - ${PORT}:80
+    networks:
+      - traefik-public
+networks:
+  traefik-public:
+    external: true
+volumes:
+  redisdata:
+    driver: local

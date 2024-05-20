@@ -2,7 +2,6 @@ version: '3.9'
 services:
   app:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
-    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -20,7 +19,6 @@ services:
       - traefik-public
   scheduler:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
-    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -32,7 +30,6 @@ services:
       - traefik-public
   queue:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
-    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -44,7 +41,6 @@ services:
       - traefik-public
   nginx:
     image: registry.malf88.com.br:5000/api-maliin_nginx:latest
-    restart: unless-stopped
     environment:
       - APP_NAME=${APP_NAME}
     env_file:

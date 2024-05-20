@@ -145,7 +145,6 @@ jobs:
           command_timeout: 200m
           script: |
             cd ${{secrets.APP_DIR}}
-            docker-compose -f docker-compose-prd.yml pull
             docker-compose -f docker-compose-prd.yml build
             docker tag api-maliin_nginx:latest registry.malf88.com.br:5000/api-maliin_nginx:latest
             docker tag api-maliin_app:latest registry.malf88.com.br:5000/api-maliin_app:latest
@@ -160,5 +159,10 @@ jobs:
           command_timeout: 200m
           script: |
             cd ${{secrets.APP_DIR}}
+            docker service rm api-maliin_app api-maliin_nginx api-maliin_queue api-maliin_scheduler
             export $(cat .env) > /dev/null 2>&1; docker stack deploy --prune --resolve-image always --with-registry-auth -c docker-compose-swarm.yml api-maliin
+#            docker service update --force api-maliin_app
+#            docker service update --force api-maliin_nginx
+#            docker service update --force api-maliin_queue
+#            docker service update --force api-maliin_scheduler
             docker system prune -a --force

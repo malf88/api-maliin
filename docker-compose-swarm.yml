@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - app
+      - api_maliin_app
     environment:
       - CONTAINER_ROLE=scheduler
       - USERID=${USERID:-1001}
@@ -33,7 +33,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - app
+      - api_maliin_app
     environment:
       - CONTAINER_ROLE=queue
       - USERID=${USERID:-1001}
@@ -61,7 +61,7 @@ services:
         - traefik.http.services.${APP_NAME}.loadbalancer.server.port=80
       replicas: ${NGINX_REPLICAS:-1}
     depends_on:
-      - app
+      - api_maliin_app
     healthcheck:
       test: nginx -t || exit 1
       interval: 20s

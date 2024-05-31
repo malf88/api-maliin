@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  app:
+  api_maliin_app:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     env_file:
       - .env
@@ -17,7 +17,7 @@ services:
     #    - ./:/var/www/
     networks:
       - traefik-public
-  scheduler:
+  api_maliin_scheduler:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     env_file:
       - .env
@@ -28,7 +28,7 @@ services:
       - USERID=${USERID:-1001}
     networks:
       - traefik-public
-  queue:
+  api_maliin_queue:
     image: registry.malf88.com.br:5000/api-maliin_app:latest
     env_file:
       - .env
@@ -39,7 +39,7 @@ services:
       - USERID=${USERID:-1001}
     networks:
       - traefik-public
-  nginx:
+  api_maliin_nginx:
     image: registry.malf88.com.br:5000/api-maliin_nginx:latest
     environment:
       - APP_NAME=${APP_NAME}

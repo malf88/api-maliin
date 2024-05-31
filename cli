@@ -88,7 +88,7 @@ swarm_prod_cmd(){
     docker tag api-maliin_app:latest "$REGISTRY_URL"/api-maliin_app:latest
     docker push "$REGISTRY_URL"/api-maliin_nginx:latest
     docker push "$REGISTRY_URL"/api-maliin_app:latest
-    docker service rm $1_api_maliin_app $1_api_maliin_qakit_nginx $1_api_maliin_queue $1_api_maliin_scheduler
+    docker service rm $1_api_maliin_app $1_api_maliin_nginx $1_api_maliin_queue $1_api_maliin_scheduler
     export $(cat .env) > /dev/null 2>&1; docker stack deploy --prune --resolve-image always --with-registry-auth -c docker-compose-swarm.yml $1
 }
 case "$1" in

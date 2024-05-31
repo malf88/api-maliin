@@ -1,6 +1,6 @@
 version: '3.5'
 services:
-    app:
+    api_maliin_app:
         image: ${APP_NAME}_app
         container_name: ${APP_NAME}_app
         restart: unless-stopped
@@ -24,7 +24,7 @@ services:
             - ./:/var/www/
         networks:
             - traefik-public
-    scheduler:
+    api_maliin_scheduler:
         image: ${APP_NAME}_app
         container_name: ${APP_NAME}_scheduler
         restart: unless-stopped
@@ -37,7 +37,7 @@ services:
             - USERID=${USERID:-1001}
         networks:
             - traefik-public
-    queue:
+    api_maliin_queue:
         image: ${APP_NAME}_app
         container_name: ${APP_NAME}_queue
         restart: unless-stopped
@@ -52,7 +52,7 @@ services:
             - traefik-public
         volumes:
             - ./:/var/www/
-    nginx:
+    api_maliin_nginx:
         build:
             context: ./
             dockerfile: docker/nginx/Dockerfile

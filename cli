@@ -1,9 +1,9 @@
 #!/bin/bash
 
-docker_compose="docker-compose"
-node="docker-compose -f $(pwd)/docker/utils/docker-compose.yml"
-composer="docker-compose -f $(pwd)/docker/utils/docker-compose.yml"
-pgsql="docker-compose -f $(pwd)/docker/postgres/docker-compose.yml"
+docker_compose="docker compose"
+node="docker compose -f $(pwd)/docker/utils/docker-compose.yml"
+composer="docker compose -f $(pwd)/docker/utils/docker-compose.yml"
+pgsql="docker compose -f $(pwd)/docker/postgres/docker-compose.yml"
 
 # if [ "$1" = "teste" ]; then
 #     echo "teste";
@@ -16,7 +16,7 @@ php_cmd(){
 }
 
 artisan_cmd(){
-    $docker_compose run --rm app php "$@"
+    $docker_compose run --rm api_maliin_app php "$@"
 }
 
 pgsql_cmd_up(){
@@ -32,9 +32,9 @@ test_cmd(){
 }
 
 docker_compose_up(){
-    pgsql_cmd_down
+    #pgsql_cmd_down
     docker_compose_down
-    pgsql_cmd_up
+    #pgsql_cmd_up
     sleep 5
     $docker_compose up $1
 }
